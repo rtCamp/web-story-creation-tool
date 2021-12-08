@@ -17,6 +17,7 @@
  * External dependencies
  */
 import { Tooltip, useStory } from '@web-stories-wp/story-editor';
+import { useCallback } from '@web-stories-wp/react';
 import { __ } from '@web-stories-wp/i18n';
 import {
   Button,
@@ -32,36 +33,26 @@ import { escapeHTML } from '../../../utils';
 
 const PREVIEW_TARGET = 'story-preview';
 
-function PreviewButton() {
-  const { isSaving, saveStory, previewLink } = useStory(
+function Preview() {
+  const { saveStory } = useStory(
     ({
       state: {
         meta: { isSaving },
-        story: { previewLink },
+        story: { status },
       },
-      actions: { saveStory },
-    }) => ({
-      isSaving,
-      saveStory,
-      previewLink,
-    })
+      actions: { autoSave, saveStory },
+    }) => ({ isSaving, status, autoSave, saveStory })
   );
 
   /**
-   * Applies any local transforms (e.g. AMP development mode) to the stored preview link.
-   *
-   * @param {string} urlString The original preview link.
-   * @return {string} The decorated preview link.
+   * Open a preview of the story in current window.
    */
-  const decoratePreviewLink = (urlString) => {
-    const url = new URL(urlString);
-    // #development=1 triggers amp-story's multi-aspect preview mode.
-    url.hash = '#development=1';
-    return url.toString();
-  };
-  const openPreviewLink = async () => {
+  const openPreviewLink = useCallback(async () => {
     await saveStory();
+    const playgroundPreviewLink = window.origin + '/preview.html';
 
+    // Start a about:blank popup with waiting message until we complete
+    // the saving operation. That way we will not bust the popup timeout.
     let popup;
     try {
       popup = global.open('about:blank', PREVIEW_TARGET);
@@ -77,32 +68,34 @@ function PreviewButton() {
         popup.document.write(
           escapeHTML(__('Please wait. Generating the preview…', 'web-stories'))
         );
-
-        const decoratedPreviewLink = decoratePreviewLink(previewLink);
+        const decoratedPreviewLink = playgroundPreviewLink;
         // Force redirect to the preview URL after 5 seconds. The saving tab
         // might get frozen by the browser.
         popup.document.write(
           `<script>
-            setTimeout(function() {
-              location.replace(${JSON.stringify(decoratedPreviewLink)});
-            }, 5000);
-          </script>`
+             setTimeout(function() {
+               location.replace(${JSON.stringify(decoratedPreviewLink)});
+             }, 5000);
+           </script>`
         );
       }
     } catch (e) {
       // Ignore errors. Anything can happen with a popup. The errors
       // will be resolved after the story is saved.
     }
-  };
 
+    // Save story directly if draft, otherwise, use auto-save.
+  }, [saveStory]);
+
+  const label = __('Preview', 'web-stories');
   return (
-    <Tooltip title={'Preview'} hasTail>
+    <Tooltip title={label} hasTail>
       <Button
         variant={BUTTON_VARIANTS.SQUARE}
         type={BUTTON_TYPES.QUATERNARY}
         size={BUTTON_SIZES.SMALL}
         onClick={openPreviewLink}
-        disabled={isSaving}
+        aria-label={label}
       >
         <Icons.Eye />
       </Button>
@@ -110,4 +103,4 @@ function PreviewButton() {
   );
 }
 
-export { PreviewButton };
+export { Preview };

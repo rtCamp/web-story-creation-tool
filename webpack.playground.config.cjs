@@ -21,6 +21,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
+const CopyPlugin = require('copy-webpack-plugin');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -138,6 +139,14 @@ module.exports = {
     }),
     new WebpackBar({
       name: 'Playground',
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: './packages/playground-story-editor/public/preview.html',
+          to: '',
+        },
+      ],
     }),
   ],
   watch: mode === 'development',
