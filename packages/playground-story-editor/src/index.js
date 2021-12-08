@@ -24,6 +24,7 @@ import styled from 'styled-components';
 /**
  * Internal dependencies
  */
+import { StoryDownloadProvider } from './app/storyDownload';
 import Layout from './components/layout';
 
 const AppContainer = styled.div`
@@ -103,9 +104,11 @@ const config = {
 
 const Playground = () => (
   <AppContainer>
-    <StoryEditor config={config} initialEdits={{ story }}>
-      <Layout />
-    </StoryEditor>
+    <StoryDownloadProvider>
+      <StoryEditor config={config} initialEdits={{ story }}>
+        <Layout />
+      </StoryEditor>
+    </StoryDownloadProvider>
   </AppContainer>
 );
 

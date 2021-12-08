@@ -15,9 +15,13 @@
     "@web-stories-wp/story-editor": "*",
     "@web-stories-wp/design-system": "*",
     "@web-stories-wp/i18n": "*",
-    "styled-components": "^5.3.3"
+    "@web-stories-wp/migration": "*",
+    "@web-stories-wp/units": "*",
+    "styled-components": "^5.3.3",
+    "jszip": "^3.7.1",
+    "file-saver": "^2.0.5"
   },
   "devDependencies": {
-   
+    "prop-types": "^15.7.2"
   }
 }

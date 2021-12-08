@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const buffer = document.createElement('div');
 
-export function escapeHTML(string) {
-  // @todo: implement a cheaper way to escape HTML characters.
-  buffer.textContent = string;
-  return buffer.innerHTML;
-}
+/**
+ * External dependencies
+ */
+import { createContext } from '@web-stories-wp/react';
 
-export function isBlobURL(url) {
-  return url.startsWith('blob');
-}
+export default createContext({ state: {}, actions: {} });

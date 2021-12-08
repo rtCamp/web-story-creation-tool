@@ -103,4 +103,4 @@ function Preview() {
   );
 }
 
-export { Preview };
+export default Preview;

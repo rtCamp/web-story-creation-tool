@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const buffer = document.createElement('div');
 
-export function escapeHTML(string) {
-  // @todo: implement a cheaper way to escape HTML characters.
-  buffer.textContent = string;
-  return buffer.innerHTML;
+/**
+ * External dependencies
+ */
+import { identity, useContextSelector } from '@web-stories-wp/react';
+/**
+ * Internal dependencies
+ */
+import Context from './context';
+
+function useAdStory(selector) {
+  return useContextSelector(Context, selector ?? identity);
 }
 
-export function isBlobURL(url) {
-  return url.startsWith('blob');
-}
+export default useAdStory;
