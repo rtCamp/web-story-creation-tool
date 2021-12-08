@@ -1,0 +1,107 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * External dependencies
+ */
+import { render } from '@web-stories-wp/react';
+import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
+import styled from 'styled-components';
+
+const AppContainer = styled.div`
+  height: 100vh;
+`;
+
+// @todo None of these should be required by default, https://github.com/google/web-stories-wp/pull/9569#discussion_r738458801
+const apiCallbacksNames = [
+  'getAuthors',
+  'getStoryById',
+  'getDemoStoryById',
+  'saveStoryById',
+  'autoSaveById',
+  'getMedia',
+  'getMediaById',
+  'getMutedMediaById',
+  'getOptimizedMediaById',
+  'uploadMedia',
+  'updateMedia',
+  'deleteMedia',
+  'getLinkMetadata',
+  'getCustomPageTemplates',
+  'addPageTemplate',
+  'deletePageTemplate',
+  'getCurrentUser',
+  'updateCurrentUser',
+  'getHotlinkInfo',
+  'getProxyUrl',
+  'getPublisherLogos',
+  'addPublisherLogo',
+  'getTaxonomies',
+  'getTaxonomyTerm',
+  'createTaxonomyTerm',
+];
+
+// @todo Should still work with empty object.
+const story = {
+  title: { raw: '' },
+  excerpt: { raw: '' },
+  permalink_template: 'https://example.org/web-stories/%pagename%/',
+  style_presets: {
+    color: [],
+    textStyles: [],
+  },
+  date: '2021-10-26T12:38:38', // Publishing field breaks if date is not provided.
+};
+
+const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
+  let response;
+
+  switch (name) {
+    case 'getCurrentUser':
+      response = { id: 1 };
+      break;
+    case 'getPublisherLogos':
+      response = [{ url: '' }];
+      break;
+    default:
+      response = {};
+  }
+
+  if ('saveStoryById' === name) {
+    callbacks[name] = (_story) => {
+      window.localStorage.setItem('preview_markup', _story?.content);
+      return Promise.resolve(story);
+    };
+  } else {
+    callbacks[name] = () => Promise.resolve(response);
+  }
+
+  return callbacks;
+}, {});
+
+const config = {
+  apiCallbacks,
+};
+
+const Playground = () => (
+  <AppContainer>
+    <StoryEditor config={config} initialEdits={{ story }}>
+      <InterfaceSkeleton />
+    </StoryEditor>
+  </AppContainer>
+);
+
+render(<Playground />, document.getElementById('playground-root'));
