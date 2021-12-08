@@ -22,17 +22,20 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
 
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+const isProduction = process.env.NODE_ENV === 'production';
+const mode = isProduction ? 'production' : 'development';
+
 module.exports = {
-  mode: 'development',
+  mode,
   entry: './packages/playground-story-editor/src/index.js',
   devtool: 'source-map',
   module: {
     rules: [
-      {
+      !isProduction && {
         test: /\.js$/,
         use: ['source-map-loader'],
         enforce: 'pre',
-        exclude: /node_modules/,
       },
       {
         test: /\.js$/,
@@ -125,7 +128,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './build/playground'),
     filename: 'js/[name].js',
-    publicPath: './',
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -138,4 +140,5 @@ module.exports = {
       name: 'Playground',
     }),
   ],
+  watch: mode === 'development',
 };

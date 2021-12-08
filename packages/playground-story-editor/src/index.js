@@ -18,8 +18,13 @@
  * External dependencies
  */
 import { render } from '@web-stories-wp/react';
-import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
+import StoryEditor from '@web-stories-wp/story-editor';
 import styled from 'styled-components';
+
+/**
+ * Internal dependencies
+ */
+import Layout from './components/layout';
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -99,7 +104,7 @@ const config = {
 const Playground = () => (
   <AppContainer>
     <StoryEditor config={config} initialEdits={{ story }}>
-      <InterfaceSkeleton />
+      <Layout />
     </StoryEditor>
   </AppContainer>
 );
