@@ -19,6 +19,7 @@
  */
 import { render } from '@web-stories-wp/react';
 import StoryEditor from '@web-stories-wp/story-editor';
+import { DATA_VERSION } from '@web-stories-wp/migration';
 import styled from 'styled-components';
 
 /**
@@ -61,16 +62,21 @@ const apiCallbacksNames = [
 ];
 
 // @todo Should still work with empty object.
-const story = {
+const defaultStory = {
   title: { raw: '' },
   excerpt: { raw: '' },
   permalink_template: 'https://example.org/web-stories/%pagename%/',
   style_presets: {
-    color: [],
+    colors: [],
     textStyles: [],
   },
   date: '2021-10-26T12:38:38', // Publishing field breaks if date is not provided.
 };
+
+function getInitialStory() {
+  const savedStory = window.localStorage.getItem('saved_story');
+  return savedStory ? JSON.parse(savedStory) : defaultStory;
+}
 
 const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
   let response;
@@ -89,7 +95,16 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
   if ('saveStoryById' === name) {
     callbacks[name] = (_story) => {
       window.localStorage.setItem('preview_markup', _story?.content);
-      return Promise.resolve(story);
+      window.localStorage.setItem(
+        'saved_story',
+        JSON.stringify({
+          ...defaultStory,
+          story_data: { ..._story, version: DATA_VERSION },
+          title: { raw: _story.title ? _story.title : '' },
+          excerpt: { raw: _story.excerpt ? _story.excerpt : '' },
+        })
+      );
+      return Promise.resolve(_story);
     };
   } else {
     callbacks[name] = () => Promise.resolve(response);
@@ -105,7 +120,7 @@ const config = {
 const Playground = () => (
   <AppContainer>
     <StoryDownloadProvider>
-      <StoryEditor config={config} initialEdits={{ story }}>
+      <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
         <Layout />
       </StoryEditor>
     </StoryDownloadProvider>
