@@ -112,6 +112,7 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
 }, {});
 
 const config = {
+  showMediaLocal: false,
   apiCallbacks,
 };
 

@@ -44,7 +44,20 @@ const LIBRARY_TAB_IDS = new Set(
 );
 
 function LibraryProvider({ children }) {
-  const [tab, setTab] = useState(MEDIA.id);
+  const { showMedia3p, showMediaLocal } = useConfig();
+
+  let defaultTabId;
+  if (!showMedia3p && !showMediaLocal) {
+    defaultTabId = PAGE_TEMPLATES.id;
+  } else if (showMedia3p && !showMediaLocal) {
+    defaultTabId = MEDIA3P.id;
+  } else if (!showMedia3p && showMediaLocal) {
+    defaultTabId = MEDIA.id;
+  } else {
+    defaultTabId = MEDIA.id;
+  }
+
+  const [tab, setTab] = useState(defaultTabId);
   const [textSets, setTextSets] = useState({});
   const [areTextSetsLoading, setAreTextSetsLoading] = useState({});
   const [savedTemplates, setSavedTemplates] = useState(null);
@@ -58,7 +71,6 @@ function LibraryProvider({ children }) {
     useInsertTextSet(shouldUseSmartColor);
 
   const { showElementsTab } = useFeatures();
-  const { showMedia3p } = useConfig();
 
   const { highlightedTab } = useHighlights(({ tab: highlightedTab }) => ({
     highlightedTab,
@@ -96,14 +108,14 @@ function LibraryProvider({ children }) {
     // Order here is important, as it denotes the actual visual order of elements.
     () =>
       [
-        MEDIA,
+        showMediaLocal && MEDIA,
         showMedia3p && MEDIA3P,
         TEXT,
         SHAPES,
         showElementsTab && ELEMS,
         PAGE_TEMPLATES,
       ].filter(Boolean),
-    [showMedia3p, showElementsTab]
+    [showMedia3p, showElementsTab, showMediaLocal]
   );
 
   const state = useMemo(
