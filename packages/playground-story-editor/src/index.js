@@ -32,7 +32,6 @@ const AppContainer = styled.div`
   height: 100vh;
 `;
 
-// @todo None of these should be required by default, https://github.com/google/web-stories-wp/pull/9569#discussion_r738458801
 const apiCallbacksNames = [
   'getAuthors',
   'getStoryById',
@@ -61,7 +60,6 @@ const apiCallbacksNames = [
   'createTaxonomyTerm',
 ];
 
-// @todo Should still work with empty object.
 const defaultStory = {
   title: { raw: '' },
   excerpt: { raw: '' },
