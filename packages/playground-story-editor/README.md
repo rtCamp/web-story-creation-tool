@@ -1,3 +1,3 @@
-# WP Story Editor
+# Standalone Story Editor
 
-Web stories editor for WordPress
+Standalone/Playground story-editor that works without WordPress backend.
