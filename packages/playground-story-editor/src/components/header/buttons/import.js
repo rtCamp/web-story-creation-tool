@@ -16,8 +16,8 @@
 /**
  * External dependencies
  */
-import { Tooltip, useStory } from '@web-stories-wp/story-editor';
-import { useCallback } from '@web-stories-wp/react';
+import { Tooltip } from '@web-stories-wp/story-editor';
+import { useCallback, useEffect } from '@web-stories-wp/react';
 import { __ } from '@web-stories-wp/i18n';
 import {
   Button,
@@ -27,32 +27,33 @@ import {
   useSnackbar,
 } from '@web-stories-wp/design-system';
 
-function Save() {
-  const { showSnackbar } = useSnackbar();
-  const { saveStory } = useStory(
-    ({
-      state: {
-        meta: { isSaving },
-        story: { status },
-      },
-      actions: { autoSave, saveStory },
-    }) => ({ isSaving, status, autoSave, saveStory })
-  );
+/**
+ * Internal dependencies
+ */
+import useStoryImport from '../../../app/storyImport/useStoryImport';
 
-  const onClick = useCallback(async () => {
-    await saveStory();
+function Import() {
+  const { showSnackbar } = useSnackbar();
+  const { renderGhostInput, initImport } = useStoryImport();
+
+  const onClick = useCallback(() => {
+    initImport();
     showSnackbar({
-      message: 'Story Saved',
+      message: 'Story Imported',
       dismissable: true,
     });
-  }, [saveStory, showSnackbar]);
+  }, [showSnackbar, initImport]);
 
-  const label = __('Save', 'web-stories');
+  useEffect(() => {
+    renderGhostInput();
+  });
+
+  const label = __('Import', 'web-stories');
   return (
     <Tooltip title={label} hasTail>
       <Button
         variant={BUTTON_VARIANTS.RECTANGLE}
-        type={BUTTON_TYPES.PRIMARY}
+        type={BUTTON_TYPES.SECONDARY}
         size={BUTTON_SIZES.SMALL}
         onClick={onClick}
         aria-label={label}
@@ -63,4 +64,4 @@ function Save() {
   );
 }
 
-export default Save;
+export default Import;

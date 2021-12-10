@@ -26,6 +26,7 @@ import { CircularProgress, useStory } from '@web-stories-wp/story-editor';
 import Preview from './preview';
 import Download from './download';
 import Save from './save';
+import Import from './import';
 
 const ButtonList = styled.nav`
   display: flex;
@@ -72,14 +73,16 @@ function Buttons() {
   return (
     <ButtonList>
       <List>
-        <IconWithSpinner>
-          <Preview />
-          {isSaving && <Loading />}
-        </IconWithSpinner>
+        <Import />
         <Space />
         <Download />
         <Space />
         <Save />
+        <Space />
+        <IconWithSpinner>
+          <Preview />
+          {isSaving && <Loading />}
+        </IconWithSpinner>
       </List>
     </ButtonList>
   );
