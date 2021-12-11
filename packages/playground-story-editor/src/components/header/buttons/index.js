@@ -24,7 +24,7 @@ import { CircularProgress, useStory } from '@web-stories-wp/story-editor';
  * Internal dependencies
  */
 import Preview from './preview';
-import Download from './download';
+import Export from './export';
 import Save from './save';
 import Import from './import';
 
@@ -75,7 +75,7 @@ function Buttons() {
       <List>
         <Import />
         <Space />
-        <Download />
+        <Export />
         <Space />
         <Save />
         <Space />

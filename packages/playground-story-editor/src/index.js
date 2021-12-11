@@ -25,7 +25,7 @@ import styled from 'styled-components';
 /**
  * Internal dependencies
  */
-import { StoryDownloadProvider } from './app/storyDownload';
+import { StoryDownloadProvider } from './app/storyExport';
 import Layout from './components/layout';
 
 const AppContainer = styled.div`
