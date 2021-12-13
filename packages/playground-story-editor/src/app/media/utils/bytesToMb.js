@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * External dependencies
- */
-import { identity, useContextSelector } from '@web-stories-wp/react';
-/**
- * Internal dependencies
- */
-import Context from './context';
-
-function useMedia(selector) {
-  return useContextSelector(Context, selector ?? identity);
+function bytesToMB(bytes) {
+  return (bytes / Math.pow(1024, 2)).toFixed(2).replace(/\.00$/, '');
 }
 
-export default useMedia;
+export default bytesToMB;

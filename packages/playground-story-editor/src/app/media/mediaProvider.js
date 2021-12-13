@@ -19,13 +19,45 @@
  */
 import PropTypes from 'prop-types';
 
+import { useState, useEffect, useCallback } from '@web-stories-wp/react';
+
 /**
  * Internal dependencies
  */
 import MediaContext from './context';
+import { getDummyMedia } from './utils';
 
 function MediaProvider({ children }) {
-  return <MediaContext.Provider value={{}}>{children}</MediaContext.Provider>;
+  const [media, _updateMedia] = useState([]);
+
+  const loadMockedFiles = useCallback(() => {
+    _updateMedia(getDummyMedia());
+  }, []);
+
+  useEffect(() => {
+    loadMockedFiles();
+  }, [loadMockedFiles]);
+
+  const getMedia = () => {
+    return Promise.resolve({
+      data: media,
+      headers: {
+        totalItems: media.length,
+        totalPages: 1,
+      },
+    });
+  };
+  const value = {
+    actions: {
+      getMedia,
+    },
+    state: {
+      media,
+    },
+  };
+  return (
+    <MediaContext.Provider value={value}>{children}</MediaContext.Provider>
+  );
 }
 
 MediaProvider.propTypes = {

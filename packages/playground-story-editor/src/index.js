@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { render } from '@web-stories-wp/react';
+import { render, useMemo } from '@web-stories-wp/react';
 import StoryEditor from '@web-stories-wp/story-editor';
 import { DATA_VERSION } from '@web-stories-wp/migration';
 import styled from 'styled-components';
@@ -26,6 +26,7 @@ import styled from 'styled-components';
  * Internal dependencies
  */
 import { StoryDownloadProvider } from './app/storyExport';
+import { MediaProvider, useMedia } from './app/media';
 import Layout from './components/layout';
 
 const AppContainer = styled.div`
@@ -111,19 +112,38 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
   return callbacks;
 }, {});
 
-const config = {
-  showMediaLocal: false,
-  apiCallbacks,
+const CoreEditor = () => {
+  const { getMedia } = useMedia(({ actions: { getMedia } }) => {
+    return {
+      getMedia,
+    };
+  });
+  const config = useMemo(() => {
+    return {
+      showMediaLocal: true,
+      apiCallbacks: {
+        ...apiCallbacks,
+        getMedia,
+      },
+    };
+  }, [getMedia]);
+  return (
+    <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
+      <Layout />
+    </StoryEditor>
+  );
 };
 
-const Playground = () => (
-  <AppContainer>
-    <StoryDownloadProvider>
-      <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
-        <Layout />
-      </StoryEditor>
-    </StoryDownloadProvider>
-  </AppContainer>
-);
+const Playground = () => {
+  return (
+    <AppContainer>
+      <MediaProvider>
+        <StoryDownloadProvider>
+          <CoreEditor />
+        </StoryDownloadProvider>
+      </MediaProvider>
+    </AppContainer>
+  );
+};
 
 render(<Playground />, document.getElementById('playground-root'));

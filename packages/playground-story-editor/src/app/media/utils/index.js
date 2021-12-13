@@ -14,17 +14,5 @@
  * limitations under the License.
  */
 
-/**
- * External dependencies
- */
-import { identity, useContextSelector } from '@web-stories-wp/react';
-/**
- * Internal dependencies
- */
-import Context from './context';
-
-function useMedia(selector) {
-  return useContextSelector(Context, selector ?? identity);
-}
-
-export default useMedia;
+export { default as bytesToMB } from './bytesToMb';
+export { getDummyMedia } from './getDummyMedia';
