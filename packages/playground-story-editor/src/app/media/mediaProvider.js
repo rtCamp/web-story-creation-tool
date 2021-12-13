@@ -19,7 +19,14 @@
  */
 import PropTypes from 'prop-types';
 
-import { useState, useEffect, useCallback } from '@web-stories-wp/react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from '@web-stories-wp/react';
+
+import { useConfig } from '@web-stories-wp/story-editor';
 
 /**
  * Internal dependencies
@@ -38,6 +45,11 @@ function MediaProvider({ children }) {
     loadMockedFiles();
   }, [loadMockedFiles]);
 
+  const handleFileInput = useCallback((event) => {
+    console.log('onChange');
+    console.log(event.target.files);
+  }, []);
+
   const getMedia = () => {
     return Promise.resolve({
       data: media,
@@ -47,10 +59,17 @@ function MediaProvider({ children }) {
       },
     });
   };
+  const updateMedia = () => {
+    return Promise.resolve(getDummyMedia());
+  };
+
   const value = {
     actions: {
       getMedia,
+      updateMedia,
+      handleFileInput,
     },
+
     state: {
       media,
     },

@@ -30,6 +30,7 @@ import { MediaProvider, useMedia } from './app/media';
 import registerServiceWorker from './serviceWorkerRegistration';
 import Layout from './components/layout';
 import { defaultStory } from './consts';
+import MediaUpload from './components/MediaUpload';
 import '../public/main.css';
 
 const AppContainer = styled.div`
@@ -105,20 +106,28 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
 }, {});
 
 const CoreEditor = () => {
-  const { getMedia } = useMedia(({ actions: { getMedia } }) => {
-    return {
-      getMedia,
-    };
-  });
+  const { getMedia, updateMedia } = useMedia(
+    ({ actions: { getMedia, updateMedia } }) => {
+      return {
+        getMedia,
+        updateMedia,
+      };
+    }
+  );
   const config = useMemo(() => {
     return {
       showMediaLocal: true,
+      capabilities: {
+        hasUploadMediaAction: true,
+      },
       apiCallbacks: {
         ...apiCallbacks,
         getMedia,
+        updateMedia,
       },
+      MediaUpload,
     };
-  }, [getMedia]);
+  }, [getMedia, updateMedia]);
   return (
     <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
       <Layout />

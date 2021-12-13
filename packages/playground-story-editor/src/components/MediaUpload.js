@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
-export { default as bytesToMB } from './bytesToMb';
-export { getDummyMedia } from './getDummyMedia';
-export { initIndexDb } from './initIndexDb';
+/**
+ * Internal dependencies
+ */
+import useMediaPicker from '../app/media/useMediaPicker';
+
+function MediaUpload({ render, ...rest }) {
+  const { openModal } = useMediaPicker(rest);
+
+  return render(openModal);
+}
+
+export default MediaUpload;
