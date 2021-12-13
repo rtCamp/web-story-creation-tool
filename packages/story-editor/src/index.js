@@ -24,6 +24,7 @@ export * from './components/transform';
 export * from './components/previewPage';
 export * from './app/config';
 export * from './app/story';
+export * from './app/history';
 export * from './app/api';
 export * from './components/header';
 export * from './components/panels/document';
@@ -35,6 +36,8 @@ export * from './components/checklistCard';
 export * from './app/currentUser';
 export * from './output';
 
+export { createPage } from './elements';
+export { default as getUniquePresets } from './utils/getUniquePresets';
 export { default as getStoryPropsToSave } from './app/story/utils/getStoryPropsToSave';
 export { default as useRefreshPostEditURL } from './utils/useRefreshPostEditURL';
 export { default as FontContext } from './app/font/context';

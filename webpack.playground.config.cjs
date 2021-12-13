@@ -163,11 +163,16 @@ module.exports = {
         },
       ],
     }),
+  ],
+  watch: mode === 'development',
+};
+
+if (isProduction) {
+  module.exports.plugins.push(
     new WorkboxWebpackPlugin.InjectManifest({
       swSrc: './packages/playground-story-editor/src/src-sw.js',
       swDest: 'sw.js',
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // main.js is 4.2 mb, and would be ignored.
-    }),
-  ],
-  watch: mode === 'development',
-};
+    })
+  );
+}

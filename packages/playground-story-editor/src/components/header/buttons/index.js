@@ -27,6 +27,7 @@ import Preview from './preview';
 import Export from './export';
 import Save from './save';
 import Import from './import';
+import Reset from './reset';
 
 const ButtonList = styled.nav`
   display: flex;
@@ -73,6 +74,8 @@ function Buttons() {
   return (
     <ButtonList>
       <List>
+        <Reset />
+        <Space />
         <Import />
         <Space />
         <Export />

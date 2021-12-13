@@ -29,6 +29,7 @@ import { StoryDownloadProvider } from './app/storyExport';
 import { MediaProvider, useMedia } from './app/media';
 import registerServiceWorker from './serviceWorkerRegistration';
 import Layout from './components/layout';
+import { defaultStory } from './consts';
 import '../public/main.css';
 
 const AppContainer = styled.div`
@@ -62,17 +63,6 @@ const apiCallbacksNames = [
   'getTaxonomyTerm',
   'createTaxonomyTerm',
 ];
-
-const defaultStory = {
-  title: { raw: '' },
-  excerpt: { raw: '' },
-  permalink_template: 'https://example.org/web-stories/%pagename%/',
-  style_presets: {
-    colors: [],
-    textStyles: [],
-  },
-  date: '2021-10-26T12:38:38', // Publishing field breaks if date is not provided.
-};
 
 function getInitialStory() {
   const savedStory = window.localStorage.getItem('saved_story');
