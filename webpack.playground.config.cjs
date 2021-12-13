@@ -22,6 +22,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const CopyPlugin = require('copy-webpack-plugin');
+const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -33,11 +34,13 @@ module.exports = {
   devtool: 'source-map',
   module: {
     rules: [
-      !isProduction && {
-        test: /\.js$/,
-        use: ['source-map-loader'],
-        enforce: 'pre',
-      },
+      !isProduction
+        ? {
+            test: /\.js$/,
+            use: ['source-map-loader'],
+            enforce: 'pre',
+          }
+        : {},
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -135,7 +138,7 @@ module.exports = {
       template: './packages/playground-story-editor/public/index.html',
     }),
     new MiniCssExtractPlugin({
-      filename: '../css/[name].css',
+      filename: './css/[name].css',
     }),
     new WebpackBar({
       name: 'Playground',
@@ -146,7 +149,20 @@ module.exports = {
           from: './packages/playground-story-editor/public/preview.html',
           to: '',
         },
+        {
+          from: './packages/playground-story-editor/public/favicon.ico',
+          to: '',
+        },
+        {
+          from: './packages/playground-story-editor/public/manifest.json',
+          to: '',
+        },
       ],
+    }),
+    new WorkboxWebpackPlugin.InjectManifest({
+      swSrc: './packages/playground-story-editor/src/src-sw.js',
+      swDest: 'sw.js',
+      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // main.js is 4.2 mb, and would be ignored.
     }),
   ],
   watch: mode === 'development',

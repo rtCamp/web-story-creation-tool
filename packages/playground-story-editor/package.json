@@ -21,7 +21,14 @@
     "styled-components": "^5.3.3",
     "jszip": "^3.7.1",
     "file-saver": "^2.0.5",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "workbox-cacheable-response": "^6.4.2",
+    "workbox-core": "^6.4.2",
+    "workbox-expiration": "^6.4.2",
+    "workbox-precaching": "^6.4.2",
+    "workbox-routing": "^6.4.2",
+    "workbox-strategies": "^6.4.2",
+    "workbox-window": "^6.4.2"
   },
   "devDependencies": {
     "prop-types": "^15.7.2"

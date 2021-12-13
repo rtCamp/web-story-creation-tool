@@ -27,7 +27,9 @@ import styled from 'styled-components';
  */
 import { StoryDownloadProvider } from './app/storyExport';
 import { MediaProvider, useMedia } from './app/media';
+import registerServiceWorker from './serviceWorkerRegistration';
 import Layout from './components/layout';
+import '../public/main.css';
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -146,4 +148,12 @@ const Playground = () => {
   );
 };
 
+const initEditor = () => {};
 render(<Playground />, document.getElementById('playground-root'));
+
+if ('loading' === document.readyState) {
+  document.addEventListener('DOMContentLoaded', initEditor);
+  registerServiceWorker();
+} else {
+  initEditor();
+}
