@@ -157,6 +157,10 @@ module.exports = {
           from: './packages/playground-story-editor/public/manifest.json',
           to: '',
         },
+        {
+          from: './packages/playground-story-editor/public/images',
+          to: './images',
+        },
       ],
     }),
     new WorkboxWebpackPlugin.InjectManifest({
