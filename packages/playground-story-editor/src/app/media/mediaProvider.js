@@ -19,12 +19,7 @@
  */
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from '@web-stories-wp/react';
+import { useState, useCallback, useMemo } from '@web-stories-wp/react';
 import { useSnackbar } from '@web-stories-wp/design-system';
 
 /**
@@ -32,20 +27,12 @@ import { useSnackbar } from '@web-stories-wp/design-system';
  */
 import { allowedMimeTypes, maxUpload } from '../../consts';
 import MediaContext from './context';
-import {
-  getDummyMedia,
-  getResourceFromLocalFile,
-  usePersistentAssets,
-} from './utils';
+import { getResourceFromLocalFile, usePersistentAssets } from './utils';
 
 function MediaProvider({ children }) {
   const [media, updateMedia] = useState([]);
 
-  const loadMockedFiles = useCallback(() => {
-    updateMedia(getDummyMedia());
-  }, []);
-
-  const { showSnackBar } = useSnackbar();
+  const { showSnackbar } = useSnackbar();
 
   const allowedMimeTypesArray = useMemo(() => {
     return [...allowedMimeTypes.image, ...allowedMimeTypes.video];
@@ -53,7 +40,7 @@ function MediaProvider({ children }) {
 
   const addLocalFiles = useCallback(
     async (files) => {
-      const mediaItems = [...media];
+      const mediaItems = [];
 
       const isValidFile = (file) => {
         if (!allowedMimeTypesArray.includes(file.type)) {
@@ -78,26 +65,18 @@ function MediaProvider({ children }) {
             mediaData.modifiedAt = new Date().getTime();
             mediaItems.push(mediaData);
           } catch (e) {
-            showSnackBar({
+            showSnackbar({
               message: e.message,
             });
           }
         })
       );
-
-      updateMedia(mediaItems);
-      return {
-        data: mediaItems,
-        headers: {
-          totalItems: mediaItems.length,
-          totalPages: 1,
-        },
-      };
+      updateMedia((prevMedia) => [...prevMedia, ...mediaItems]);
     },
-    [allowedMimeTypesArray, media, updateMedia, showSnackBar]
+    [allowedMimeTypesArray, updateMedia, showSnackbar]
   );
 
-  const getMedia = () => {
+  const getMedia = useCallback(() => {
     return Promise.resolve({
       data: media,
       headers: {
@@ -105,7 +84,14 @@ function MediaProvider({ children }) {
         totalPages: 1,
       },
     });
-  };
+  }, [media]);
+
+  const updateMediaCallback = useCallback(
+    async (files) => {
+      await addLocalFiles(files);
+    },
+    [addLocalFiles]
+  );
 
   usePersistentAssets({
     addLocalFiles,
@@ -114,9 +100,8 @@ function MediaProvider({ children }) {
 
   const value = {
     actions: {
-      updateMedia,
       getMediaCallback: getMedia,
-      updateMediaCallback: addLocalFiles,
+      updateMediaCallback,
     },
 
     state: {
