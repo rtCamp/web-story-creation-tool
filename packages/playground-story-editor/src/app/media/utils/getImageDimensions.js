@@ -14,8 +14,22 @@
  * limitations under the License.
  */
 
-export { default as bytesToMB } from './bytesToMb';
-export { getDummyMedia } from './getDummyMedia';
-export { initIndexDb } from './initIndexDb';
-export { default as getResourceFromLocalFile } from './getResourceFromLocalFile';
-export { default as usePersistentAssets } from './usePersistentAssets';
+/**
+ * Internal dependencies
+ */
+import preloadImage from './preloadImage';
+
+/**
+ * Get image dimensions from an image.
+ *
+ * @param {string} src Image source.
+ * @return {Promise} Image dimensions object.
+ */
+const getImageDimensions = (src) => {
+  return preloadImage(src).then((img) => ({
+    width: img.naturalWidth,
+    height: img.naturalHeight,
+  }));
+};
+
+export default getImageDimensions;

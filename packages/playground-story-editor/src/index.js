@@ -25,13 +25,13 @@ import styled from 'styled-components';
 /**
  * Internal dependencies
  */
-import { StoryDownloadProvider } from './app/storyExport';
-import { MediaProvider, useMedia } from './app/media';
+
 import registerServiceWorker from './serviceWorkerRegistration';
 import Layout from './components/layout';
 import { defaultStory } from './consts';
 import MediaUpload from './components/MediaUpload';
 import '../public/main.css';
+import { MediaProvider, useMedia } from './app/media';
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -106,11 +106,11 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
 }, {});
 
 const CoreEditor = () => {
-  const { getMedia, updateMedia } = useMedia(
-    ({ actions: { getMedia, updateMedia } }) => {
+  const { updateMediaCallback, getMediaCallback } = useMedia(
+    ({ actions: { updateMediaCallback, getMediaCallback } }) => {
       return {
-        getMedia,
-        updateMedia,
+        updateMediaCallback,
+        getMediaCallback,
       };
     }
   );
@@ -122,12 +122,12 @@ const CoreEditor = () => {
       },
       apiCallbacks: {
         ...apiCallbacks,
-        getMedia,
-        updateMedia,
+        getMedia: getMediaCallback,
+        updateMedia: updateMediaCallback,
       },
       MediaUpload,
     };
-  }, [getMedia, updateMedia]);
+  }, [updateMediaCallback, getMediaCallback]);
   return (
     <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
       <Layout />
@@ -139,9 +139,7 @@ const Playground = () => {
   return (
     <AppContainer>
       <MediaProvider>
-        <StoryDownloadProvider>
-          <CoreEditor />
-        </StoryDownloadProvider>
+        <CoreEditor />
       </MediaProvider>
     </AppContainer>
   );

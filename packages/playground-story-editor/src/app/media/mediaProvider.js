@@ -18,37 +18,84 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-
+import { v4 as uuidv4 } from 'uuid';
 import {
   useState,
   useEffect,
   useCallback,
   useMemo,
 } from '@web-stories-wp/react';
-
-import { useConfig } from '@web-stories-wp/story-editor';
+import { useSnackbar } from '@web-stories-wp/design-system';
 
 /**
  * Internal dependencies
  */
+import { allowedMimeTypes, maxUpload } from '../../consts';
 import MediaContext from './context';
-import { getDummyMedia } from './utils';
+import {
+  getDummyMedia,
+  getResourceFromLocalFile,
+  usePersistentAssets,
+} from './utils';
 
 function MediaProvider({ children }) {
-  const [media, _updateMedia] = useState([]);
+  const [media, updateMedia] = useState([]);
 
   const loadMockedFiles = useCallback(() => {
-    _updateMedia(getDummyMedia());
+    updateMedia(getDummyMedia());
   }, []);
 
-  useEffect(() => {
-    loadMockedFiles();
-  }, [loadMockedFiles]);
+  const { showSnackBar } = useSnackbar();
 
-  const handleFileInput = useCallback((event) => {
-    console.log('onChange');
-    console.log(event.target.files);
+  const allowedMimeTypesArray = useMemo(() => {
+    return [...allowedMimeTypes.image, ...allowedMimeTypes.video];
   }, []);
+
+  const addLocalFiles = useCallback(
+    async (files) => {
+      const mediaItems = [...media];
+
+      const isValidFile = (file) => {
+        if (!allowedMimeTypesArray.includes(file.type)) {
+          throw new Error({ message: 'Invalid file type' });
+        }
+
+        if (file.size > maxUpload) {
+          throw new Error({ message: 'Max Upload Limit Exceeded' });
+        }
+      };
+
+      await Promise.all(
+        [...files].map(async (file) => {
+          try {
+            isValidFile(file);
+            const { resource: mediaData } = await getResourceFromLocalFile(
+              file
+            );
+            mediaData.local = false; // this disables the UploadingIndicator
+            mediaData.id = uuidv4();
+            mediaData.file = file;
+            mediaData.modifiedAt = new Date().getTime();
+            mediaItems.push(mediaData);
+          } catch (e) {
+            showSnackBar({
+              message: e.message,
+            });
+          }
+        })
+      );
+
+      updateMedia(mediaItems);
+      return {
+        data: mediaItems,
+        headers: {
+          totalItems: mediaItems.length,
+          totalPages: 1,
+        },
+      };
+    },
+    [allowedMimeTypesArray, media, updateMedia, showSnackBar]
+  );
 
   const getMedia = () => {
     return Promise.resolve({
@@ -59,15 +106,17 @@ function MediaProvider({ children }) {
       },
     });
   };
-  const updateMedia = () => {
-    return Promise.resolve(getDummyMedia());
-  };
+
+  usePersistentAssets({
+    addLocalFiles,
+    media,
+  });
 
   const value = {
     actions: {
-      getMedia,
       updateMedia,
-      handleFileInput,
+      getMediaCallback: getMedia,
+      updateMediaCallback: addLocalFiles,
     },
 
     state: {

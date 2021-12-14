@@ -18,27 +18,27 @@
  * External dependencies
  */
 import { useEffect, useCallback, useMemo } from '@web-stories-wp/react';
-import { useConfig } from '@web-stories-wp/story-editor';
-
-/**
- * Internal dependencies
- */
-import useMedia from './useMedia';
+import { useConfig, useAPI } from '@web-stories-wp/story-editor';
 
 function useMediaPicker() {
   const { allowedMimeTypes } = useConfig();
-  const { handleFileInput } = useMedia(({ actions: { handleFileInput } }) => {
-    return {
-      handleFileInput,
-    };
-  });
 
+  const {
+    actions: { updateMedia },
+  } = useAPI();
   const allowedMimeTypesCommaSeperated = useMemo(() => {
     return [
       allowedMimeTypes.image.join(', '),
       allowedMimeTypes.video.join(', '),
     ].join(', ');
   }, [allowedMimeTypes]);
+
+  const handleFileInput = useCallback(
+    (event) => {
+      updateMedia(event.target.files);
+    },
+    [updateMedia]
+  );
 
   const insertHiddenFileInput = useCallback(() => {
     const hiddenInput = document.createElement('input');

@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-export { default as StoryDownloadProvider } from './storyExporProvider';
+export { default as StoryExportProvider } from './storyExporProvider';
 export { default as useExportStory } from './useExportStory';

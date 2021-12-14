@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Returns file basename without extension.
+ *
+ * @param {File} file File object.
+ * @param {string} file.name File name.
+ * @return {string} File name without extension.
+ */
+const getFileName = ({ name }) => name.split('.').slice(0, -1).join('.');
 
-export { default as bytesToMB } from './bytesToMb';
-export { getDummyMedia } from './getDummyMedia';
-export { initIndexDb } from './initIndexDb';
-export { default as getResourceFromLocalFile } from './getResourceFromLocalFile';
-export { default as usePersistentAssets } from './usePersistentAssets';
+export default getFileName;

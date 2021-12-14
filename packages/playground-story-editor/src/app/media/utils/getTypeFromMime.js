@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-export { default as bytesToMB } from './bytesToMb';
-export { getDummyMedia } from './getDummyMedia';
-export { initIndexDb } from './initIndexDb';
-export { default as getResourceFromLocalFile } from './getResourceFromLocalFile';
-export { default as usePersistentAssets } from './usePersistentAssets';
+/**
+ * Infer element type from mime type of its resource
+ *
+ * @param {string|null} mimeType Mime type.
+ * @return {string|null} Element type.
+ */
+const getTypeFromMime = (mimeType) => {
+  return mimeType?.split('/')[0] || null;
+};
+
+export default getTypeFromMime;

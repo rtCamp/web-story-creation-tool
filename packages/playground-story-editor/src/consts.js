@@ -23,3 +23,17 @@ export const defaultStory = {
   },
   date: '2021-10-26T12:38:38', // Publishing field breaks if date is not provided.
 };
+
+export const maxUpload = 314572800;
+
+export const allowedMimeTypes = {
+  image: [
+    'image/webp',
+    'image/png',
+    'image/jpeg',
+    'image/gif',
+    'image/svg+xml',
+  ],
+  audio: [],
+  video: ['video/mp4', 'video/webm'],
+};

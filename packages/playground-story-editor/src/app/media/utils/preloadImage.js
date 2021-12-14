@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,24 @@
  */
 
 /**
- * External dependencies
+ * Preload image using a promise.
+ *
+ * @param {string} src Image source.
+ * @param {string} [srcset] Image source set.
+ * @return {Promise} Image object.
  */
-import { InterfaceSkeleton } from '@web-stories-wp/story-editor';
+const preloadImage = (src, srcset = undefined) => {
+  return new Promise((resolve, reject) => {
+    const image = new window.Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.decoding = 'async';
+    image.crossOrigin = 'anonymous';
+    if (srcset) {
+      image.srcset = srcset;
+    }
+    image.src = src;
+  });
+};
 
-/**
- * Internal dependencies
- */
-import { Header } from '../header';
-import { StoryExportProvider } from '../../app/storyExport';
-
-export default function Layout() {
-  return (
-    <StoryExportProvider>
-      <InterfaceSkeleton header={<Header />} />
-    </StoryExportProvider>
-  );
-}
+export default preloadImage;
