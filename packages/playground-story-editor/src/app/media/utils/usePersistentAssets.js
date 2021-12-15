@@ -45,7 +45,6 @@ function usePersistentAssets() {
 
   const updateResourcesFromStoredFiles = useCallback(
     (files) => {
-      console.log('pages', pages);
       const elementsList = [];
       pages.forEach((page) => {
         page.elements.forEach((element) => {
@@ -105,7 +104,6 @@ function usePersistentAssets() {
    * Restore media and component mount.
    */
   useEffect(() => {
-    console.log(isUpdated, pages.length);
     if (isUpdated && pages.length > 0) {
       initIndexDb(null, 'get', async (files) => {
         const fileItems = files.map((item) => item.file);
