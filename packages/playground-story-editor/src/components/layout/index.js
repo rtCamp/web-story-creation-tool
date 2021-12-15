@@ -24,8 +24,10 @@ import { InterfaceSkeleton } from '@web-stories-wp/story-editor';
  */
 import { Header } from '../header';
 import { StoryExportProvider } from '../../app/storyExport';
+import { usePersistentAssets } from '../../app/media/utils';
 
 export default function Layout() {
+  usePersistentAssets();
   return (
     <StoryExportProvider>
       <InterfaceSkeleton header={<Header />} />

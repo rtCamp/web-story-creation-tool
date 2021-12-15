@@ -27,10 +27,11 @@ import { useSnackbar } from '@web-stories-wp/design-system';
  */
 import { allowedMimeTypes, maxUpload } from '../../consts';
 import MediaContext from './context';
-import { getResourceFromLocalFile, usePersistentAssets } from './utils';
+import { getResourceFromLocalFile } from './utils';
 
 function MediaProvider({ children }) {
   const [media, updateMedia] = useState([]);
+  const [isInitialMount, updateIsInitialMount] = useState(true);
 
   const { showSnackbar } = useSnackbar();
 
@@ -93,19 +94,17 @@ function MediaProvider({ children }) {
     [addLocalFiles]
   );
 
-  usePersistentAssets({
-    addLocalFiles,
-    media,
-  });
-
   const value = {
     actions: {
       getMediaCallback: getMedia,
       updateMediaCallback,
+      updateIsInitialMount,
+      addLocalFiles,
     },
 
     state: {
       media,
+      isInitialMount,
     },
   };
   return (

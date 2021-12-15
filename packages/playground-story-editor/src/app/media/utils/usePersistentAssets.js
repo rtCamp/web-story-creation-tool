@@ -16,28 +16,38 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useRef } from '@web-stories-wp/react';
+import { useCallback, useEffect } from '@web-stories-wp/react';
 import { useStory } from '@web-stories-wp/story-editor';
 
 /**
  * Internal dependencies
  */
-import { getDataFromSessionStorage } from './sessionStore';
+import useMedia from '../useMedia';
 import getResourceFromLocalFile from './getResourceFromLocalFile';
 import { initIndexDb } from './initIndexDb';
 
-function usePersistentAssets({ addLocalFiles, media }) {
-  const isInitialMount = useRef(true);
+// After usePersistedassets pulls files from indexDB into media provider, they will have new blob URLs.
+// Old source URLs in elements using 1P media and 1p media library pane needs to be updated updated.
 
-  const { updateElementsByResourceId } = useStory((state) => ({
+function usePersistentAssets() {
+  const {
+    state: { media, isInitialMount: isUpdated },
+    actions: { addLocalFiles, updateIsInitialMount: updateIsUpdated },
+  } = useMedia(({ state, actions }) => ({
+    state,
+    actions,
+  }));
+
+  const { updateElementsByResourceId, pages } = useStory((state) => ({
     updateElementsByResourceId: state.actions.updateElementsByResourceId,
+    pages: state.state.pages,
   }));
 
   const updateResourcesFromStoredFiles = useCallback(
     (files) => {
-      const sessionData = getDataFromSessionStorage();
+      console.log('pages', pages);
       const elementsList = [];
-      sessionData?.pages.forEach((page) => {
+      pages.forEach((page) => {
         page.elements.forEach((element) => {
           elementsList.push(element);
         });
@@ -65,14 +75,15 @@ function usePersistentAssets({ addLocalFiles, media }) {
         });
       });
     },
-    [updateElementsByResourceId]
+    [updateElementsByResourceId, pages]
   );
 
   /**
+   * Effect runs every time a 1P media is uploaded
    * Watch media state and store media files to index db.
    */
   useEffect(() => {
-    if (isInitialMount.current) {
+    if (isUpdated) {
       return;
     }
 
@@ -87,14 +98,15 @@ function usePersistentAssets({ addLocalFiles, media }) {
       initIndexDb(mediaItemsToSave, 'save');
     }
 
-    isInitialMount.current = false;
-  }, [media]);
+    updateIsUpdated(false);
+  }, [media, isUpdated, updateIsUpdated, pages]);
 
   /**
    * Restore media and component mount.
    */
   useEffect(() => {
-    if (isInitialMount.current) {
+    console.log(isUpdated, pages.length);
+    if (isUpdated && pages.length > 0) {
       initIndexDb(null, 'get', async (files) => {
         const fileItems = files.map((item) => item.file);
         await addLocalFiles(fileItems);
@@ -102,9 +114,15 @@ function usePersistentAssets({ addLocalFiles, media }) {
         updateResourcesFromStoredFiles(files);
       });
 
-      isInitialMount.current = false;
+      updateIsUpdated(false);
     }
-  }, [addLocalFiles, updateResourcesFromStoredFiles]);
+  }, [
+    addLocalFiles,
+    updateResourcesFromStoredFiles,
+    isUpdated,
+    updateIsUpdated,
+    pages,
+  ]);
 }
 
 export default usePersistentAssets;
