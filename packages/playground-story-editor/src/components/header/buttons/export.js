@@ -65,6 +65,7 @@ function Download() {
 
     const mediaTypes = ['image', 'video'];
     let mediaIndex = 1;
+    const updatedPages = [];
     await Promise.all(
       pages.map(async (page) => {
         const currentPage = page ? JSON.parse(JSON.stringify(page)) : {};
@@ -123,6 +124,7 @@ function Download() {
             zip.file(fileName, file);
           })
         );
+        updatedPages.push(currentPage);
       })
     );
 
@@ -134,7 +136,7 @@ function Download() {
         adOptions: story?.adOptions,
       },
       version: DATA_VERSION,
-      pages,
+      pages: updatedPages,
     };
 
     zip.file('config.json', JSON.stringify(storyData));
