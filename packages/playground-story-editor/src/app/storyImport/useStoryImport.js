@@ -21,14 +21,24 @@
 import { useSnackbar } from '@web-stories-wp/design-system';
 import { useStory } from '@web-stories-wp/story-editor';
 import JSZip from 'jszip';
+/**
+ * Internal dependencies
+ */
+import { getResourceFromLocalFile } from '../media/utils';
+import { useMedia } from '../media';
 
 const INPUT_ID = 'hidden-import-file-input';
 
 function useStoryImport() {
   const { showSnackbar } = useSnackbar();
   const {
-    internal: { restore },
+    internal: { restore, reducerState },
   } = useStory();
+
+  const {
+    state: { media },
+    actions: { updateMedia },
+  } = useMedia();
 
   const handleFile = async (event) => {
     const inputFiles = event.target.files;
@@ -49,7 +59,7 @@ function useStoryImport() {
     }
 
     const configData = await files['config.json'].async('text');
-
+    const mediaItems = [...media];
     let importedState = {};
 
     try {
@@ -59,7 +69,76 @@ function useStoryImport() {
         message: 'Invalid configuration in the uploaded zip',
       });
     }
-    restore(importedState);
+    const stateToRestore = {
+      ...importedState,
+      story: { ...reducerState.story, ...importedState.story },
+      capabilities: reducerState.capabilities,
+    };
+
+    const { elements } = stateToRestore.pages[0] || {};
+
+    await Promise.all(
+      Object.keys(files).map(async (fileName, index) => {
+        const currentFile = files[fileName];
+
+        const elementIndex = elements.findIndex(
+          (element) => element?.resource?.src === fileName
+        );
+
+        const { resource } = elementIndex >= 0 ? elements[elementIndex] : {};
+
+        if (['image', 'video'].includes(resource?.type)) {
+          const { mimeType } = resource;
+          const blob = await currentFile?.async('blob');
+          const mediaFile = new File([blob], currentFile.name, {
+            type: mimeType,
+          });
+
+          if (!mediaFile) {
+            return;
+          }
+
+          const { resource: mediaResource } = await getResourceFromLocalFile(
+            mediaFile
+          );
+          const mediaSrc = mediaResource.src;
+
+          const mediaItem = { ...mediaResource, ...resource };
+          mediaItem.id = index + 1;
+          mediaItem.src = mediaSrc;
+          mediaItem.local = false;
+          mediaItem.file = mediaFile;
+          if ('video' === resource.type) {
+            const videoFileName = fileName.split('.')[0];
+            const poster = `${videoFileName}-poster.jpeg`;
+
+            // Poster is not available in resource, so it will not be pushed to media.
+            if (files[poster]) {
+              const posterBlob = await files[poster]?.async('blob');
+              const posterMediaFile = new File([posterBlob], poster, {
+                type: 'image/jpeg',
+              });
+
+              if (posterMediaFile) {
+                const { resource: posterResource } =
+                  await getResourceFromLocalFile(posterMediaFile);
+
+                mediaItem.poster = posterResource.src;
+                mediaItem.local = false;
+                elements[elementIndex].resource.poster = posterResource.src;
+              }
+            }
+          }
+
+          elements[elementIndex].resource.src = mediaSrc;
+
+          mediaItems.push(mediaItem);
+        }
+      })
+    );
+
+    updateMedia(mediaItems);
+    restore(stateToRestore);
   };
 
   const renderGhostInput = () => {

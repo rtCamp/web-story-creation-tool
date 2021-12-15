@@ -100,6 +100,7 @@ function MediaProvider({ children }) {
       updateMediaCallback,
       updateIsInitialMount,
       addLocalFiles,
+      updateMedia,
     },
 
     state: {
