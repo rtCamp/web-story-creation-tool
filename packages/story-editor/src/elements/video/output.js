@@ -38,7 +38,7 @@ function VideoOutput({ element, box }) {
 
   const sourceProps = {
     type: mimeType,
-    src: !isBlobURL(src) ? src : '',
+    src: src,
   };
 
   const videoProps = {
