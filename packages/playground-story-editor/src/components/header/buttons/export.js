@@ -132,6 +132,7 @@ function Download() {
       current,
       selection,
       story: {
+        ...story,
         globalStoryStyles: story?.globalStoryStyles,
         adOptions: story?.adOptions,
       },
