@@ -106,11 +106,12 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
 }, {});
 
 const CoreEditor = () => {
-  const { updateMediaCallback, getMediaCallback } = useMedia(
-    ({ actions: { updateMediaCallback, getMediaCallback } }) => {
+  const { updateMediaCallback, getMediaCallback, deleteMedia } = useMedia(
+    ({ actions: { updateMediaCallback, getMediaCallback, deleteMedia } }) => {
       return {
         updateMediaCallback,
         getMediaCallback,
+        deleteMedia,
       };
     }
   );
@@ -125,10 +126,11 @@ const CoreEditor = () => {
         ...apiCallbacks,
         getMedia: getMediaCallback,
         updateMedia: updateMediaCallback,
+        deleteMedia,
       },
       MediaUpload,
     };
-  }, [updateMediaCallback, getMediaCallback]);
+  }, [updateMediaCallback, getMediaCallback, deleteMedia]);
   return (
     <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
       <Layout />

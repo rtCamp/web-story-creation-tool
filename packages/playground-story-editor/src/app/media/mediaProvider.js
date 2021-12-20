@@ -87,6 +87,16 @@ function MediaProvider({ children }) {
     });
   }, [media]);
 
+  const deleteMedia = useCallback(
+    (mediaId) => {
+      const filteredMedia = media.filter(
+        (mediaItem) => mediaItem.id !== mediaId
+      );
+      updateMedia(filteredMedia);
+    },
+    [media]
+  );
+
   const updateMediaCallback = useCallback(
     async (files) => {
       await addLocalFiles(files);
@@ -98,6 +108,7 @@ function MediaProvider({ children }) {
     actions: {
       getMediaCallback: getMedia,
       updateMediaCallback,
+      deleteMedia,
       updateIsInitialMount,
       addLocalFiles,
       updateMedia,
