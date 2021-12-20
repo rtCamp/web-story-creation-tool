@@ -116,6 +116,7 @@ const CoreEditor = () => {
   );
   const config = useMemo(() => {
     return {
+      autoSaveInterval: 5,
       showMediaLocal: true,
       capabilities: {
         hasUploadMediaAction: true,
