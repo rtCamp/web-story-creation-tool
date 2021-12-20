@@ -75,7 +75,10 @@ function useStoryImport() {
       capabilities: reducerState.capabilities,
     };
 
-    const { elements } = stateToRestore.pages[0] || {};
+    let elements = [];
+    stateToRestore.pages.forEach((page) => {
+      elements = [...elements, ...page.elements];
+    });
 
     await Promise.all(
       Object.keys(files).map(async (fileName, index) => {
