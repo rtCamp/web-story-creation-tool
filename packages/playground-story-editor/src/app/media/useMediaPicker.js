@@ -19,7 +19,6 @@
  */
 import { useEffect, useCallback, useMemo } from '@web-stories-wp/react';
 import { useConfig, useAPI } from '@web-stories-wp/story-editor';
-import { useLocalMedia } from '@web-stories-wp/story-editor/src/app';
 
 function useMediaPicker() {
   const { allowedMimeTypes } = useConfig();
@@ -28,9 +27,6 @@ function useMediaPicker() {
     actions: { updateMedia },
   } = useAPI();
 
-  const { resetFilters } = useLocalMedia(({ actions: { resetFilters } }) => {
-    return { resetFilters };
-  });
   const allowedMimeTypesCommaSeperated = useMemo(() => {
     return [
       allowedMimeTypes.image.join(', '),
@@ -40,10 +36,9 @@ function useMediaPicker() {
 
   const handleFileInput = useCallback(
     async (event) => {
-      resetFilters();
       await updateMedia(event.target.files);
     },
-    [updateMedia, resetFilters]
+    [updateMedia]
   );
 
   const insertHiddenFileInput = useCallback(() => {

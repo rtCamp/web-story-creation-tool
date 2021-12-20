@@ -54,7 +54,10 @@ function reducer(state = INITIAL_STATE, { type, payload }) {
       return {
         ...state,
         // If a pageToken is present, append the results.
-        media: pageToken ? [...state.media, ...media] : media,
+        media:
+          pageToken && pageToken > state.pageToken
+            ? [...state.media, ...media]
+            : media,
         nextPageToken,
         totalPages,
         hasMore: Boolean(nextPageToken),
