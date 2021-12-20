@@ -19,6 +19,7 @@
  */
 
 import { useSnackbar } from '@web-stories-wp/design-system';
+import { useMemo } from '@web-stories-wp/react';
 import { useStory } from '@web-stories-wp/story-editor';
 import JSZip from 'jszip';
 /**
@@ -39,6 +40,11 @@ function useStoryImport() {
     state: { media },
     actions: { updateMedia },
   } = useMedia();
+
+  const mediaTitles = useMemo(
+    () => media.map((mediaItem) => mediaItem.title),
+    [media]
+  );
 
   const handleFile = async (event) => {
     const inputFiles = event.target.files;
@@ -89,6 +95,10 @@ function useStoryImport() {
         );
 
         const { resource } = elementIndex >= 0 ? elements[elementIndex] : {};
+
+        if (mediaTitles.includes(resource?.title)) {
+          return;
+        }
 
         if (['image', 'video'].includes(resource?.type)) {
           const { mimeType } = resource;
