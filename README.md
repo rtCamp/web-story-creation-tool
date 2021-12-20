@@ -1,39 +1,50 @@
-# Web Stories for WordPress
+# Web Story creation Tool
 
-Visual storytelling for WordPress.
+This is a private fork of [web-stories-wp](https://github.com/google/web-stories-wp) implementing a pwa story-editor.
 
-[![Latest Release)](https://img.shields.io/github/v/release/google/web-stories-wp?include_prereleases)](https://github.com/google/web-stories-wp/releases)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/google/web-stories-wp)](https://github.com/google/web-stories-wp/pulse/monthly)
-[![Code Coverage](https://codecov.io/gh/google/web-stories-wp/branch/main/graph/badge.svg)](https://codecov.io/gh/google/web-stories-wp)
-[![License](https://img.shields.io/github/license/google/web-stories-wp)](https://github.com/google/web-stories-wp/blob/main/LICENSE)
+Using this editor, one can edit a story in the WYSIWYG editor used in [web stories plugin](https://wp.stories.google/) in a stand-alone form factor.
+Stories then can be exported as a zip which will have the following content
+- index.html  - [amp-story](https://amp.dev/about/stories/) output.
+- README.txt  - contains instruction for how to use this output into a webpage.
+- config.json - for internal use ( currently being used to import web stories made for this tool )
+- files for 1p media (if used).
 
-<details>
-<summary>
-Build Status
-</summary>
 
-[![Build](https://img.shields.io/github/workflow/status/google/web-stories-wp/Build%20plugin?label=Build)](https://github.com/google/web-stories-wp/actions?query=branch%3Amain)
-[![Integration Tests](https://img.shields.io/github/workflow/status/google/web-stories-wp/Integration%20Tests?label=integration%20tests)](https://github.com/google/web-stories-wp/actions?query=branch%3Amain)
-[![E2E Tests](https://img.shields.io/github/workflow/status/google/web-stories-wp/E2E%20Tests?label=e2e%20tests)](https://github.com/google/web-stories-wp/actions?query=branch%3Amain)
-[![JS Tests](https://img.shields.io/github/workflow/status/google/web-stories-wp/JavaScript%20Unit%20Tests?label=js%20tests)](https://github.com/google/web-stories-wp/actions?query=branch%3Amain)
-[![PHP Tests](https://img.shields.io/github/workflow/status/google/web-stories-wp/PHP%20Unit%20Tests?label=php%20tests)](https://github.com/google/web-stories-wp/actions?query=branch%3Amain)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/google/web-stories-wp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/google/web-stories-wp/alerts/)
+## TO-DO ( Prior to play test )
 
-</details>
+- [x] Groundwork ( mainly webpack ).
+- [x] Barebones editor similar to what is shown in story editor.
+- [x] Make preview work.
+- [x] Download as Zip ( export )
+   - [x] 3p media only 
+   - [x] 1p and 3p media
+- [x] Import a Zip
+   - [x] 3p media only 
+   - [x] 1p and 3p media
+- [x] Add persistence to story editor.
+- [x] PWA features
+  - [x] works offline
+  - [x] is installable 
+- [x] 1p media panel
+- [x] add persistence for 1p media ( elements in story and 1P media library panel )
 
-[Web Stories](https://amp.dev/about/stories/) are a free, open-web, visual storytelling format for the web, enabling you to easily create visual narratives with engaging animations and tappable interactions, and immerse your readers in great and fast-loading full-screen experiences.
+## Improvements / bug fixes needed
 
-With [Web Stories for WordPress](https://wp.stories.google/), we're bringing first-class Web Stories support to WordPress. Use Web Stories for WordPress by installing it directly from the WordPress admin dashboard or manually downloading the plugin from the [WordPress.org plugin directory](https://wordpress.org/plugins/web-stories/).
+### Must(s)
+- [ ] Increase autosave frequency or save after every update on canvas.
+- [ ] Preview should work when offline ( or add some notice that on preview page about preview not working offline )
+  - amp packages should also be cached and webpack should handle preview html.
+- [x] Problems while importing the story story title input is not visible as in it vanishes completely same goes for Reset Add title does appear back after page reload. ( reported by - [@amovar18](https://github.com/amovar18) )
 
-## Support
+### Should(s) 
+- [ ] Add delete media callback 
+  - Media in the library panel can't be permanently deleted currently.
+- [ ] Add update media callback.
+- [ ] When importing skip loading 1p media which is already in the library. 
+### Could(s)
+- [ ] Preview could be more like an example web-page that show story in that context.
+- [ ] Rather than building a PWA, build as an electron renderer bundle.
+  - This will, in theory, eliminate the need for hosting and cross-browser compatibility would be a non-issue since electron renders into chromium.
+ ### Maybe(s)
+- [ ] Store data ( media, story state, etc ) in file systems using the main thread of electron.
 
-If you find any issues, please reach out by visiting the [support forum](https://wordpress.org/support/plugin/web-stories/) to ask any questions or file feature requests.
-
-## Contributing
-
-We'd love to accept your patches and contributions to this project. There are just a few small guidelines you need to follow. Please check out our [Contributing documentation](./CONTRIBUTING.md) and the [Getting Started](./docs/getting-started.md) guide.
-
-## Product Spec
-
-* [Product spec](https://docs.google.com/document/d/18gjAOvAf2TCWpFy_9mr1V9a2VZrM4Ty7Mfry5zdL31k/view)
-* [Roadmap](https://docs.google.com/spreadsheets/d/10DZZrWJdkjcJXD1vL0VG0PqRhsIqaHkacF_ujOdEwJc/view)
