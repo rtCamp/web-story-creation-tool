@@ -110,6 +110,12 @@ registerRoute(
   })
 );
 
+//Pre cachce amp cdn resources needed for preview to make preview work offline.
+precacheAndRoute([
+  { url: 'https://cdn.ampproject.org/v0.js', revision: 1 },
+  { url: 'https://cdn.ampproject.org/v0/amp-story-1.0.js', revision: 1 },
+]);
+
 // @see https://developers.google.com/web/tools/workbox/guides/common-recipes#cache_css_and_javascript_files
 registerRoute(
   ({ request }) =>
