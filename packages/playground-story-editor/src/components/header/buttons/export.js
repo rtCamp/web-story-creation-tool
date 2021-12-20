@@ -77,7 +77,7 @@ function Download() {
               return;
             }
 
-            const { src, mimeType } = element.resource;
+            const { src, mimeType, poster } = element.resource;
             const extension = COMMON_MIME_TYPE_MAPPING[mimeType];
 
             if (!extension) {
@@ -116,12 +116,32 @@ function Download() {
             const fileName = `${mediaType}-${index}.${extension}`;
             const file = new File([respBlob], fileName);
 
+            let posterFileName;
+            let posterFile;
+            if (poster) {
+              const posterResp = await fetch(poster);
+              const posterRespBlob = await posterResp.blob();
+              posterFileName = `${mediaType}-${index}-poster.jpeg`;
+              posterFile = new File([posterRespBlob], posterFileName);
+            }
+
             element.resource.src = fileName;
+
+            if (posterFileName) {
+              element.resource.poster = posterFileName;
+            }
 
             const encodedUrl = src.replaceAll('&', '&amp;'); // To match url in the rendered markup.
             markup = markup.replaceAll(encodedUrl, fileName);
 
             zip.file(fileName, file);
+
+            if (posterFileName && posterFile) {
+              const encodedPosterUrl = poster.replaceAll('&', '&amp;'); // To match url in the rendered markup.
+              markup = markup.replaceAll(encodedPosterUrl, posterFileName);
+
+              zip.file(posterFileName, posterFile);
+            }
           })
         );
         updatedPages.push(currentPage);
@@ -132,7 +152,6 @@ function Download() {
       current,
       selection,
       story: {
-        ...story,
         globalStoryStyles: story?.globalStoryStyles,
         adOptions: story?.adOptions,
       },
