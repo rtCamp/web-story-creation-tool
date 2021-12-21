@@ -31,3 +31,11 @@ export const allowedMimeTypes = {
   audio: [],
   video: ['video/mp4', 'video/webm'],
 };
+
+export const COMMON_MIME_TYPE_MAPPING = {
+  'image/gif': 'gif',
+  'image/jpeg': 'jpeg',
+  'image/png': 'jpeg',
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+};
