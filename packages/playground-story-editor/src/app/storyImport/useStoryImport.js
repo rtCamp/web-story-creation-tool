@@ -19,7 +19,6 @@
  */
 
 import { useSnackbar } from '@web-stories-wp/design-system';
-import { useMemo } from '@web-stories-wp/react';
 import { useStory } from '@web-stories-wp/story-editor';
 import JSZip from 'jszip';
 /**
@@ -40,14 +39,10 @@ function useStoryImport() {
     internal: { restore, reducerState },
   } = useStory();
 
-  const {
-    state: { media },
-    actions: { updateMedia },
-  } = useMedia();
-
-  const mediaTitles = useMemo(
-    () => media.map((mediaItem) => mediaItem.title),
-    [media]
+  const { media, updateMedia } = useMedia(
+    ({ state: { media }, actions: { updateMedia } }) => {
+      return { media, updateMedia };
+    }
   );
 
   const handleFile = async (event) => {
@@ -99,6 +94,8 @@ function useStoryImport() {
     stateToRestore.pages.forEach((page) => {
       elements = [...elements, ...page.elements];
     });
+
+    const mediaTitles = media.map((mediaItem) => mediaItem.title);
 
     await Promise.all(
       Object.keys(files).map(async (fileName, index) => {
@@ -164,7 +161,13 @@ function useStoryImport() {
       })
     );
 
-    updateMedia(mediaItems);
+    updateMedia((prevMedia) => {
+      const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.alt);
+      const filteredMedia = mediaItems.filter(
+        (mediaItem) => !prevMediaTitles.includes(mediaItem.alt)
+      );
+      return [...prevMedia, ...filteredMedia];
+    });
     restore(stateToRestore);
 
     updateIsImporting(false);
