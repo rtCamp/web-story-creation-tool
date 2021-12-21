@@ -31,6 +31,7 @@ function getInitialStoryState() {
 
   // Set story-global variables.
   const story = {
+    title: '',
     storyId: 1,
     currentStoryStyles: {
       colors: storyData?.currentStoryStyles?.colors
