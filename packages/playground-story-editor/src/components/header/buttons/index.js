@@ -18,11 +18,12 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { CircularProgress, useStory } from '@web-stories-wp/story-editor';
+import { CircularProgress } from '@web-stories-wp/story-editor';
 
 /**
  * Internal dependencies
  */
+import { useStoryStatus } from '../../../app/storyStatus';
 import Preview from './preview';
 import Export from './export';
 import Save from './save';
@@ -63,13 +64,7 @@ function Loading() {
 }
 
 function Buttons() {
-  const { isSaving } = useStory(
-    ({
-      state: {
-        meta: { isSaving },
-      },
-    }) => ({ isSaving })
-  );
+  const { isSaving } = useStoryStatus(({ actions }) => ({ actions }));
 
   return (
     <ButtonList>

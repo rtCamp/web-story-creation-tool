@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,5 @@
  * limitations under the License.
  */
 
-/**
- * External dependencies
- */
-import { InterfaceSkeleton } from '@web-stories-wp/story-editor';
-
-/**
- * Internal dependencies
- */
-import { Header } from '../header';
-import { usePersistentAssets } from '../../app/media/utils';
-import { StoryStatusProvider } from '../../app/storyStatus';
-
-export default function Layout() {
-  usePersistentAssets();
-  return (
-    <StoryStatusProvider>
-      <InterfaceSkeleton header={<Header />} />
-    </StoryStatusProvider>
-  );
-}
+export { default as StoryStatusProvider } from './storyStatusProvider';
+export { default as useStoryStatus } from './useStoryStatus';

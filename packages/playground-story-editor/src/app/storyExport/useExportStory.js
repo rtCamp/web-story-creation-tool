@@ -29,6 +29,7 @@ import { PAGE_RATIO, PAGE_WIDTH } from '@web-stories-wp/units';
  */
 import { isBlobURL } from '../../utils';
 import { COMMON_MIME_TYPE_MAPPING } from '../../consts';
+import { useStoryStatus } from '../storyStatus';
 
 function useExportStory() {
   const {
@@ -36,6 +37,10 @@ function useExportStory() {
   } = useStory();
   const { showSnackbar } = useSnackbar();
   const { pages, current, selection, story } = reducerState;
+
+  const {
+    actions: { updateIsExporting },
+  } = useStoryStatus(({ actions }) => ({ actions }));
 
   const zipStory = async (storyContent) => {
     let markup = `<!doctype html>${storyContent}`;
@@ -154,6 +159,7 @@ function useExportStory() {
     zip.generateAsync({ type: 'blob' }).then((content) => {
       saveAs(content, zipName + '.zip');
     });
+
     return zipName;
   };
 
@@ -164,8 +170,9 @@ function useExportStory() {
       metadata: {},
       flags: {},
     });
-
+    updateIsExporting(true);
     const zipName = await zipStory(storyProps.content);
+    updateIsExporting(false);
     showSnackbar({
       message: zipName + ' downloading...',
       dismissable: true,

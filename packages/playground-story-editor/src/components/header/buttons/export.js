@@ -30,14 +30,22 @@ import {
  * Internal dependencies
  */
 import useExportStory from '../../../app/storyExport/useExportStory';
+import { useStoryStatus } from '../../../app/storyStatus';
 
 function Download() {
+  const {
+    state: { isExporting },
+  } = useStoryStatus(({ state }) => ({
+    state,
+  }));
+
   const { exportStory } = useExportStory();
   return (
     <Button
       variant={BUTTON_VARIANTS.RECTANGLE}
       type={BUTTON_TYPES.PRIMARY}
       size={BUTTON_SIZES.SMALL}
+      disabled={isExporting}
       onClick={exportStory}
     >
       {__('Export', 'web-stories')}

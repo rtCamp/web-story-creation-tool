@@ -24,25 +24,25 @@ import {
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
-  useSnackbar,
 } from '@web-stories-wp/design-system';
 
 /**
  * Internal dependencies
  */
 import useStoryImport from '../../../app/storyImport/useStoryImport';
+import { useStoryStatus } from '../../../app/storyStatus';
 
 function Import() {
-  const { showSnackbar } = useSnackbar();
-  const { renderGhostInput, initImport } = useStoryImport();
+  const { renderGhostInput, importStory } = useStoryImport();
+  const {
+    state: { isImporting },
+  } = useStoryStatus(({ state }) => ({
+    state,
+  }));
 
   const onClick = useCallback(() => {
-    initImport();
-    showSnackbar({
-      message: 'Story Imported',
-      dismissable: true,
-    });
-  }, [showSnackbar, initImport]);
+    importStory();
+  }, [importStory]);
 
   useEffect(() => {
     renderGhostInput();
@@ -56,6 +56,7 @@ function Import() {
         type={BUTTON_TYPES.SECONDARY}
         size={BUTTON_SIZES.SMALL}
         onClick={onClick}
+        disabled={isImporting}
         aria-label={label}
       >
         {label}

@@ -27,11 +27,15 @@ import JSZip from 'jszip';
  */
 import { getResourceFromLocalFile } from '../media/utils';
 import { useMedia } from '../media';
+import { useStoryStatus } from '../storyStatus';
 
 const INPUT_ID = 'hidden-import-file-input';
 
 function useStoryImport() {
   const { showSnackbar } = useSnackbar();
+  const {
+    actions: { updateIsImporting },
+  } = useStoryStatus(({ actions }) => ({ actions }));
   const {
     internal: { restore, reducerState },
   } = useStory();
@@ -48,6 +52,7 @@ function useStoryImport() {
 
   const handleFile = async (event) => {
     const inputFiles = event.target.files;
+    updateIsImporting(true);
 
     if (!inputFiles.length || 'application/zip' !== inputFiles[0]?.type) {
       showSnackbar({
@@ -55,12 +60,15 @@ function useStoryImport() {
           'Please upload the zip file previously downloaded from this tool',
         dismissable: true,
       });
+      updateIsImporting(false);
+      return;
     }
     const [file] = inputFiles;
     const files = await JSZip.loadAsync(file).then((content) => content.files);
 
     if (!('config.json' in files)) {
       showSnackbar({ message: 'Zip file is not compatible with this tool' });
+      updateIsImporting(false);
       return;
     }
 
@@ -74,6 +82,8 @@ function useStoryImport() {
       showSnackbar({
         message: 'Invalid configuration in the uploaded zip',
       });
+      updateIsImporting(false);
+      return;
     }
     const stateToRestore = {
       ...importedState,
@@ -156,6 +166,8 @@ function useStoryImport() {
 
     updateMedia(mediaItems);
     restore(stateToRestore);
+
+    updateIsImporting(false);
   };
 
   const renderGhostInput = () => {
@@ -173,7 +185,7 @@ function useStoryImport() {
     document.body.appendChild(hiddenInput);
   };
 
-  const initImport = () => {
+  const importStory = () => {
     const ele = document.getElementById(INPUT_ID);
 
     if (ele) {
@@ -182,7 +194,7 @@ function useStoryImport() {
   };
   return {
     renderGhostInput,
-    initImport,
+    importStory,
   };
 }
 
