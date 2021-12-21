@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const defaultStory = {
-  title: { raw: '' },
-  excerpt: { raw: '' },
-  permalink_template: 'https://example.org/web-stories/%pagename%/',
-  style_presets: {
-    colors: [],
-    textStyles: [],
-  },
-  date: '2021-10-26T12:38:38', // Publishing field breaks if date is not provided.
-};
+
+export const LOCAL_STORAGE_CONTENT_KEY = 'saved_story';
+
+export const LOCAL_STORAGE_PREVIEW_MARKUP_KEY = 'preview_markup';
 
 export const maxUpload = 314572800;
 
