@@ -33,6 +33,7 @@ import styled from 'styled-components';
  * Internal dependencies
  */
 import getInitialStoryState from '../../../utils/getInitialStoryState';
+import { LOCAL_STORAGE_CONTENT_KEY } from '../../../consts';
 
 const Space = styled.div`
   width: 8px;
@@ -57,7 +58,7 @@ function Reset() {
     ) {
       return;
     }
-    window.localStorage.removeItem('saved_story');
+    window.localStorage.removeItem(LOCAL_STORAGE_CONTENT_KEY);
     clearHistory();
     restore(getInitialStoryState());
   }, [restore, clearHistory]);
