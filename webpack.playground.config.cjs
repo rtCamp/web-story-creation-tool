@@ -164,7 +164,10 @@ module.exports = {
       ],
     }),
   ],
-  watch: mode === 'development',
+  devServer: {
+    compress: true,
+    port: 8000,
+  },
 };
 
 if (isProduction) {

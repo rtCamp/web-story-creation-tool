@@ -200,7 +200,7 @@
     "lint:md": "markdownlint .",
     "postinstall": "patch-package",
     "playground:build": "NODE_ENV=production webpack --config webpack.playground.config.cjs",
-    "playground:dev": "webpack --config ./webpack.playground.config.cjs",
+    "playground:dev": "webpack serve --config ./webpack.playground.config.cjs",
     "playground:serve": "python3 -m http.server --directory=./build/playground",
     "storybook": "start-storybook --quiet",
     "storybook:build": "build-storybook -c .storybook -o build/storybook --quiet",

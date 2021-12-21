@@ -77,7 +77,11 @@ function useStoryImport() {
     }
     const stateToRestore = {
       ...importedState,
-      story: { ...reducerState.story, ...importedState.story },
+      story: {
+        ...reducerState.story,
+        ...importedState.story,
+        title: importedState.story.title || '',
+      },
       capabilities: reducerState.capabilities,
     };
 
