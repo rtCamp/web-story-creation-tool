@@ -15,15 +15,17 @@
  */
 
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { createBlob } from './blobs';
-import getTypeFromMime from './getTypeFromMime';
-import getResourceSize from './getResourceSize';
-import getFirstFrameOfVideo from './getFirstFrameOfVideo';
-import createResource from './createResource';
-import getFileName from './getFileName';
-import getImageDimensions from './getImageDimensions';
+import {
+  createBlob,
+  getTypeFromMime,
+  getResourceSize,
+  createResource,
+  getFileName,
+  getImageDimensions,
+  getFirstFrameOfVideo,
+} from '@web-stories-wp/media';
 
 /**
  * Create a local resource object.

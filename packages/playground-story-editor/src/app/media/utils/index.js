@@ -15,7 +15,6 @@
  */
 
 export { default as bytesToMB } from './bytesToMb';
-export { getDummyMedia } from './getDummyMedia';
 export { initIndexDb } from './initIndexDb';
 export { default as getResourceFromLocalFile } from './getResourceFromLocalFile';
 export { default as usePersistentAssets } from './usePersistentAssets';
