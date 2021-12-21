@@ -13,9 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Internal dependencies
+ */
+import { allowedMimeTypes, maxUpload } from '../../../consts';
 
-export { default as bytesToMB } from './bytesToMb';
-export { initIndexDb } from './initIndexDb';
-export { isValidFile } from './isValidFile';
-export { default as getResourceFromLocalFile } from './getResourceFromLocalFile';
-export { default as usePersistentAssets } from './usePersistentAssets';
+export const isValidFile = (file) => {
+  const allowedMimeTypesArray = [
+    ...allowedMimeTypes.image,
+    ...allowedMimeTypes.video,
+  ];
+
+  if (!allowedMimeTypesArray.includes(file.type)) {
+    throw new Error({ message: 'Invalid file type' });
+  }
+
+  if (file.size > maxUpload) {
+    throw new Error({ message: 'Max Upload Limit Exceeded' });
+  }
+};

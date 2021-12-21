@@ -19,15 +19,14 @@
  */
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { useState, useCallback, useMemo } from '@web-stories-wp/react';
+import { useState, useCallback } from '@web-stories-wp/react';
 import { useSnackbar } from '@web-stories-wp/design-system';
 
 /**
  * Internal dependencies
  */
-import { allowedMimeTypes, maxUpload } from '../../consts';
 import MediaContext from './context';
-import { getResourceFromLocalFile } from './utils';
+import { getResourceFromLocalFile, isValidFile } from './utils';
 
 function MediaProvider({ children }) {
   const [media, updateMedia] = useState([]);
@@ -35,23 +34,9 @@ function MediaProvider({ children }) {
 
   const { showSnackbar } = useSnackbar();
 
-  const allowedMimeTypesArray = useMemo(() => {
-    return [...allowedMimeTypes.image, ...allowedMimeTypes.video];
-  }, []);
-
   const addLocalFiles = useCallback(
     async (files) => {
       const mediaItems = [];
-
-      const isValidFile = (file) => {
-        if (!allowedMimeTypesArray.includes(file.type)) {
-          throw new Error({ message: 'Invalid file type' });
-        }
-
-        if (file.size > maxUpload) {
-          throw new Error({ message: 'Max Upload Limit Exceeded' });
-        }
-      };
 
       await Promise.all(
         [...files].map(async (file) => {
@@ -74,7 +59,7 @@ function MediaProvider({ children }) {
       );
       updateMedia((prevMedia) => [...prevMedia, ...mediaItems]);
     },
-    [allowedMimeTypesArray, updateMedia, showSnackbar]
+    [updateMedia, showSnackbar]
   );
 
   const getMedia = useCallback(() => {
