@@ -154,6 +154,7 @@ function Download() {
       story: {
         globalStoryStyles: story?.globalStoryStyles,
         adOptions: story?.adOptions,
+        title: story?.title,
       },
       version: DATA_VERSION,
       pages: updatedPages,
