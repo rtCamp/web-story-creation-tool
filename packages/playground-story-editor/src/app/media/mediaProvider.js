@@ -83,8 +83,22 @@ function MediaProvider({ children }) {
   );
 
   const updateMediaCallback = useCallback(
-    async (files) => {
-      await addLocalFiles(files);
+    async (mediaId, data) => {
+      if (!mediaId) {
+        await addLocalFiles(data.files);
+      } else {
+        updateMedia((prevMedia) => {
+          const updated = prevMedia.map((mediaItem) => {
+            if (mediaId !== mediaItem.id) {
+              return mediaItem;
+            } else {
+              mediaItem.alt = data.alt_text ? data.alt_text : mediaItem.alt;
+              return mediaItem;
+            }
+          });
+          return updated;
+        });
+      }
     },
     [addLocalFiles]
   );

@@ -36,7 +36,7 @@ function useMediaPicker() {
 
   const handleFileInput = useCallback(
     async (event) => {
-      await updateMedia(event.target.files);
+      await updateMedia(undefined, { files: event.target.files });
     },
     [updateMedia]
   );
