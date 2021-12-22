@@ -32,9 +32,9 @@ import {
 import useExportStory from '../../../app/storyExport/useExportStory';
 import { useStoryStatus } from '../../../app/storyStatus';
 
-function Download() {
+function Export() {
   const {
-    state: { isExporting },
+    state: { isExporting, isImporting },
   } = useStoryStatus(({ state }) => ({
     state,
   }));
@@ -45,7 +45,7 @@ function Download() {
       variant={BUTTON_VARIANTS.RECTANGLE}
       type={BUTTON_TYPES.PRIMARY}
       size={BUTTON_SIZES.SMALL}
-      disabled={isExporting}
+      disabled={isExporting || isImporting}
       onClick={exportStory}
     >
       {__('Export', 'web-stories')}
@@ -53,4 +53,4 @@ function Download() {
   );
 }
 
-export default Download;
+export default Export;

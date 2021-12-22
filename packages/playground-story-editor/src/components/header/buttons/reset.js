@@ -32,6 +32,7 @@ import styled from 'styled-components';
 /**
  * Internal dependencies
  */
+import { useStoryStatus } from '../../../app/storyStatus';
 import getInitialStoryState from '../../../utils/getInitialStoryState';
 import { LOCAL_STORAGE_CONTENT_KEY } from '../../../consts';
 
@@ -63,6 +64,12 @@ function Reset() {
     restore(getInitialStoryState());
   }, [restore, clearHistory]);
 
+  const {
+    state: { isImporting, isExporting },
+  } = useStoryStatus(({ state }) => ({
+    state,
+  }));
+
   const label = __('Reset', 'web-stories');
 
   return (
@@ -75,7 +82,7 @@ function Reset() {
             type={BUTTON_TYPES.QUATERNARY}
             size={BUTTON_SIZES.SMALL}
             onClick={resetStory}
-            disabled={false}
+            disabled={isImporting || isExporting}
             aria-label={label}
           >
             <Icons.ArrowCircle />
