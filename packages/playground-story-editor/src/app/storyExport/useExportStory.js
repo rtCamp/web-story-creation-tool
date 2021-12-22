@@ -47,7 +47,6 @@ function useExportStory() {
     const zip = new JSZip();
 
     const mediaTypes = ['image', 'video'];
-    let mediaIndex = 1;
     const updatedPages = [];
     await Promise.all(
       pages.map(async (page) => {
@@ -59,8 +58,7 @@ function useExportStory() {
             if (!mediaTypes.includes(mediaType)) {
               return;
             }
-
-            const { src, mimeType, poster } = element.resource;
+            const { src, mimeType, poster, alt } = element.resource;
             const extension = COMMON_MIME_TYPE_MAPPING[mimeType];
 
             if (!extension) {
@@ -91,12 +89,9 @@ function useExportStory() {
               return;
             }
 
-            const index = mediaIndex;
-            mediaIndex++;
-
             const resp = await fetch(src);
             const respBlob = await resp.blob();
-            const fileName = `${mediaType}-${index}.${extension}`;
+            const fileName = `${alt}.${extension}`;
             const file = new File([respBlob], fileName);
 
             let posterFileName;
@@ -104,7 +99,7 @@ function useExportStory() {
             if (poster) {
               const posterResp = await fetch(poster);
               const posterRespBlob = await posterResp.blob();
-              posterFileName = `${mediaType}-${index}-poster.jpeg`;
+              posterFileName = `${alt}-poster.jpeg`;
               posterFile = new File([posterRespBlob], posterFileName);
             }
 
