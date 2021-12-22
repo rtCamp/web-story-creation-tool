@@ -35,7 +35,7 @@ import { useStoryStatus } from '../../../app/storyStatus';
 function Import() {
   const { renderGhostInput, importStory } = useStoryImport();
   const {
-    state: { isImporting },
+    state: { isImporting, isExporting },
   } = useStoryStatus(({ state }) => ({
     state,
   }));
@@ -56,7 +56,7 @@ function Import() {
         type={BUTTON_TYPES.SECONDARY}
         size={BUTTON_SIZES.SMALL}
         onClick={onClick}
-        disabled={isImporting}
+        disabled={isImporting || isExporting}
         aria-label={label}
       >
         {label}

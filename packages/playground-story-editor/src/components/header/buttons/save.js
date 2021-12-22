@@ -27,18 +27,20 @@ import {
   useSnackbar,
 } from '@web-stories-wp/design-system';
 
+/**
+ * Internal dependencies
+ */
+import { useStoryStatus } from '../../../app/storyStatus';
 function Save() {
   const { showSnackbar } = useSnackbar();
-  const { saveStory } = useStory(
-    ({
-      state: {
-        meta: { isSaving },
-        story: { status },
-      },
-      actions: { autoSave, saveStory },
-    }) => ({ isSaving, status, autoSave, saveStory })
-  );
-
+  const { saveStory } = useStory(({ actions: { saveStory } }) => ({
+    saveStory,
+  }));
+  const {
+    state: { isImporting, isSaving },
+  } = useStoryStatus(({ state }) => ({
+    state,
+  }));
   const onClick = useCallback(async () => {
     await saveStory();
     showSnackbar({
@@ -56,6 +58,7 @@ function Save() {
         size={BUTTON_SIZES.SMALL}
         onClick={onClick}
         aria-label={label}
+        disabled={isImporting || isSaving}
       >
         {label}
       </Button>

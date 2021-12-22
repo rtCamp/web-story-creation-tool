@@ -34,6 +34,7 @@ import styled from 'styled-components';
  */
 import getInitialStoryState from '../../../utils/getInitialStoryState';
 import { LOCAL_STORAGE_CONTENT_KEY } from '../../../consts';
+import { useStoryStatus } from '../../../app/storyStatus';
 
 const Space = styled.div`
   width: 8px;
@@ -50,6 +51,11 @@ function Reset() {
   const {
     actions: { clearHistory },
   } = useHistory();
+  const {
+    state: { isImporting, isExporting },
+  } = useStoryStatus(({ state }) => ({
+    state,
+  }));
   const resetStory = useCallback(() => {
     if (
       !window.confirm(
@@ -75,7 +81,7 @@ function Reset() {
             type={BUTTON_TYPES.QUATERNARY}
             size={BUTTON_SIZES.SMALL}
             onClick={resetStory}
-            disabled={false}
+            disabled={isImporting || isExporting}
             aria-label={label}
           >
             <Icons.ArrowCircle />

@@ -64,7 +64,9 @@ function Loading() {
 }
 
 function Buttons() {
-  const { isSaving } = useStoryStatus(({ actions }) => ({ actions }));
+  const {
+    state: { isSaving, isImporting, isExporting },
+  } = useStoryStatus(({ state }) => ({ state }));
 
   return (
     <ButtonList>
@@ -79,7 +81,7 @@ function Buttons() {
         <Space />
         <IconWithSpinner>
           <Preview />
-          {isSaving && <Loading />}
+          {(isSaving || isImporting || isExporting) && <Loading />}
         </IconWithSpinner>
       </List>
     </ButtonList>

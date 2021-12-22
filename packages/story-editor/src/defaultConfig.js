@@ -120,7 +120,6 @@ const defaultConfig = {
     publisher: '',
   },
   showMedia3p: true,
-  showMediaLocal: true,
   encodeMarkup: true,
   ffmpegCoreUrl:
     'https://wp.stories.google/static/main/js/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js',
