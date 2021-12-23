@@ -1,8 +1,8 @@
 {
-  "name": "web-stories-wp",
-  "title": "Web Stories",
+  "name": "web-story-creation-tool",
+  "title": "Web Story Creation Tool",
   "private": true,
-  "description": "Visual storytelling for WordPress.",
+  "description": "Visual storytelling for The Web.",
   "author": "Google",
   "license": "Apache-2.0",
   "type": "module",
@@ -12,13 +12,13 @@
     "storytelling",
     "wordpress"
   ],
-  "homepage": "https://github.com/google/web-stories-wp",
+  "homepage": "https://github.com/rtCamp/web-story-creation-tool",
   "repository": {
     "type": "git",
-    "url": "https://github.com/google/web-stories-wp.git"
+    "url": "https://github.com/rtCamp/web-story-creation-tool.git"
   },
   "bugs": {
-    "url": "https://github.com/google/web-stories-wp/issues"
+    "url": "https://github.com/rtCamp/web-story-creation-tool/issues"
   },
   "engines": {
     "node": ">= 16",
@@ -107,6 +107,7 @@
     "expose-loader": "^1.0.3",
     "file-loader": "^6.2.0",
     "file-saver": "^2.0.5",
+    "gh-pages": "^3.2.3",
     "glob": "^7.2.0",
     "html-webpack-plugin": "^4.5.2",
     "husky": "^4.3.7",
@@ -253,7 +254,9 @@
     "workflow:migrate:templates": "migration packages/templates/src/raw",
     "postworkflow:migrate:templates": "npx prettier --write packages/templates/src/raw",
     "workflow:migrate:ftue-story": "migration includes/data/stories",
-    "postworkflow:migrate:ftue-story": "npx prettier --write includes/data/stories"
+    "postworkflow:migrate:ftue-story": "npx prettier --write includes/data/stories",
+    "predeploy": "npm run playground:build",
+		"deploy": "gh-pages -d build/playground"
   },
   "husky": {
     "hooks": {
