@@ -9,3 +9,9 @@ Stories then can be exported as a zip which will have the following content
 - config.json - for internal use ( currently being used to import web stories made for this tool )
 - files for 1p media (if used).
 
+For running locally use `npm run playground:dev`
+
+For running locally with pwa features
+- `npm run playground:build`
+- `npm run playground:serve`
+
