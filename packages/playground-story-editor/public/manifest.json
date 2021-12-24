@@ -1,6 +1,6 @@
 {
-  "short_name": "WebStoriesAdCreationTool",
-  "name": "Web Stories Creation Tool",
+  "short_name": "WebStoryCreationTool",
+  "name": "Web Story Creation Tool",
   "icons": [
     {
       "src": "favicon.ico",
