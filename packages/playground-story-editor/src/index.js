@@ -31,7 +31,7 @@ import { LOCAL_STORAGE_CONTENT_KEY } from './consts';
 import MediaUpload from './components/MediaUpload';
 import '../public/main.css';
 import { MediaProvider, useMedia } from './app/media';
-import { saveStoryById } from './api';
+import { saveStoryById, getFonts } from './api';
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -55,6 +55,7 @@ const CoreEditor = () => {
         hasUploadMediaAction: true,
       },
       apiCallbacks: {
+        getFonts,
         saveStoryById,
         getMedia: getMediaCallback,
         updateMedia: updateMediaCallback,
