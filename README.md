@@ -21,8 +21,9 @@ Try this project out [here](https://web-story-creation-tool.rt.gw)
 - ### Support with [HUGO](https://gohugo.io/) 
   Assuming you have a hugo site already setup follow the following instructions to add a story into it. ( [hugo quikstart guide](https://gohugo.io/getting-started/quick-start/) )
   - Follow instructions [here](https://gist.github.com/codingcarrots20/2be409105bce5cbc73b5f8184a730078) to add a shortcode to your hugo site.
-  - Paste unziped folder into `static` folder ( Let's assume this folder is called `web-story` ).
-  - use `{{< web-story dir="./web-story" >}}` in your md files.
+  - Use [web story creation tool](https://web-story-creation-tool.rt.gw) to create a story and export/download it.
+  - Paste exported/downloaded zip into `static` folder and unzip it there ( Let's assume this unzipped folder is called `web-story` ).
+  - use `{{< web-story dir="web-story" >}}` in your md files.
 
 ## For Devs
 
