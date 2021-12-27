@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { useState, useCallback } from '@web-stories-wp/react';
 import { useSnackbar } from '@web-stories-wp/design-system';
+import { getFileName } from '@web-stories-wp/media';
 
 /**
  * Internal dependencies
@@ -41,7 +42,11 @@ function MediaProvider({ children }) {
       await Promise.all(
         [...files].map(async (file) => {
           try {
-            isValidFile(file);
+            isValidFile(file); // this will throw an error.
+            const mediaTitles = media.map((mediaItem) => mediaItem.title);
+            if (mediaTitles.includes(getFileName(file))) {
+              return;
+            }
             const { resource: mediaData } = await getResourceFromLocalFile(
               file
             );
@@ -57,9 +62,15 @@ function MediaProvider({ children }) {
           }
         })
       );
-      updateMedia((prevMedia) => [...prevMedia, ...mediaItems]);
+      updateMedia((prevMedia) => {
+        const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.alt);
+        const filteredMedia = mediaItems.filter(
+          (mediaItem) => !prevMediaTitles.includes(mediaItem.alt)
+        );
+        return [...prevMedia, ...filteredMedia];
+      });
     },
-    [updateMedia, showSnackbar]
+    [updateMedia, showSnackbar, media]
   );
 
   const getMedia = useCallback(() => {

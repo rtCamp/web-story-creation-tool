@@ -51,6 +51,7 @@ function createResource({
   isExternal = false,
   trimData,
   needsProxy = false,
+  title,
 }) {
   return {
     baseColor,
@@ -77,6 +78,7 @@ function createResource({
     isExternal,
     trimData,
     needsProxy,
+    title,
   };
 }
 

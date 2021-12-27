@@ -56,7 +56,7 @@ function usePersistentAssets() {
         elementsList.forEach(async (element) => {
           if (
             ['image', 'video'].includes(element?.type) &&
-            element.resource.alt === fileItem.title
+            element.resource.title === fileItem.title
           ) {
             const { resource: mediaData } = await getResourceFromLocalFile(
               fileItem.file
