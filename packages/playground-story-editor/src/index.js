@@ -55,6 +55,7 @@ const CoreEditor = () => {
         hasUploadMediaAction: true,
       },
       apiCallbacks: {
+        updateCurrentUser: () => Promise.resolve({}),
         getFonts,
         saveStoryById,
         getMedia: getMediaCallback,
