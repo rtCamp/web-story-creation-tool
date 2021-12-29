@@ -33,6 +33,16 @@ import { escapeHTML } from '../../../utils';
 
 const PREVIEW_TARGET = 'story-preview';
 
+function getPreviewLink() {
+  return (
+    location.protocol +
+    '//' +
+    location.host +
+    location.pathname +
+    'preview.html'
+  );
+}
+
 function Preview() {
   const { saveStory } = useStory(
     ({
@@ -49,8 +59,7 @@ function Preview() {
    */
   const openPreviewLink = useCallback(async () => {
     await saveStory();
-    const playgroundPreviewLink = window.origin + '/preview.html';
-
+    const playgroundPreviewLink = getPreviewLink();
     // Start a about:blank popup with waiting message until we complete
     // the saving operation. That way we will not bust the popup timeout.
     let popup;

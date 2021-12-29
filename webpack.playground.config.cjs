@@ -130,6 +130,7 @@ module.exports = {
     ],
   },
   output: {
+    publicPath: isProduction ? '/web-story-creation-tool' : '/',
     path: path.resolve(__dirname, './build/playground'),
     filename: 'js/[name].js',
   },
