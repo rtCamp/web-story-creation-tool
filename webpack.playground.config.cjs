@@ -34,13 +34,6 @@ module.exports = {
   devtool: 'source-map',
   module: {
     rules: [
-      !isProduction
-        ? {
-            test: /\.js$/,
-            use: ['source-map-loader'],
-            enforce: 'pre',
-          }
-        : {},
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -130,7 +123,6 @@ module.exports = {
     ],
   },
   output: {
-    publicPath: isProduction ? '/web-story-creation-tool' : '/',
     path: path.resolve(__dirname, './build/playground'),
     filename: 'js/[name].js',
   },
@@ -139,7 +131,7 @@ module.exports = {
       template: './packages/playground-story-editor/public/index.html',
     }),
     new MiniCssExtractPlugin({
-      filename: './css/[name].css',
+      filename: '/css/[name].css',
     }),
     new WebpackBar({
       name: 'Playground',
@@ -172,6 +164,12 @@ module.exports = {
 };
 
 if (isProduction) {
+  module.exports.module.rules.push({
+    test: /\.js$/,
+    use: ['source-map-loader'],
+    enforce: 'pre',
+  });
+
   module.exports.plugins.push(
     new WorkboxWebpackPlugin.InjectManifest({
       swSrc: './packages/playground-story-editor/src/src-sw.js',
