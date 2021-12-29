@@ -125,16 +125,17 @@ module.exports = {
     ],
   },
   output: {
-    publicPath: isGhPages ? '/web-story-creation-tool' : '/',
+    publicPath: isGhPages ? '/web-story-creation-tool/' : '/',
     path: path.resolve(__dirname, './build/playground'),
     filename: 'js/[name].js',
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './packages/playground-story-editor/public/index.html',
+      favicon: `./packages/playground-story-editor/public/favicon.ico`,
     }),
     new MiniCssExtractPlugin({
-      filename: '/css/[name].css',
+      filename: 'css/[name].css',
     }),
     new WebpackBar({
       name: 'Playground',
