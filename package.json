@@ -255,7 +255,7 @@
     "postworkflow:migrate:templates": "npx prettier --write packages/templates/src/raw",
     "workflow:migrate:ftue-story": "migration includes/data/stories",
     "postworkflow:migrate:ftue-story": "npx prettier --write includes/data/stories",
-    "predeploy": "npm run playground:build",
+    "predeploy": "NODE_ENV=production APP_ENV=ghpages webpack --config webpack.playground.config.cjs",
 		"deploy": "gh-pages -d build/playground"
   },
   "husky": {

@@ -28,6 +28,8 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 const isProduction = process.env.NODE_ENV === 'production';
 const mode = isProduction ? 'production' : 'development';
 
+process.env.APP_ENV = process.env.APP_ENV || '';
+const isGhPages = process.env.APP_ENV === 'ghpages';
 module.exports = {
   mode,
   entry: './packages/playground-story-editor/src/index.js',
@@ -123,6 +125,7 @@ module.exports = {
     ],
   },
   output: {
+    publicPath: isGhPages ? '/web-story-creation-tool' : '/',
     path: path.resolve(__dirname, './build/playground'),
     filename: 'js/[name].js',
   },
