@@ -47,8 +47,8 @@ function useExportStory() {
     const zip = new JSZip();
 
     const mediaTypes = ['image', 'video'];
-    const updatedPages = [];
-    await Promise.all(
+
+    const updatedPages = await Promise.all(
       pages.map(async (page) => {
         const currentPage = page ? JSON.parse(JSON.stringify(page)) : {};
         await Promise.all(
@@ -122,7 +122,7 @@ function useExportStory() {
             }
           })
         );
-        updatedPages.push(currentPage);
+        return currentPage;
       })
     );
 
