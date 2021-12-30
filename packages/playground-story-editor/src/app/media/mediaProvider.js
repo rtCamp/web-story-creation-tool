@@ -99,15 +99,30 @@ function MediaProvider({ children }) {
     [updateMedia]
   );
 
-  const getMedia = useCallback(() => {
-    return Promise.resolve({
-      data: media,
-      headers: {
-        totalItems: media.length,
-        totalPages: 1,
-      },
-    });
-  }, [media]);
+  const getMedia = useCallback(
+    ({ mediaType, searchTerm }) => {
+      let filteredMedia = media;
+      if (mediaType) {
+        filteredMedia = filteredMedia.filter(
+          (mediaItem) => mediaType === mediaItem.type
+        );
+      }
+      if (searchTerm) {
+        filteredMedia = filteredMedia.filter((mediaItem) =>
+          mediaItem.title.includes(searchTerm)
+        );
+      }
+
+      return Promise.resolve({
+        data: filteredMedia,
+        headers: {
+          totalItems: filteredMedia.length,
+          totalPages: 1,
+        },
+      });
+    },
+    [media]
+  );
 
   const deleteMedia = useCallback(
     (mediaId) => {
