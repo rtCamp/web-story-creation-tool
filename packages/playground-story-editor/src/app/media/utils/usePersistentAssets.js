@@ -32,7 +32,7 @@ import { initIndexDb } from './initIndexDb';
 function usePersistentAssets() {
   const {
     state: { media, isInitialMount: isUpdated },
-    actions: { addLocalFiles, updateIsInitialMount: updateIsUpdated },
+    actions: { restoreMediaFromDb, updateIsInitialMount: updateIsUpdated },
   } = useMedia(({ state, actions }) => ({
     state,
     actions,
@@ -44,7 +44,7 @@ function usePersistentAssets() {
   }));
 
   const updateResourcesFromStoredFiles = useCallback(
-    (files) => {
+    (mediaListInDb) => {
       const elementsList = [];
       pages.forEach((page) => {
         page.elements.forEach((element) => {
@@ -52,22 +52,33 @@ function usePersistentAssets() {
         });
       });
 
-      files.forEach((fileItem) => {
+      mediaListInDb.forEach((mediaItemInDb) => {
         elementsList.forEach(async (element) => {
           if (
             ['image', 'video'].includes(element?.type) &&
-            element.resource.title === fileItem.title
+            element.resource.id === mediaItemInDb.id
           ) {
             const { resource: mediaData } = await getResourceFromLocalFile(
-              fileItem.file
+              mediaItemInDb.file
             );
             const resourceId = element.resource.id;
             const mediaResource = {
               id: resourceId,
-              properties: ({ resource, ...rest }) => ({
-                ...rest,
-                resource: { ...mediaData, id: resourceId },
-              }),
+              properties: ({ resource, ...rest }) => {
+                const updatedResource = {
+                  ...mediaItemInDb,
+                  id: resourceId,
+                  src: mediaData.src,
+                };
+
+                if ('video' === element?.type) {
+                  updatedResource.poster = mediaData.poster;
+                }
+                return {
+                  ...rest,
+                  resource: updatedResource,
+                };
+              },
             };
             updateElementsByResourceId(mediaResource);
           }
@@ -88,13 +99,9 @@ function usePersistentAssets() {
 
     // This is to avoid storing it twice during import.
     const shouldSaveToIndexDb = media.every(({ file }) => Boolean(file));
-    const mediaItemsToSave = media.map(({ file, title }) => ({
-      file,
-      title,
-    }));
 
     if (shouldSaveToIndexDb) {
-      initIndexDb(mediaItemsToSave, 'save');
+      initIndexDb(media, 'save');
     }
 
     updateIsUpdated(false);
@@ -105,17 +112,15 @@ function usePersistentAssets() {
    */
   useEffect(() => {
     if (isUpdated && pages.length > 0) {
-      initIndexDb(null, 'get', async (files) => {
-        const fileItems = files.map((item) => item.file);
-        await addLocalFiles(fileItems);
-
-        updateResourcesFromStoredFiles(files);
+      initIndexDb(null, 'get', async (mediaListInDb) => {
+        await restoreMediaFromDb(mediaListInDb);
+        updateResourcesFromStoredFiles(mediaListInDb);
       });
 
       updateIsUpdated(false);
     }
   }, [
-    addLocalFiles,
+    restoreMediaFromDb,
     updateResourcesFromStoredFiles,
     isUpdated,
     updateIsUpdated,

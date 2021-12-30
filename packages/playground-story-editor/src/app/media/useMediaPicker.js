@@ -24,7 +24,7 @@ function useMediaPicker() {
   const { allowedMimeTypes } = useConfig();
 
   const {
-    actions: { updateMedia },
+    actions: { uploadMedia },
   } = useAPI();
 
   const allowedMimeTypesCommaSeperated = useMemo(() => {
@@ -36,9 +36,13 @@ function useMediaPicker() {
 
   const handleFileInput = useCallback(
     async (event) => {
-      await updateMedia(undefined, { files: event.target.files });
+      await Promise.all(
+        [...event.target.files].map(async (file) => {
+          await uploadMedia(file);
+        })
+      );
     },
-    [updateMedia]
+    [uploadMedia]
   );
 
   const insertHiddenFileInput = useCallback(() => {

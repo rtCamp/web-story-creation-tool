@@ -20,7 +20,6 @@
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { useState, useCallback } from '@web-stories-wp/react';
-import { useSnackbar } from '@web-stories-wp/design-system';
 import { getFileName } from '@web-stories-wp/media';
 
 /**
@@ -32,8 +31,6 @@ import { getResourceFromLocalFile, isValidFile } from './utils';
 function MediaProvider({ children }) {
   const [media, updateMedia] = useState([]);
   const [isInitialMount, updateIsInitialMount] = useState(true);
-
-  const { showSnackbar } = useSnackbar();
 
   const addLocalFiles = useCallback(
     async (files) => {
@@ -56,9 +53,7 @@ function MediaProvider({ children }) {
             mediaData.modifiedAt = new Date().getTime();
             mediaItems.push(mediaData);
           } catch (e) {
-            showSnackbar({
-              message: e.message,
-            });
+            //TODO:Add snackbar or alert
           }
         })
       );
@@ -70,7 +65,38 @@ function MediaProvider({ children }) {
         return [...prevMedia, ...filteredMedia];
       });
     },
-    [updateMedia, showSnackbar, media]
+    [updateMedia, media]
+  );
+
+  const restoreMediaFromDb = useCallback(
+    async (mediaListInDb) => {
+      const mediaItems = [];
+
+      await Promise.all(
+        mediaListInDb.map(async (mediaItemInDb) => {
+          try {
+            const { resource: mediaData } = await getResourceFromLocalFile(
+              mediaItemInDb.file
+            );
+            mediaItems.push({
+              ...mediaItemInDb,
+              local: false, // this disables the UploadingIndicator
+              src: mediaData.src,
+            });
+          } catch (e) {
+            //TODO:Add snackbar or alert
+          }
+        })
+      );
+      updateMedia((prevMedia) => {
+        const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.alt);
+        const filteredMedia = mediaItems.filter(
+          (mediaItem) => !prevMediaTitles.includes(mediaItem.alt)
+        );
+        return [...prevMedia, ...filteredMedia];
+      });
+    },
+    [updateMedia]
   );
 
   const getMedia = useCallback(() => {
@@ -93,34 +119,36 @@ function MediaProvider({ children }) {
     [media]
   );
 
-  const updateMediaCallback = useCallback(
-    async (mediaId, data) => {
-      if (!mediaId) {
-        await addLocalFiles(data.files);
-      } else {
-        updateMedia((prevMedia) => {
-          const updated = prevMedia.map((mediaItem) => {
-            if (mediaId !== mediaItem.id) {
-              return mediaItem;
-            } else {
-              mediaItem.alt = data.alt_text ? data.alt_text : mediaItem.alt;
-              return mediaItem;
-            }
-          });
-          return updated;
-        });
-      }
-    },
-    [addLocalFiles]
-  );
+  const uploadMediaCallback = async (file) => {
+    if (Object.prototype.toString.call(file).includes('Blob')) {
+      return;
+    }
+    await addLocalFiles([file]);
+  };
+
+  const updateMediaCallback = useCallback((mediaId, data) => {
+    updateMedia((prevMedia) => {
+      const updated = prevMedia.map((mediaItem) => {
+        if (mediaId !== mediaItem.id) {
+          return mediaItem;
+        } else {
+          mediaItem.alt = data.alt_text ? data.alt_text : mediaItem.alt;
+          return mediaItem;
+        }
+      });
+      return updated;
+    });
+  }, []);
 
   const value = {
     actions: {
       getMediaCallback: getMedia,
       updateMediaCallback,
+      uploadMediaCallback,
       deleteMedia,
       updateIsInitialMount,
       addLocalFiles,
+      restoreMediaFromDb,
       updateMedia,
     },
 

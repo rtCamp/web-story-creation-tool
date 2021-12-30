@@ -44,7 +44,12 @@ function getInitialStory() {
 
 const CoreEditor = () => {
   const {
-    actions: { updateMediaCallback, getMediaCallback, deleteMedia },
+    actions: {
+      updateMediaCallback,
+      uploadMediaCallback,
+      getMediaCallback,
+      deleteMedia,
+    },
   } = useMedia(({ state, actions }) => {
     return { state, actions };
   });
@@ -60,11 +65,12 @@ const CoreEditor = () => {
         saveStoryById,
         getMedia: getMediaCallback,
         updateMedia: updateMediaCallback,
+        uploadMedia: uploadMediaCallback,
         deleteMedia,
       },
       MediaUpload,
     };
-  }, [updateMediaCallback, getMediaCallback, deleteMedia]);
+  }, [updateMediaCallback, uploadMediaCallback, getMediaCallback, deleteMedia]);
   return (
     <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
       <Layout />
