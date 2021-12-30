@@ -23,7 +23,6 @@ import styled from 'styled-components';
  */
 import { noop } from '../../../utils/noop';
 import { GUTTER_WIDTH } from '../constants';
-import { Footer } from './footer';
 import { Header } from './header';
 import { Tips } from './tips';
 import { Transitioner } from './transitioner';
@@ -44,7 +43,6 @@ export function Menu({ onTipSelect = noop, readTips, ...transitionProps }) {
       <Container data-testid="help_center_container">
         <Header />
         <Tips readTips={readTips} onTipSelect={onTipSelect} />
-        <Footer />
       </Container>
     </Transitioner>
   );
