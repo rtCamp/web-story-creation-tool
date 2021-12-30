@@ -4,7 +4,7 @@ This is a private fork of [web-stories-wp](https://github.com/google/web-stories
 
 Using this editor, one can edit a story in the WYSIWYG editor used in [web stories plugin](https://github.com/google/web-stories-wp) in a stand-alone form factor.
 
-Try this project out [here](https://web-story-creation-tool.rt.gw)
+Try this project out [here](https://rtcamp.github.io/web-story-creation-tool)
 
 ## Current features 
 - ### Export a Story
