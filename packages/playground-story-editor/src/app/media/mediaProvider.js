@@ -78,20 +78,25 @@ function MediaProvider({ children }) {
             const { resource: mediaData } = await getResourceFromLocalFile(
               mediaItemInDb.file
             );
-            mediaItems.push({
+            const updatedResource = {
               ...mediaItemInDb,
-              local: false, // this disables the UploadingIndicator
               src: mediaData.src,
-            });
+              local: false, // this disables the UploadingIndicator
+            };
+
+            if ('video' === mediaItemInDb?.type) {
+              updatedResource.poster = mediaData.poster;
+            }
+            mediaItems.push(updatedResource);
           } catch (e) {
             //TODO:Add snackbar or alert
           }
         })
       );
       updateMedia((prevMedia) => {
-        const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.alt);
+        const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.title);
         const filteredMedia = mediaItems.filter(
-          (mediaItem) => !prevMediaTitles.includes(mediaItem.alt)
+          (mediaItem) => !prevMediaTitles.includes(mediaItem.title)
         );
         return [...prevMedia, ...filteredMedia];
       });
@@ -148,6 +153,8 @@ function MediaProvider({ children }) {
           return mediaItem;
         } else {
           mediaItem.alt = data.alt_text ? data.alt_text : mediaItem.alt;
+          mediaItem.creationDate = new Date().toISOString();
+
           return mediaItem;
         }
       });
