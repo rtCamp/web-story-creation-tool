@@ -18,11 +18,14 @@
  * External dependencies
  */
 import { useEffect, useCallback, useState } from '@web-stories-wp/react';
+import { __ } from '@web-stories-wp/i18n';
 
 export const FIRST_TAB_EPOCH_KEY = 'FIRST_TAB_EPOCH';
 
-export const ENFORCE_SINGLE_TAB_MESSAGE =
-  'App already open in other tab. Please close this tab and continue on the tab previously opened';
+export const ENFORCE_SINGLE_TAB_MESSAGE = __(
+  'App already open in other tab. Please close this tab and continue on the tab previously opened',
+  'web-stories'
+);
 
 const checkIfFirstTab = () => {
   if (localStorage.getItem(FIRST_TAB_EPOCH_KEY)) {
@@ -39,27 +42,19 @@ export function useEnforceSingleTab() {
     localStorage.removeItem(FIRST_TAB_EPOCH_KEY);
   }, []);
 
-  const addListeners = useCallback(() => {
-    window.addEventListener('beforeunload', clearLocalStorage);
-  }, [clearLocalStorage]);
-
-  const removeListeners = useCallback(() => {
-    window.removeEventListener('beforeunload', clearLocalStorage);
-  }, [clearLocalStorage]);
-
   useEffect(() => {
     if (isFirstTab) {
       localStorage.setItem(FIRST_TAB_EPOCH_KEY, Date.now());
-      addListeners();
+      window.addEventListener('beforeunload', clearLocalStorage);
     } else {
       alert(ENFORCE_SINGLE_TAB_MESSAGE);
     }
     return () => {
       if (isFirstTab) {
-        removeListeners();
+        window.removeEventListener('beforeunload', clearLocalStorage);
       }
     };
-  }, [isFirstTab, addListeners, removeListeners]);
+  }, [isFirstTab, clearLocalStorage]);
 
   return { isFirstTab };
 }
