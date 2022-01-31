@@ -31,8 +31,6 @@ import {
  */
 import { escapeHTML } from '../../../utils';
 
-const PREVIEW_TARGET = 'story-preview';
-
 function getPreviewLink() {
   return (
     location.protocol +
@@ -64,7 +62,11 @@ function Preview() {
     // the saving operation. That way we will not bust the popup timeout.
     let popup;
     try {
-      popup = global.open('about:blank', PREVIEW_TARGET);
+      popup = window.open(
+        playgroundPreviewLink,
+        '_blank',
+        'location=yes,height=802,width=704,scrollbars=yes,status=yes'
+      );
       if (popup) {
         popup.document.write('<!DOCTYPE html><html><head>');
         popup.document.write('<title>');
