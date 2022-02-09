@@ -32,9 +32,22 @@ import MediaUpload from './components/MediaUpload';
 import '../public/main.css';
 import { MediaProvider, useMedia } from './app/media';
 import { saveStoryById, getFonts } from './api';
+import {
+  ENFORCE_SINGLE_TAB_MESSAGE,
+  useEnforceSingleTab,
+} from './api/useEnforceSingleTab';
 
 const AppContainer = styled.div`
   height: 100vh;
+`;
+
+const EnforceSingleTabNotice = styled.div`
+  height: 100vh;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
 `;
 
 function getInitialStory() {
@@ -79,13 +92,22 @@ const CoreEditor = () => {
 };
 
 const Playground = () => {
-  return (
-    <AppContainer>
-      <MediaProvider>
-        <CoreEditor />
-      </MediaProvider>
-    </AppContainer>
-  );
+  const { isFirstTab } = useEnforceSingleTab();
+  if (!isFirstTab) {
+    return (
+      <EnforceSingleTabNotice>
+        <h2>{ENFORCE_SINGLE_TAB_MESSAGE}</h2>
+      </EnforceSingleTabNotice>
+    );
+  } else {
+    return (
+      <AppContainer>
+        <MediaProvider>
+          <CoreEditor />
+        </MediaProvider>
+      </AppContainer>
+    );
+  }
 };
 
 const initEditor = () => {};
