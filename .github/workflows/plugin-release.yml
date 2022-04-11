@@ -175,7 +175,7 @@ jobs:
           echo "" > assets_version/assets_version.txt
 
       - name: Upload assets version
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: assets-version
           path: public/static/assets_version
@@ -246,7 +246,7 @@ jobs:
           GITHUB_AUTH: ${{ secrets.GOOGLEFORCREATORS_BOT_TOKEN }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: changelog
           path: build/changelog
@@ -398,7 +398,7 @@ jobs:
           mv build/*.zip build/release-assets/
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: release-assets
           path: build/release-assets
