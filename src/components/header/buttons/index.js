@@ -24,6 +24,7 @@ import styled from "styled-components";
  * Internal dependencies
  */
 import Preview from "./preview";
+import Reset from "./reset";
 import Save from "./save";
 
 const ButtonList = styled.nav`
@@ -46,6 +47,8 @@ function Buttons() {
   return (
     <ButtonList>
       <List>
+        <Space/>
+        <Reset/>
         <Space />
         <Save />
         <Space />
