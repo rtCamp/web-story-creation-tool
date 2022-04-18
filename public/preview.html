@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Generating Preview..</title>
+    <style>
+      body {
+        background-color: #1a1d1f;
+        margin: 0;
+        padding: 0;
+      }
+      .loading-text,
+      .preview-expired {
+        text-align: center;
+        font-size: 30px;
+        color: #dfdfdf;
+      }
+      .preview-expired {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+      }
+      .preview-expired-container {
+        width: 100%;
+      }
+      .preview-expired p {
+        margin-top: 0;
+        margin-bottom: 10px;
+      }
+      .preview-expired-instruction {
+        font-size: 22px;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+    <script>
+      function newContent() {
+        const content = localStorage.getItem('preview_markup');
+        const previewExpiredContainer =
+          document.getElementById('preview-expired');
+        const loadingText = document.getElementById('loading-text');
+
+        if (content) {
+          document.open();
+          document.write(content);
+          document.close();
+        } else {
+          document.title = 'Preview Expired';
+          previewExpiredContainer.classList.remove('hidden');
+          loadingText.classList.add('hidden');
+        }
+      }
+    </script>
+  </head>
+  <body onload="newContent();">
+    <p id="loading-text" class="loading-text">Generating Preview..</p>
+    <div id="preview-expired" class="preview-expired hidden">
+      <div class="preview-expired-container">
+        <p>Preview Expired</p>
+        <p class="preview-expired-instruction">
+          Please click on the preview button again!
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -2,10 +2,7 @@
  * External dependencies
  */
 import React from "react";
-import {
-  StoryEditor,
-  InterfaceSkeleton,
-} from "@googleforcreators/story-editor";
+import { StoryEditor } from "@googleforcreators/story-editor";
 import { elementTypes } from "@googleforcreators/element-library";
 import { registerElementType } from "@googleforcreators/elements";
 import styled from "styled-components";
@@ -13,6 +10,8 @@ import styled from "styled-components";
 /**
  * Internal dependencies
  */
+import Layout from "./layout";
+import { saveStoryById } from "../api/story";
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -20,7 +19,7 @@ const AppContainer = styled.div`
 
 const CreationTool = () => {
   const apiCallbacks = {
-    saveStoryById: () => Promise.resolve({}),
+    saveStoryById,
   };
 
   elementTypes.forEach(registerElementType);
@@ -28,7 +27,7 @@ const CreationTool = () => {
   return (
     <AppContainer>
       <StoryEditor config={{ apiCallbacks }} initialEdits={{ story: {} }}>
-        <InterfaceSkeleton />
+        <Layout />
       </StoryEditor>
     </AppContainer>
   );
