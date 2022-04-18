@@ -17,8 +17,15 @@
   },
   "homepage": "https://github.com/rtCamp/web-story-creation-tool#readme",
   "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "@googleforcreators/dashboard": "^0.1.202204141511",
+    "@googleforcreators/element-library": "^0.1.202204141511",
+    "@googleforcreators/elements": "^0.1.202204141511",
+    "@googleforcreators/migration": "^0.1.202204141511",
+    "@googleforcreators/react": "^0.1.202204141511",
+    "@googleforcreators/story-editor": "^0.1.202204141511",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
