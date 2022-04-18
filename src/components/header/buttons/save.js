@@ -16,11 +16,18 @@ import {
 /**
  * Internal dependencies
  */
+import { useStoryStatus } from "../../../app/storyStatus";
 
 function Save() {
   const { showSnackbar } = useSnackbar();
   const { saveStory } = useStory(({ actions: { saveStory } }) => ({
     saveStory,
+  }));
+
+  const {
+    state: { isImporting, isSaving },
+  } = useStoryStatus(({ state }) => ({
+    state,
   }));
 
   const onClick = useCallback(async () => {
@@ -38,6 +45,7 @@ function Save() {
         variant={BUTTON_VARIANTS.RECTANGLE}
         type={BUTTON_TYPES.PRIMARY}
         size={BUTTON_SIZES.SMALL}
+        disabled={isImporting || isSaving}
         onClick={onClick}
         aria-label={label}
       >

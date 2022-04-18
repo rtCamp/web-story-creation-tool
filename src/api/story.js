@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { DATA_VERSION } from '@googleforcreators/migration';
+import { DATA_VERSION } from "@googleforcreators/migration";
 /**
  * Internal dependencies
  */
 import {
   LOCAL_STORAGE_PREVIEW_MARKUP_KEY,
   LOCAL_STORAGE_CONTENT_KEY,
-} from '../consts';
+} from "../consts";
 
 export const saveStoryById = ({
   pages,
@@ -38,10 +38,10 @@ export const saveStoryById = ({
     },
     author: {
       id: 1,
-      name: '',
+      name: "",
     },
     style_presets: globalStoryStyles,
-    permalink_template: 'https://example.org/web-stories/%pagename%/',
+    permalink_template: "https://example.org/web-stories/%pagename%/",
   };
 
   window.localStorage.setItem(

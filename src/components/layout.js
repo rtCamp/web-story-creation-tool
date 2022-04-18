@@ -8,7 +8,12 @@ import { InterfaceSkeleton } from "@googleforcreators/story-editor";
  * Internal dependencies
  */
 import { Header } from "./header";
+import { StoryStatusProvider } from "../app/storyStatus";
 
 export default function Layout() {
-  return <InterfaceSkeleton header={<Header />} />;
+  return (
+    <StoryStatusProvider>
+      <InterfaceSkeleton header={<Header />} />
+    </StoryStatusProvider>
+  );
 }
