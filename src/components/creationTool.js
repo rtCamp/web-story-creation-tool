@@ -1,35 +1,62 @@
 /**
  * External dependencies
  */
-import React from "react";
+import React, { useMemo } from "react";
 import { StoryEditor } from "@googleforcreators/story-editor";
 import { elementTypes } from "@googleforcreators/element-library";
 import { registerElementType } from "@googleforcreators/elements";
-import styled from "styled-components";
 
 /**
  * Internal dependencies
  */
 import Layout from "./layout";
-import { saveStoryById } from "../api/story";
+import { LOCAL_STORAGE_CONTENT_KEY } from "../consts";
+import MediaUpload from "./MediaUpload";
+import { MediaProvider, useMedia } from "../app/media";
+import { saveStoryById, getFonts } from "../api";
 
-const AppContainer = styled.div`
-  height: 100vh;
-`;
+function getInitialStory() {
+  const savedStory = window.localStorage.getItem(LOCAL_STORAGE_CONTENT_KEY);
+  return savedStory ? JSON.parse(savedStory) : {};
+}
 
 const CreationTool = () => {
-  const apiCallbacks = {
-    saveStoryById,
-  };
+  const {
+    actions: {
+      updateMediaCallback,
+      uploadMediaCallback,
+      getMediaCallback,
+      deleteMedia,
+    },
+  } = useMedia(({ state, actions }) => {
+    return { state, actions };
+  });
+
+  const config = useMemo(() => {
+    return {
+      autoSaveInterval: 5,
+      capabilities: {
+        hasUploadMediaAction: true,
+      },
+      apiCallbacks: {
+        updateCurrentUser: () => Promise.resolve({}),
+        getFonts,
+        saveStoryById,
+        getMedia: getMediaCallback,
+        updateMedia: updateMediaCallback,
+        uploadMedia: uploadMediaCallback,
+        deleteMedia,
+      },
+      MediaUpload,
+    };
+  }, [updateMediaCallback, uploadMediaCallback, getMediaCallback, deleteMedia]);
 
   elementTypes.forEach(registerElementType);
 
   return (
-    <AppContainer>
-      <StoryEditor config={{ apiCallbacks }} initialEdits={{ story: {} }}>
-        <Layout />
-      </StoryEditor>
-    </AppContainer>
+    <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
+      <Layout />
+    </StoryEditor>
   );
 };
 
