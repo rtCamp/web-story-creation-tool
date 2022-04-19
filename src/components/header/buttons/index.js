@@ -20,6 +20,7 @@
 import React from "react";
 import styled from "styled-components";
 import Export from "./export";
+import Import from "./import";
 
 /**
  * Internal dependencies
@@ -48,6 +49,8 @@ function Buttons() {
   return (
     <ButtonList>
       <List>
+        <Space />
+        <Import />
         <Space />
         <Export />
         <Space />
