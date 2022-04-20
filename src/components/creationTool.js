@@ -11,8 +11,6 @@ import { registerElementType } from "@googleforcreators/elements";
  */
 import Layout from "./layout";
 import { LOCAL_STORAGE_CONTENT_KEY } from "../consts";
-import MediaUpload from "./MediaUpload";
-import { MediaProvider, useMedia } from "../app/media";
 import { saveStoryById, getFonts } from "../api";
 
 function getInitialStory() {
@@ -21,17 +19,6 @@ function getInitialStory() {
 }
 
 const CreationTool = () => {
-  const {
-    actions: {
-      updateMedia,
-      uploadMedia,
-      getMedia,
-      deleteMedia,
-    },
-  } = useMedia(({ state, actions }) => {
-    return { state, actions };
-  });
-
   const config = useMemo(() => {
     return {
       autoSaveInterval: 5,
@@ -42,14 +29,9 @@ const CreationTool = () => {
         updateCurrentUser: () => Promise.resolve({}),
         getFonts,
         saveStoryById,
-        getMedia,
-        updateMedia,
-        uploadMedia,
-        deleteMedia,
       },
-      MediaUpload,
     };
-  }, [updateMedia, uploadMedia, getMedia, deleteMedia]);
+  }, []);
 
   elementTypes.forEach(registerElementType);
 

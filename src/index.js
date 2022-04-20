@@ -10,7 +10,6 @@ import styled from "styled-components";
  * Internal dependencies
  */
 import CreationTool from "./components/creationTool";
-import { MediaProvider } from "./app/media";
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -19,9 +18,7 @@ const AppContainer = styled.div`
 const initEditor = () => {};
 render(
   <AppContainer>
-    <MediaProvider>
-      <CreationTool />
-    </MediaProvider>
+    <CreationTool />
   </AppContainer>,
   document.getElementById("root")
 );

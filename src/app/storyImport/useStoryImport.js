@@ -2,13 +2,10 @@
  * External dependencies
  */
 import { useSnackbar } from "@googleforcreators/design-system";
-import { useStory } from "@googleforcreators/story-editor";
 import JSZip from "jszip";
 /**
  * Internal dependencies
  */
-import { getResourceFromLocalFile } from "../media/utils";
-import { useMedia } from "../media";
 import { useStoryStatus } from "../storyStatus";
 
 const INPUT_ID = "hidden-import-file-input";
@@ -18,15 +15,7 @@ function useStoryImport() {
   const {
     actions: { updateIsImporting },
   } = useStoryStatus(({ actions }) => ({ actions }));
-  const {
-    internal: { restore, reducerState },
-  } = useStory();
 
-  const { media, updateMedia } = useMedia(
-    ({ state: { media }, actions: { updateMedia } }) => {
-      return { media, updateMedia };
-    }
-  );
 
   const handleFile = async (event) => {
     const inputFiles = event.target.files;
@@ -73,84 +62,6 @@ function useStoryImport() {
       capabilities: reducerState.capabilities,
     };
 
-    let elements = [];
-    stateToRestore.pages.forEach((page) => {
-      elements = [...elements, ...page.elements];
-    });
-
-    const mediaTitles = media.map((mediaItem) => mediaItem.title);
-
-    await Promise.all(
-      Object.keys(files).map(async (fileName, index) => {
-        const currentFile = files[fileName];
-
-        const elementIndex = elements.findIndex(
-          (element) => element?.resource?.src === fileName
-        );
-
-        const { resource } = elementIndex >= 0 ? elements[elementIndex] : {};
-
-        if (mediaTitles.includes(resource?.title)) {
-          return;
-        }
-
-        if (["image", "video"].includes(resource?.type)) {
-          const { mimeType } = resource;
-          const blob = await currentFile?.async("blob");
-          const mediaFile = new File([blob], currentFile.name, {
-            type: mimeType,
-          });
-
-          if (!mediaFile) {
-            return;
-          }
-
-          const { resource: mediaResource } = await getResourceFromLocalFile(
-            mediaFile
-          );
-          const mediaSrc = mediaResource.src;
-
-          const mediaItem = { ...mediaResource, ...resource };
-          mediaItem.id = index + 1;
-          mediaItem.src = mediaSrc;
-          mediaItem.local = false;
-          mediaItem.file = mediaFile;
-          if ("video" === resource.type) {
-            const videoFileName = fileName.split(".")[0];
-            const poster = `${videoFileName}-poster.jpeg`;
-
-            // Poster is not available in resource, so it will not be pushed to media.
-            if (files[poster]) {
-              const posterBlob = await files[poster]?.async("blob");
-              const posterMediaFile = new File([posterBlob], poster, {
-                type: "image/jpeg",
-              });
-
-              if (posterMediaFile) {
-                const { resource: posterResource } =
-                  await getResourceFromLocalFile(posterMediaFile);
-
-                mediaItem.poster = posterResource.src;
-                mediaItem.local = false;
-                elements[elementIndex].resource.poster = posterResource.src;
-              }
-            }
-          }
-
-          elements[elementIndex].resource.src = mediaSrc;
-
-          mediaItems.push(mediaItem);
-        }
-      })
-    );
-
-    updateMedia((prevMedia) => {
-      const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.alt);
-      const filteredMedia = mediaItems.filter(
-        (mediaItem) => !prevMediaTitles.includes(mediaItem.alt)
-      );
-      return [...prevMedia, ...filteredMedia];
-    });
     restore(stateToRestore);
 
     updateIsImporting(false);
