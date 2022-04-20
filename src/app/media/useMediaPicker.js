@@ -5,7 +5,7 @@
 import { useEffect, useCallback, useMemo } from '@googleforcreators/react';
 import { useConfig, useAPI } from '@googleforcreators/story-editor';
 
-function useMediaPicker() {
+function useMediaPicker({onClose}) {
   const { allowedMimeTypes } = useConfig();
 
   const {
@@ -46,6 +46,7 @@ function useMediaPicker() {
     const ele = document.getElementById('hidden-file-input');
     if (ele) {
       ele.click();
+      ele.onchange = ()=>{onclose();}
     }
   };
 
