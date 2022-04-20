@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { StoryEditor } from "@googleforcreators/story-editor";
 import { elementTypes } from "@googleforcreators/element-library";
 import { registerElementType } from "@googleforcreators/elements";
@@ -12,6 +12,7 @@ import { registerElementType } from "@googleforcreators/elements";
 import Layout from "./layout";
 import { LOCAL_STORAGE_CONTENT_KEY } from "../consts";
 import { saveStoryById, getFonts } from "../api";
+import useIndexedDBMedia from "../app/useIndexedDBMedia";
 
 function getInitialStory() {
   const savedStory = window.localStorage.getItem(LOCAL_STORAGE_CONTENT_KEY);
@@ -19,6 +20,7 @@ function getInitialStory() {
 }
 
 const CreationTool = () => {
+  const { isInitialized, getMedia } = useIndexedDBMedia();
   const config = useMemo(() => {
     return {
       autoSaveInterval: 5,
@@ -29,16 +31,19 @@ const CreationTool = () => {
         updateCurrentUser: () => Promise.resolve({}),
         getFonts,
         saveStoryById,
+        getMedia,
       },
     };
   }, []);
 
   elementTypes.forEach(registerElementType);
 
-  return (
+  return isInitialized ? (
     <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
       <Layout />
     </StoryEditor>
+  ) : (
+    <p>Please wait</p>
   );
 };
 
