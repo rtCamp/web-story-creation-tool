@@ -12,7 +12,8 @@ import { registerElementType } from "@googleforcreators/elements";
 import Layout from "./layout";
 import { LOCAL_STORAGE_CONTENT_KEY } from "../consts";
 import { saveStoryById, getFonts } from "../api";
-import useIndexedDBMedia from "../app/useIndexedDBMedia";
+import useIndexedDBMedia from "../app/indexedDBMedia/useIndexedDBMedia";
+import MediaUpload from "./mediaUpload";
 
 function getInitialStory() {
   const savedStory = window.localStorage.getItem(LOCAL_STORAGE_CONTENT_KEY);
@@ -20,7 +21,7 @@ function getInitialStory() {
 }
 
 const CreationTool = () => {
-  const { isInitialized, getMedia } = useIndexedDBMedia();
+  const { isInitialized, getMedia, uploadMedia } = useIndexedDBMedia();
   const config = useMemo(() => {
     return {
       autoSaveInterval: 5,
@@ -32,7 +33,9 @@ const CreationTool = () => {
         getFonts,
         saveStoryById,
         getMedia,
+        uploadMedia,
       },
+      MediaUpload
     };
   }, []);
 
