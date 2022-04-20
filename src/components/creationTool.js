@@ -23,9 +23,9 @@ function getInitialStory() {
 const CreationTool = () => {
   const {
     actions: {
-      updateMediaCallback,
-      uploadMediaCallback,
-      getMediaCallback,
+      updateMedia,
+      uploadMedia,
+      getMedia,
       deleteMedia,
     },
   } = useMedia(({ state, actions }) => {
@@ -42,14 +42,14 @@ const CreationTool = () => {
         updateCurrentUser: () => Promise.resolve({}),
         getFonts,
         saveStoryById,
-        getMedia: getMediaCallback,
-        updateMedia: updateMediaCallback,
-        uploadMedia: uploadMediaCallback,
+        getMedia,
+        updateMedia,
+        uploadMedia,
         deleteMedia,
       },
       MediaUpload,
     };
-  }, [updateMediaCallback, uploadMediaCallback, getMediaCallback, deleteMedia]);
+  }, [updateMedia, uploadMedia, getMedia, deleteMedia]);
 
   elementTypes.forEach(registerElementType);
 

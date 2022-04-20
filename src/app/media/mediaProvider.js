@@ -14,7 +14,7 @@ import MediaContext from "./context";
 import { getResourceFromLocalFile, isValidFile } from "./utils";
 
 function MediaProvider({ children }) {
-  const [media, updateMedia] = useState([]);
+  const [media, setMedia] = useState([]);
   const [isInitialMount, updateIsInitialMount] = useState(true);
 
   const addLocalFiles = useCallback(
@@ -42,7 +42,7 @@ function MediaProvider({ children }) {
           }
         })
       );
-      updateMedia((prevMedia) => {
+      setMedia((prevMedia) => {
         const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.alt);
         const filteredMedia = mediaItems.filter(
           (mediaItem) => !prevMediaTitles.includes(mediaItem.alt)
@@ -50,7 +50,7 @@ function MediaProvider({ children }) {
         return [...prevMedia, ...filteredMedia];
       });
     },
-    [updateMedia, media]
+    [setMedia, media]
   );
 
   const restoreMediaFromDb = useCallback(
@@ -78,7 +78,7 @@ function MediaProvider({ children }) {
           }
         })
       );
-      updateMedia((prevMedia) => {
+      setMedia((prevMedia) => {
         const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.title);
         const filteredMedia = mediaItems.filter(
           (mediaItem) => !prevMediaTitles.includes(mediaItem.title)
@@ -86,7 +86,7 @@ function MediaProvider({ children }) {
         return [...prevMedia, ...filteredMedia];
       });
     },
-    [updateMedia]
+    [setMedia]
   );
 
   const getMedia = useCallback(
@@ -102,7 +102,7 @@ function MediaProvider({ children }) {
           mediaItem.title.includes(searchTerm)
         );
       }
-
+      console.log(filteredMedia);
       return Promise.resolve({
         data: filteredMedia,
         headers: {
@@ -119,20 +119,20 @@ function MediaProvider({ children }) {
       const filteredMedia = media.filter(
         (mediaItem) => mediaItem.id !== mediaId
       );
-      updateMedia(filteredMedia);
+      setMedia(filteredMedia);
     },
     [media]
   );
 
-  const uploadMediaCallback = async (file) => {
+  const uploadMedia = async (file) => {
     if (Object.prototype.toString.call(file).includes("Blob")) {
       return;
     }
     await addLocalFiles([file]);
   };
 
-  const updateMediaCallback = useCallback((mediaId, data) => {
-    updateMedia((prevMedia) => {
+  const updateMedia = useCallback((mediaId, data) => {
+    setMedia((prevMedia) => {
       const updated = prevMedia.map((mediaItem) => {
         if (mediaId !== mediaItem.id) {
           return mediaItem;
@@ -149,9 +149,9 @@ function MediaProvider({ children }) {
 
   const value = {
     actions: {
-      getMediaCallback: getMedia,
-      updateMediaCallback,
-      uploadMediaCallback,
+      getMedia,
+      setMedia,
+      uploadMedia,
       deleteMedia,
       updateIsInitialMount,
       addLocalFiles,
