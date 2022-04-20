@@ -21,7 +21,6 @@ const useIndexedDBMedia = () => {
         const storage = event.target.result.createObjectStore("assets", {
           autoIncrement: true,
         });
-        // Add an object to the "data" objectStore with the key.
         storage.add([], "files");
       };
     });
@@ -134,14 +133,14 @@ const useIndexedDBMedia = () => {
       resolve();
     });
 
-  const onMountRoutine = async () => {
+  const _onMountRoutine = async () => {
     await _initIndexedDB();
     await _refreshMedia();
     setIsInitialized(true);
   };
 
   useEffect(() => {
-    onMountRoutine();
+    _onMountRoutine();
   }, []);
 
   return {

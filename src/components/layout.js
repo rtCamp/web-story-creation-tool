@@ -9,9 +9,10 @@ import { InterfaceSkeleton } from "@googleforcreators/story-editor";
  */
 import { Header } from "./header";
 import { StoryStatusProvider } from "../app/storyStatus";
+import useUpdateStoryAssets from "../app/indexedDBMedia/useUpdateStoryAssets";
 
 export default function Layout() {
-  
+  useUpdateStoryAssets();
   return (
     <StoryStatusProvider>
       <InterfaceSkeleton header={<Header />} />
