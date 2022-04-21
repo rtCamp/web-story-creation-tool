@@ -5,6 +5,9 @@ import {
   ASSET_OBJECT_STORE_NAME,
 } from "./consts";
 
+/**
+ * instantiates Indexed DB and add an empty array for assets.
+ */
 export const initDB = () =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -25,6 +28,10 @@ export const initDB = () =>
     };
   });
 
+/**
+ * get media list from indexedDB
+ * @returns {Promise<[mediaItem]>} A promise which will resolve into an array of media stored in indexedDB
+ */
 export const getFromDB = () =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
@@ -46,6 +53,12 @@ export const getFromDB = () =>
     };
   });
 
+/** 
+ * Update media item.
+ * @param mediaId Id of media item which needs to be updated.
+ * @param data New data for media ( Currently supports only `altText` and `baseColor` )
+ * @returns {Promise<[mediaItem]>} A promise which will resolve after updating media Item in indexedDB
+ */
 export const updateInDB = (mediaId, data) =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
@@ -89,6 +102,11 @@ export const updateInDB = (mediaId, data) =>
     };
   });
 
+/** 
+ * Replace the whole media list.
+ * @param replacementMediaList New media list.
+ * @returns {Promise<[mediaItem]>} A promise which will resolve after updating media list in indexedDB
+ */
 export const replaceInDB = (replacementMediaList) =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
@@ -122,6 +140,11 @@ export const replaceInDB = (replacementMediaList) =>
     };
   });
 
+/** 
+ * Delete a media item in indexedDB
+ * @param mediaId Id of the media element which needs to be deleted.
+ * @returns {Promise<[mediaItem]>} A promise which will resolve after deleting media item in indexedDB
+ */
 export const deleteInDB = (mediaId) =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
@@ -158,6 +181,11 @@ export const deleteInDB = (mediaId) =>
     };
   });
 
+  /** 
+ * Add a media item in indexedDB
+ * @param mediaItem Media Item which needs to be added in indexedDB.
+ * @returns {Promise<[mediaItem]>} A promise which will resolve after adding media item in indexedDB
+ */
 export const addToDB = (mediaItem) =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
