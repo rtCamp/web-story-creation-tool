@@ -1,5 +1,6 @@
 import { useStory } from "@googleforcreators/story-editor";
 import { useEffect, useRef } from "react";
+import { getFromDB } from "./utils/DBHelpers";
 
 const useUpdateStoryAssets = () => {
   const updatedOnce = useRef(false);
@@ -9,27 +10,6 @@ const useUpdateStoryAssets = () => {
     pages: state.state.pages,
   }));
 
-  const _getMediaInDB = () =>
-    new Promise((resolve, reject) => {
-      var request = indexedDB.open("MyTestDatabase");
-      request.onerror = (event) => {
-        reject(event.target.errorCode);
-      };
-      request.onsuccess = (event) => {
-        const db = event.target.result;
-        const request = db
-          .transaction(["assets"])
-          .objectStore("assets")
-          .get("files");
-        request.onerror = (event) => {
-          reject(event.target.errorCode);
-        };
-        request.onsuccess = (event) => {
-          resolve(event.target.result);
-        };
-      };
-    });
-
   const _updateStoryAssets = async () => {
     const elementsList = [];
     pages.forEach((page) => {
@@ -38,7 +18,7 @@ const useUpdateStoryAssets = () => {
       });
     });
 
-    const mediaListInDb = await _getMediaInDB();
+    const mediaListInDb = await getFromDB();
 
     mediaListInDb.forEach((mediaItemInDb) => {
       elementsList.forEach(async (element) => {
