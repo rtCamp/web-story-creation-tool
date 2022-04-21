@@ -53,7 +53,7 @@ export const getFromDB = () =>
     };
   });
 
-/** 
+/**
  * Update media item.
  * @param mediaId Id of media item which needs to be updated.
  * @param data New data for media ( Currently supports only `altText` and `baseColor` )
@@ -84,8 +84,20 @@ export const updateInDB = (mediaId, data) =>
           if (mediaItem.id === mediaId) {
             return {
               ...mediaItem,
-              alt: data.altText ? data.altText : mediaItem.alt,
               baseColor: data.baseColor ? data.baseColor : mediaItem.baseColor,
+              blurHash: data.blurHash ? data.blurHash : mediaItem.blurHash,
+              isMuted: data.isMuted ? data.isMuted : mediaItem.isMuted,
+              mediaSource: data.mediaSource
+                ? data.mediaSource
+                : mediaItem.mediaSource,
+              optimizedId: data.optimizedId
+                ? data.optimizedId
+                : mediaItem.optimizedId,
+              mutedId: data.mutedId ? data.mutedId : mediaItem.mutedId,
+              posterId: data.posterId ? data.posterId : mediaItem.posterId,
+              storyId: data.storyId ? data.storyId : mediaItem.storyId,
+              alt: data.altText ? data.altText : mediaItem.alt,
+              posterId: data.posterId ? data.posterId : mediaItem.posterId,
             };
           } else {
             return mediaItem;
@@ -102,7 +114,7 @@ export const updateInDB = (mediaId, data) =>
     };
   });
 
-/** 
+/**
  * Replace the whole media list.
  * @param replacementMediaList New media list.
  * @returns {Promise<[mediaItem]>} A promise which will resolve after updating media list in indexedDB
@@ -140,7 +152,7 @@ export const replaceInDB = (replacementMediaList) =>
     };
   });
 
-/** 
+/**
  * Delete a media item in indexedDB
  * @param mediaId Id of the media element which needs to be deleted.
  * @returns {Promise<[mediaItem]>} A promise which will resolve after deleting media item in indexedDB
@@ -181,7 +193,7 @@ export const deleteInDB = (mediaId) =>
     };
   });
 
-  /** 
+/**
  * Add a media item in indexedDB
  * @param mediaItem Media Item which needs to be added in indexedDB.
  * @returns {Promise<[mediaItem]>} A promise which will resolve after adding media item in indexedDB

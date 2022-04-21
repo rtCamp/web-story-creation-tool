@@ -25,6 +25,7 @@ function useMediaPicker({ onClose }) {
           await uploadMedia(file);
         })
       );
+      onClose();
     },
     [uploadMedia]
   );
@@ -45,12 +46,6 @@ function useMediaPicker({ onClose }) {
     const ele = document.getElementById("hidden-file-input");
     if (ele) {
       ele.click();
-      ele.onchange = () => {
-        // TODO: remove setTimeout under
-        setTimeout(() => {
-          onClose();
-        }, 500);
-      };
     }
   };
 
