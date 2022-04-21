@@ -23,11 +23,9 @@ import {
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
-  Tooltip,
-  Icons,
 } from '@googleforcreators/design-system';
 import { useCallback } from '@googleforcreators/react';
-import { useStory, useHistory } from '@googleforcreators/story-editor';
+import { useStory, useHistory, Tooltip } from '@googleforcreators/story-editor';
 import styled from 'styled-components';
 /**
  * Internal dependencies
@@ -35,9 +33,20 @@ import styled from 'styled-components';
 import { useStoryStatus } from '../../../app/storyStatus';
 import getInitialStoryState from '../../../utils/getInitialStoryState';
 import { LOCAL_STORAGE_CONTENT_KEY } from '../../../consts';
+import arrowCircle from './inline-icons/arrow_circle.svg';
 
 const Space = styled.div`
   width: 8px;
+`;
+const ArrowCircle = styled.img`
+  width: 28px;
+  height: 28px;
+  left: -1px;
+  top: -1px;
+  src: url('${arrowCircle}');
+  background-size: 100%;
+  /* The icon is black and we can't use color because it's not inline so invert it is */
+  filter: invert(100%);
 `;
 
 const ButtonContainer = styled.div`
@@ -85,7 +94,10 @@ function Reset() {
             disabled={isImporting || isExporting}
             aria-label={label}
           >
-            <Icons.ArrowCircle />
+            <ArrowCircle
+              src={arrowCircle}
+              alt={__('Button to reset the editor.', 'web-stories')}
+            />
           </Button>
         </ButtonContainer>
       </Tooltip>

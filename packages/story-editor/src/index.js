@@ -37,7 +37,6 @@ export { focusStyle } from './components/panels/shared/styles';
 export * from './components/checklistCard';
 export * from './app/currentUser';
 
-export { createPage } from './elements';
 export { default as getUniquePresets } from './utils/getUniquePresets';
 export { default as getStoryPropsToSave } from './app/story/utils/getStoryPropsToSave';
 export { default as useRefreshPostEditURL } from './utils/useRefreshPostEditURL';

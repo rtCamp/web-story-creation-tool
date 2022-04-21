@@ -89,6 +89,9 @@ export const StyledPane = styled(Pane)`
   height: 100%;
   padding: 0;
   overflow: hidden;
+  @media (max-width: 480px) {
+    overflow: auto;
+  }
 `;
 
 export const SearchInputContainer = styled.div`

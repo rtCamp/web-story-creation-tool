@@ -22,7 +22,7 @@ import { useCallback } from '@googleforcreators/react';
 import { __ } from '@googleforcreators/i18n';
 import { trackEvent } from '@googleforcreators/tracking';
 import { useEscapeToBlurEffect } from '@googleforcreators/design-system';
-
+import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
@@ -49,9 +49,12 @@ const SidebarContainer = styled.div`
 
 const UnjustifiedTabView = styled(TabView)`
   justify-content: center;
+  @media (max-width: 480px) {
+    position: sticky;
+  }
 `;
 
-function SidebarLayout() {
+function SidebarLayout({ handleClick, clicked }) {
   const {
     state: { tab, tabRefs },
     actions: { setSidebarContentNode, setTab },
@@ -80,6 +83,8 @@ function SidebarLayout() {
         onTabChange={onTabChange}
         getAriaControlsId={getTabId}
         shortcut="mod+option+3"
+        handleClick={handleClick}
+        clicked={clicked}
       />
       <SidebarContainer ref={setSidebarContentNode}>
         <SidebarContent />
@@ -87,5 +92,8 @@ function SidebarLayout() {
     </Layout>
   );
 }
-
+SidebarLayout.propTypes = {
+  handleClick: PropTypes.func,
+  clicked: PropTypes.bool,
+};
 export default SidebarLayout;

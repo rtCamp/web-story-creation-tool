@@ -30,7 +30,24 @@ const Area = styled.div`
   z-index: ${({ zIndex }) => zIndex};
 `;
 
-const CanvasArea = styled(Area).attrs({ area: 'canv', zIndex: 1 })``;
-const SidebarArea = styled(Area).attrs({ area: 'sidebar', zIndex: 2 })``;
+const CanvasArea = styled(Area).attrs({
+  area: 'canv',
+  zIndex: 1,
+})`
+  @media (max-width: 480px) {
+    height: ${({ clicked, isMediaTab }) =>
+      clicked ? (isMediaTab ? '0px' : '50%') : '90%'};
+    display: ${({ clicked, isMediaTab }) =>
+      clicked ? (isMediaTab ? 'none' : 'contents') : 'contents'};
+    justify-content: space-evenly;
+  }
+`;
+const SidebarArea = styled(Area).attrs({ area: 'sidebar', zIndex: 2 })`
+  @media (max-width: 480px) {
+    height: ${({ clicked, isMediaTab }) =>
+      clicked ? (isMediaTab ? '100%' : '50%') : '6%'};
+    overflow-y: auto;
+  }
+`;
 
 export { CanvasArea, SidebarArea };

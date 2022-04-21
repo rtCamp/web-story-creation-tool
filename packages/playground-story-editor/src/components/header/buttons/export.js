@@ -18,13 +18,13 @@
  * External dependencies
  */
 
-import { __ } from '@googleforcreatorsors/i18n';
+import { __ } from '@googleforcreators/i18n';
 import {
   Button,
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
-} from '@googleforcreatorsors/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies

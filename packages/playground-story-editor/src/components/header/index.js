@@ -33,11 +33,17 @@ const Background = styled.header.attrs({
   align-items: center;
   justify-content: space-between;
   background-color: ${({ theme }) => theme.colors.bg.primary};
+  @media (max-width: 480px) {
+    overflow-x: auto;
+  }
 `;
 
 const Head = styled.div`
   flex: 1 1 auto;
   padding: 1em;
+  @media (max-width: 480px) {
+    padding: 0.2em;
+  }
 `;
 
 const ButtonCell = styled.div`

@@ -27,6 +27,7 @@ import {
   THEME_CONSTANTS,
   themeHelpers,
   ThemeGlobals,
+  Icons,
 } from '@googleforcreators/design-system';
 
 /**
@@ -148,7 +149,26 @@ const TabText = styled(Headline).attrs({
 `;
 
 const noop = () => {};
-
+const PushDownArrow = styled(Icons.Openup)`
+  height: 32px;
+  width: 32px;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 12px 9px;
+  @media (min-width: 480px) {
+    display: none;
+  }
+`;
+const PushUpArrow = styled(Icons.Closedown)`
+  height: 32px;
+  width: 32px;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 12px 9px;
+  @media (min-width: 480px) {
+    display: none;
+  }
+`;
 function UnreffedTab(
   { children, tooltip = null, placement, refId, tabRefs, ...rest },
   ref
@@ -199,10 +219,11 @@ function TabView({
   shortcut = '',
   tab,
   tabRefs,
+  handleClick = noop,
+  clicked = false,
   ...rest
 }) {
   const { isRTL } = useConfig();
-
   const ref = useRef();
   const focused = useRef();
   const internalTabRefs = useRef({}); // fallback if tabRefs aren't passed in
@@ -275,7 +296,11 @@ function TabView({
     [selectTab],
     {}
   );
-
+  const DrawerIcon = clicked ? (
+    <PushUpArrow onClick={handleClick} />
+  ) : (
+    <PushDownArrow onClick={handleClick} />
+  );
   return (
     <Tabs aria-label={label} ref={ref} {...rest}>
       {tabs.map(({ id, title, icon: Icon, ...tabRest }) => (
@@ -305,6 +330,7 @@ function TabView({
           {Boolean(Icon) && <Icon isActive={id === tab} />}
         </Tab>
       ))}
+      {label === 'Sidebar Selection' && DrawerIcon}
     </Tabs>
   );
 }
@@ -321,6 +347,8 @@ TabView.propTypes = {
   ),
   label: PropTypes.string,
   shortcut: PropTypes.string,
+  handleClick: PropTypes.func,
+  clicked: PropTypes.bool,
 };
 
 export default TabView;

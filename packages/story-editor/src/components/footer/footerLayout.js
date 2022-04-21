@@ -42,6 +42,9 @@ const Wrapper = styled.section`
   width: 100%;
   max-width: 100%;
   height: 100%;
+  @media (max-width: 480px) {
+    gap: 5px;
+  }
 `;
 
 const Area = styled.div`
@@ -51,14 +54,15 @@ const Area = styled.div`
   justify-content: center;
   z-index: ${({ zIndex = 'auto' }) => zIndex};
 `;
-
 function FooterLayout({ footer, zIndex }) {
   return (
     <DirectionAware>
       <Wrapper aria-label={__('Workspace Footer', 'web-stories')}>
-        <Area area="carousel">
-          <Carousel />
-        </Area>
+        {!window.matchMedia('(max-width:480px)').matches && (
+          <Area area="carousel">
+            <Carousel />
+          </Area>
+        )}
         <Area area="primary" zIndex={zIndex}>
           <PrimaryMenu />
         </Area>

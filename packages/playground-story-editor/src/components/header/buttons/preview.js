@@ -40,7 +40,7 @@ function getPreviewLink() {
     'preview.html'
   );
 }
-
+const PREVIEW_TARGET = 'story-preview';
 function Preview() {
   const { saveStory } = useStory(
     ({
@@ -62,11 +62,7 @@ function Preview() {
     // the saving operation. That way we will not bust the popup timeout.
     let popup;
     try {
-      popup = window.open(
-        playgroundPreviewLink,
-        '_blank',
-        'location=yes,height=802,width=704,scrollbars=yes,status=yes'
-      );
+      popup = window.open('about:blank', PREVIEW_TARGET);
       if (popup) {
         popup.document.write('<!DOCTYPE html><html><head>');
         popup.document.write('<title>');

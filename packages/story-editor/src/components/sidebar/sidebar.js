@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/**
+ * External dependencies
+ */
+import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
@@ -21,12 +24,16 @@ import { UploadDropTarget } from '../uploadDropTarget';
 
 import SidebarLayout from './sidebarLayout';
 
-function Sidebar() {
+function Sidebar({ handleClick, clicked }) {
   return (
     <UploadDropTarget disabled>
-      <SidebarLayout />
+      <SidebarLayout handleClick={handleClick} clicked={clicked} />
     </UploadDropTarget>
   );
 }
+Sidebar.propTypes = {
+  handleClick: PropTypes.func,
+  clicked: PropTypes.bool,
+};
 
 export default Sidebar;

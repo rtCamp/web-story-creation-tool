@@ -40,7 +40,7 @@ function Sidebar() {
   } = useSidebar();
 
   return (
-    <SidebarPanes>
+    <SidebarPanes id="sidebar-panes">
       {tabs.map(({ id, Pane }) => (
         <SidebarPane
           aria-labelledby={id}

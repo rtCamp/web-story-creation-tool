@@ -18,7 +18,7 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { CircularProgress } from '@googleforcreators/story-editor';
+import { CircularProgress } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -73,8 +73,12 @@ function Buttons() {
       <List>
         <Reset />
         <Space />
-        <Import />
-        <Space />
+        {!window.matchMedia('(max-width:480px)') && (
+          <>
+            <Import />
+            <Space />
+          </>
+        )}
         <Export />
         <Space />
         <Save />

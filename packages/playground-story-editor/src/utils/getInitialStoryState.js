@@ -16,8 +16,9 @@
 /**
  * External dependencies
  */
-import { migrate } from '@googleforcreators/migration/src/migrate';
-import { createPage, getUniquePresets } from '@googleforcreators/story-editor';
+import { migrate } from '@googleforcreators/migration';
+import { getUniquePresets } from '@googleforcreators/story-editor';
+import { createPage } from '@googleforcreators/elements';
 
 function getInitialStoryState() {
   const globalStoryStyles = {

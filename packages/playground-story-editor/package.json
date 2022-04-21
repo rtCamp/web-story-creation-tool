@@ -5,12 +5,15 @@
     "node": ">= 16",
     "npm": ">= 7.3"
   },
-  "exports": {
-    "default": "./src/index.js"
+  "customExports": {
+    ".":{
+      "default": "./src/index.js"
+    }
   },
   "main": "./src/index.js",
-  "type": "module",
   "dependencies": {
+    "@googleforcreators/element-library": "*",
+    "@googleforcreators/elements": "*",
     "@googleforcreators/react": "*",
     "@googleforcreators/story-editor": "*",
     "@googleforcreators/design-system": "*",

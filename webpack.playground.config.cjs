@@ -30,19 +30,49 @@ const mode = isProduction ? 'production' : 'development';
 
 process.env.APP_ENV = process.env.APP_ENV || '';
 const isGhPages = process.env.APP_ENV === 'ghpages';
+
 module.exports = {
+  resolve: {
+    // Fixes resolving packages in the monorepo so we use the "src" folder, not "dist".
+    exportsFields: ['customExports', 'exports'],
+  },
   mode,
   entry: './packages/playground-story-editor/src/index.js',
   devtool: 'source-map',
+  target: 'browserslist',
   module: {
     rules: [
+      !isProduction && {
+        test: /\.m?js$/,
+        use: ['source-map-loader'],
+        // html-to-image and react-blurhash reference source maps but don't currently ship with any.
+        exclude: /node_modules\/html-to-image|node_modules\/react-blurhash/,
+        enforce: 'pre',
+        resolve: {
+          fullySpecified: false,
+        },
+      },
       {
-        test: /\.js$/,
+        test: /\.worker\.js$/,
         exclude: /node_modules/,
+        use: {
+          loader: 'worker-loader',
+          options: {
+            inline: 'fallback',
+          },
+        },
+      },
+      {
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        resolve: {
+          // Avoid having to provide full file extension for imports.
+          // See https://webpack.js.org/configuration/module/#resolvefullyspecified
+          fullySpecified: false,
+        },
         use: [
-          require.resolve('thread-loader'),
           {
-            loader: require.resolve('babel-loader'),
+            loader: 'babel-loader',
             options: {
               // Babel uses a directory within local node_modules
               // by default. Use the environment variable option
@@ -55,56 +85,76 @@ module.exports = {
       // These should be sync'd with the config in `.storybook/main.cjs`.
       {
         test: /\.svg$/,
-        use: [
+        // Use asset SVG and SVGR together.
+        // Not using resourceQuery because it doesn't work well with Rollup.
+        // https://react-svgr.com/docs/webpack/#use-svgr-and-asset-svg-in-the-same-project
+        oneOf: [
           {
-            loader: '@svgr/webpack',
-            options: {
-              titleProp: true,
-              svgo: true,
-              memo: true,
-              svgoConfig: {
-                plugins: [
-                  {
-                    removeViewBox: false,
-                    removeDimensions: true,
-                    convertColors: {
-                      currentColor: /^(?!url|none)/i,
-                    },
-                  },
-                ],
-              },
-            },
+            type: 'asset/inline',
+            include: [/inline-icons\/.*\.svg$/],
           },
-          'url-loader',
-        ],
-        exclude: [/images\/.*\.svg$/],
-      },
-      {
-        test: /\.svg$/,
-        use: [
           {
-            loader: '@svgr/webpack',
-            options: {
-              titleProp: true,
-              svgo: true,
-              memo: true,
-              svgoConfig: {
-                plugins: [
-                  {
-                    removeViewBox: false,
-                    removeDimensions: true,
-                    convertColors: {
-                      // See https://github.com/google/web-stories-wp/pull/6361
-                      currentColor: false,
-                    },
+            issuer: /\.js?$/,
+            include: [/\/icons\/.*\.svg$/],
+            use: [
+              {
+                loader: '@svgr/webpack',
+                options: {
+                  titleProp: true,
+                  svgo: true,
+                  memo: true,
+                  svgoConfig: {
+                    plugins: [
+                      {
+                        name: 'preset-default',
+                        params: {
+                          overrides: {
+                            removeViewBox: false,
+                            convertColors: {
+                              currentColor: /^(?!url|none)/i,
+                            },
+                          },
+                        },
+                      },
+                      'removeDimensions',
+                    ],
                   },
-                ],
+                },
               },
-            },
+            ],
           },
-          'url-loader',
+          {
+            issuer: /\.js?$/,
+            include: [/images\/.*\.svg$/],
+            use: [
+              {
+                loader: '@svgr/webpack',
+                options: {
+                  titleProp: true,
+                  svgo: true,
+                  memo: true,
+                  svgoConfig: {
+                    plugins: [
+                      {
+                        name: 'preset-default',
+                        params: {
+                          overrides: {
+                            removeViewBox: false,
+                            convertColors: {
+                              // See https://github.com/googleforcreators/web-stories-wp/pull/6361
+                              currentColor: false,
+                            },
+                          },
+                        },
+                      },
+                      'removeDimensions',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
         ],
-        include: [/images\/.*\.svg$/],
       },
       {
         test: /\.css$/,
@@ -113,16 +163,12 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif|webp)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              outputPath: '../images',
-            },
-          },
-        ],
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[hash][ext]',
+        },
       },
-    ],
+    ].filter(Boolean),
   },
   output: {
     publicPath: isGhPages ? '/web-story-creation-tool/' : '/',

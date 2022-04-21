@@ -57,6 +57,10 @@ const Editor = withOverlay(styled.section.attrs({
     'sidebar   supplementary ' auto /
     ${SIDEBAR_WIDTH}px
     minmax(${CANVAS_MIN_WIDTH}px, 1fr);
+  @media (max-width: 480px) {
+    display: flex;
+    flex-flow: column-reverse;
+  }
 `);
 
 function Layout({ header, footer = {}, sidebarTabs, children }) {
