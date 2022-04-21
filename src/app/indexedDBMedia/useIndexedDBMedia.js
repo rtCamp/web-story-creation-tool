@@ -102,7 +102,7 @@ const useIndexedDBMedia = () => {
       };
     });
 
-  const getMedia = () =>
+  const getMedia = ({ mediaType, searchTerm }) =>
     new Promise((resolve, reject) => {
       const request = dbRef.current
         .transaction(["assets"])
@@ -112,10 +112,21 @@ const useIndexedDBMedia = () => {
         reject(event.target.errorCode);
       };
       request.onsuccess = (event) => {
+        let filteredMedia = event.target.result;
+        if (mediaType) {
+          filteredMedia = filteredMedia.filter(
+            (mediaItem) => mediaType === mediaItem.type
+          );
+        }
+        if (searchTerm) {
+          filteredMedia = filteredMedia.filter((mediaItem) =>
+            mediaItem.title.includes(searchTerm)
+          );
+        }
         resolve({
-          data: event.target.result,
+          data: filteredMedia,
           headers: {
-            totalItems: event.target.result.length,
+            totalItems: filteredMedia.length,
             totalPages: 1,
           },
         });
@@ -133,6 +144,72 @@ const useIndexedDBMedia = () => {
       resolve();
     });
 
+  const updateMedia = (mediaId, data) =>
+    new Promise((resolve, reject) => {
+      const objectStore = dbRef.current
+        .transaction(["assets"], "readwrite")
+        .objectStore("assets");
+
+      const request = objectStore.get("files");
+
+      request.onerror = (event) => {
+        reject(event.target.errorCode);
+      };
+      request.onsuccess = (event) => {
+        const mediaInDB = event.target.result;
+
+        const newMedia = mediaInDB.map((mediaItem) => {
+          if (mediaId !== mediaItem.id) {
+            return mediaItem;
+          } else {
+            mediaItem.alt = data.altText ? data.altText : mediaItem.alt;
+            mediaItem.baseColor = data.baseColor
+              ? data.baseColor
+              : mediaItem.baseColor;
+            mediaItem.creationDate = new Date().toISOString();
+
+            return mediaItem;
+          }
+        });
+
+        const requestUpdate = objectStore.put(newMedia, "files");
+        requestUpdate.onerror = (event) => {
+          reject(event.target.errorCode);
+        };
+        requestUpdate.onsuccess = (event) => {
+          resolve();
+        };
+      };
+    });
+
+  const deleteMedia = (mediaId) =>
+    new Promise((resolve, reject) => {
+      const objectStore = dbRef.current
+        .transaction(["assets"], "readwrite")
+        .objectStore("assets");
+
+      const request = objectStore.get("files");
+
+      request.onerror = (event) => {
+        reject(event.target.errorCode);
+      };
+      request.onsuccess = (event) => {
+        const mediaInDB = event.target.result;
+        const newMedia = mediaInDB.filter(
+          (mediaItem) => mediaId !== mediaItem.id
+        );
+        console.log(newMedia);
+
+        const requestUpdate = objectStore.put(newMedia, "files");
+        requestUpdate.onerror = (event) => {
+          reject(event.target.errorCode);
+        };
+        requestUpdate.onsuccess = (event) => {
+          resolve();
+        };
+      };
+    });
+
   const _onMountRoutine = async () => {
     await _initIndexedDB();
     await _refreshMedia();
@@ -148,6 +225,8 @@ const useIndexedDBMedia = () => {
     isInitialized,
     getMedia,
     uploadMedia,
+    updateMedia,
+    deleteMedia,
     isIndexedDBSupported: window.indexedDB,
   };
 };

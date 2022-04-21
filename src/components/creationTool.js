@@ -21,7 +21,8 @@ function getInitialStory() {
 }
 
 const CreationTool = () => {
-  const { isInitialized, getMedia, uploadMedia } = useIndexedDBMedia();
+  const { isInitialized, getMedia, uploadMedia, updateMedia, deleteMedia } =
+    useIndexedDBMedia();
   const config = useMemo(() => {
     return {
       autoSaveInterval: 5,
@@ -34,8 +35,10 @@ const CreationTool = () => {
         saveStoryById,
         getMedia,
         uploadMedia,
+        updateMedia,
+        deleteMedia,
       },
-      MediaUpload
+      MediaUpload,
     };
   }, []);
 

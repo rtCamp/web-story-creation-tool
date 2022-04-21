@@ -46,7 +46,6 @@ function useMediaPicker({ onClose }) {
     if (ele) {
       ele.click();
       ele.onchange = () => {
-        console.log("change");
         // TODO: remove setTimeout under
         setTimeout(() => {
           onClose();
