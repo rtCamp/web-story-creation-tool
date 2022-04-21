@@ -18,14 +18,15 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { useMemo } from '@web-stories-wp/react';
+import { useMemo } from '@googleforcreators/react';
+import { getExtensionsFromMimeType } from '@googleforcreators/media';
 import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
  */
-import { __, sprintf, translateToExclusiveList } from '@web-stories-wp/i18n';
-import { MEDIA_VARIANTS } from '@web-stories-wp/design-system';
+import { __, sprintf, translateToExclusiveList } from '@googleforcreators/i18n';
+import { MEDIA_VARIANTS } from '@googleforcreators/design-system';
 import { useConfig } from '../../app';
 import Media from './media';
 
@@ -36,10 +37,18 @@ const StyledMedia = styled(Media)`
 
 function LinkIcon({ handleChange, icon, isLoading = false, ...rest }) {
   const {
-    allowedImageMimeTypes,
-    allowedImageFileTypes,
+    allowedMimeTypes: { image: allowedImageMimeTypes },
     capabilities: { hasUploadMediaAction },
   } = useConfig();
+
+  const allowedImageFileTypes = useMemo(
+    () =>
+      allowedImageMimeTypes
+        .map((type) => getExtensionsFromMimeType(type))
+        .flat(),
+    [allowedImageMimeTypes]
+  );
+
   const iconErrorMessage = useMemo(() => {
     let message = __(
       'No image file types are currently supported.',

@@ -21,7 +21,7 @@ import { waitFor } from '@testing-library/react';
 import {
   localStore,
   LOCAL_STORAGE_PREFIX,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -46,9 +46,10 @@ describe('LibraryTabs integration', () => {
   });
 
   describe('library Tabs should have no aXe accessibility violations', () => {
-    // Disable reason: aXe violations
-    // TODO: https://github.com/google/web-stories-wp/issues/9954
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    /* eslint-disable-next-line jasmine/no-disabled-tests --
+     * aXe violations
+     * TODO: https://github.com/googleforcreators/web-stories-wp/issues/9954
+     */
     xit('Local Media Panel should have no aXe violations', async () => {
       const { mediaTab } = fixture.editor.library;
       expect(mediaTab).toBeDefined();
@@ -77,8 +78,7 @@ describe('LibraryTabs integration', () => {
       expect(textTab).toBeDefined();
       // navigate to text panel
       await fixture.events.click(textTab);
-      // TODO fix nested interactions GET ISSUE LINK
-      // await expectAsync(textTab).toHaveNoViolations();
+      await expectAsync(textTab).toHaveNoViolations();
 
       // check panel for violations
       await expectAsync(fixture.editor.library.text.node).toHaveNoViolations();
@@ -185,7 +185,12 @@ describe('LibraryTabs integration', () => {
 
       // Click tab
       await fixture.events.mouse.clickOn(textTab, 5, 5);
-      await waitFor(() => fixture.editor.library.text);
+      await waitFor(() => {
+        if (!fixture.editor.library.text) {
+          throw new Error('text tab not ready');
+        }
+        expect(fixture.editor.library.text).toBeTruthy();
+      });
       expect(textTab).toHaveFocus();
 
       // Click elsewhere

@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { DATA_VERSION } from '@web-stories-wp/migration';
+import { DATA_VERSION } from '@googleforcreators/migration';
 /**
  * Internal dependencies
  */

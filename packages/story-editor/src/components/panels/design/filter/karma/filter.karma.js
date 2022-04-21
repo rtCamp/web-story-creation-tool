@@ -66,7 +66,8 @@ describe('Filter Panel', () => {
         const elements = await getElements();
         bgImageId = elements[0].id;
 
-        filterPanel = fixture.editor.inspector.designPanel.filters;
+        await fixture.events.click(fixture.editor.sidebar.designTab);
+        filterPanel = fixture.editor.sidebar.designPanel.filters;
         getBackgroundElementOverlay = () =>
           fixture.editor.canvas.displayLayer.display(bgImageId).overlay;
       });
@@ -150,8 +151,10 @@ describe('Filter Panel', () => {
     describe('media elements', () => {
       let elements;
       beforeEach(async () => {
-        await fixture.events.click(fixture.editor.library.media.item(0));
-        filterPanel = fixture.editor.inspector.designPanel.filters;
+        const mediaItem = fixture.editor.library.media.item(0);
+        await fixture.events.mouse.clickOn(mediaItem, 20, 20);
+        await fixture.events.click(fixture.editor.sidebar.designTab);
+        filterPanel = fixture.editor.sidebar.designPanel.filters;
       });
 
       it('should display the filter panel for non-bg media', () => {
@@ -199,8 +202,7 @@ describe('Filter Panel', () => {
     });
   });
 
-  // Disable reason: tests not implemented yet
-  // eslint-disable-next-line jasmine/no-disabled-tests
+  // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
   xdescribe('CUJ: Creator Can Manipulate an Image/Video on Canvas: Set overlay color(s) & other gradient properties', () => {
     it('should render overlay color component iff it has an overlay');
 

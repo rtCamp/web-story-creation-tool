@@ -18,32 +18,26 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 import {
   Snackbar,
   useSnackbar,
   themeHelpers,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
+import { withOverlay } from '@googleforcreators/moveable';
 import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import Library from '../library';
 import Workspace from '../workspace';
-import {
-  CANVAS_MIN_WIDTH,
-  LIBRARY_MIN_WIDTH,
-  LIBRARY_MAX_WIDTH,
-  INSPECTOR_MIN_WIDTH,
-  INSPECTOR_MAX_WIDTH,
-} from '../../constants';
-import withOverlay from '../overlay/withOverlay';
+import { CANVAS_MIN_WIDTH, SIDEBAR_WIDTH } from '../../constants';
 import { CanvasProvider } from '../../app/canvas';
 import { HighlightsProvider } from '../../app/highlights';
 import LayoutProvider from '../../app/layout/layoutProvider';
 import { ChecklistCheckpointProvider } from '../checklist';
 import { RightClickMenuProvider } from '../../app/rightClickMenu';
 import RightClickMenu from '../canvas/rightClickMenu';
+import SidebarProvider from '../sidebar/sidebarProvider';
 
 const Editor = withOverlay(styled.section.attrs({
   'aria-label': __('Web Stories Editor', 'web-stories'),
@@ -54,26 +48,18 @@ const Editor = withOverlay(styled.section.attrs({
   background-color: ${({ theme }) => theme.colors.bg.primary};
 
   position: relative;
+  max-height: 100vh;
   height: 100%;
   width: 100%;
-
   display: grid;
   grid:
-    'lib   canv        insp' 1fr
-    'lib   supplementary insp' auto /
-    minmax(${LIBRARY_MIN_WIDTH}px, ${LIBRARY_MAX_WIDTH}px)
-    minmax(${CANVAS_MIN_WIDTH}px, 1fr)
-    minmax(${INSPECTOR_MIN_WIDTH}px, ${INSPECTOR_MAX_WIDTH}px);
+    'sidebar   canv          ' 1fr
+    'sidebar   supplementary ' auto /
+    ${SIDEBAR_WIDTH}px
+    minmax(${CANVAS_MIN_WIDTH}px, 1fr);
 `);
 
-const Area = styled.div`
-  grid-area: ${({ area }) => area};
-  position: relative;
-  overflow: hidden;
-  z-index: 2;
-`;
-
-function Layout({ header, footer = {}, inspectorTabs, children }) {
+function Layout({ header, footer = {}, sidebarTabs, children }) {
   const snackbarState = useSnackbar(
     ({ removeSnack, currentSnacks, placement }) => ({
       onRemove: removeSnack,
@@ -87,22 +73,17 @@ function Layout({ header, footer = {}, inspectorTabs, children }) {
       <LayoutProvider>
         <ChecklistCheckpointProvider>
           <HighlightsProvider>
-            <Editor zIndex={3}>
-              <CanvasProvider>
-                <RightClickMenuProvider>
-                  <Area area="lib">
-                    <Library />
-                  </Area>
-                  <Workspace
-                    header={header}
-                    inspectorTabs={inspectorTabs}
-                    footer={footer}
-                  />
-                  <RightClickMenu />
-                </RightClickMenuProvider>
-              </CanvasProvider>
-              {children}
-            </Editor>
+            <SidebarProvider sidebarTabs={sidebarTabs}>
+              <Editor zIndex={3}>
+                <CanvasProvider>
+                  <RightClickMenuProvider>
+                    <Workspace header={header} footer={footer} />
+                    <RightClickMenu />
+                  </RightClickMenuProvider>
+                </CanvasProvider>
+                {children}
+              </Editor>
+            </SidebarProvider>
           </HighlightsProvider>
         </ChecklistCheckpointProvider>
       </LayoutProvider>
@@ -115,7 +96,7 @@ Layout.propTypes = {
   children: PropTypes.node,
   header: PropTypes.node,
   footer: PropTypes.object,
-  inspectorTabs: PropTypes.object,
+  sidebarTabs: PropTypes.object,
 };
 
 export default Layout;

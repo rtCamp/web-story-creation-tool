@@ -18,13 +18,12 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { boolean } from '@storybook/addon-knobs';
 
 /**
  * Internal dependencies
  */
 import { DarkThemeProvider } from '../../../storybookUtils';
-import { Tooltip } from '../../tooltip';
+import { BaseTooltip } from '../../tooltip';
 import { Text } from '../../typography';
 import { Cross, Pipette } from '../../../icons';
 import { Swatch } from '../swatch';
@@ -37,7 +36,7 @@ const Container = styled.div`
 
 const Row = styled.div`
   display: grid;
-  grid-template-columns: 30% repeat(6, 10%);
+  grid-template-columns: 30% repeat(4, 15%);
   margin-bottom: 16px;
   text-align: right;
 `;
@@ -52,9 +51,22 @@ const Cell = styled.div`
 export default {
   title: 'DesignSystem/Components/Swatch',
   component: Swatch,
+  args: {
+    isDisabled: false,
+  },
+  parameters: {
+    controls: {
+      include: ['isDisabled'],
+    },
+  },
 };
 
 const DEMO_COLORS = [
+  {
+    label: 'Indeterminate',
+    pattern: { color: { r: 0, g: 0, b: 255, a: 0 } },
+    isIndeterminate: true,
+  },
   {
     label: 'Fully transparent',
     pattern: { color: { r: 0, g: 0, b: 255, a: 0 } },
@@ -133,32 +145,24 @@ const DEMO_COLORS = [
 
 const VARIANTS = [
   {
-    variant: 'Large, regular',
+    variant: 'Regular',
   },
   {
-    variant: 'Large, disabled',
+    variant: 'Disabled',
     isDisabled: true,
   },
   {
-    variant: 'Large, cross',
+    variant: 'Icon',
     Icon: Cross,
   },
   {
-    variant: 'Large, pipette',
+    variant: 'Icon + disabled',
     Icon: Pipette,
-  },
-  {
-    variant: 'Small, regular',
-    isSmall: true,
-  },
-  {
-    variant: 'Small, disabled',
-    isSmall: true,
     isDisabled: true,
   },
 ];
 
-function _default() {
+function _default(args) {
   return (
     <DarkThemeProvider>
       <Container>
@@ -171,12 +175,12 @@ function _default() {
             </Cell>
           ))}
         </Row>
-        {DEMO_COLORS.map(({ label, pattern }) => (
+        {DEMO_COLORS.map(({ label, pattern, ...patternProps }) => (
           <Row key={label}>
             <Text>{label}</Text>
             {VARIANTS.map(({ variant, Icon, ...props }) => (
               <Cell key={variant}>
-                <Swatch pattern={pattern} {...props}>
+                <Swatch pattern={pattern} {...patternProps} {...props}>
                   {Icon && <Icon />}
                 </Swatch>
               </Cell>
@@ -184,21 +188,22 @@ function _default() {
           </Row>
         ))}
         <hr />
-        {DEMO_COLORS.map(({ label, pattern }) => (
+        {DEMO_COLORS.map(({ label, pattern, ...patternProps }) => (
           <Row key={`${label}_tooltip`}>
             <Text>{`${label} + tooltips`}</Text>
             {VARIANTS.map(({ variant, Icon, ...props }) => (
-              <Tooltip title={variant} key={variant}>
+              <BaseTooltip title={variant} key={variant}>
                 <Cell>
                   <Swatch
                     pattern={pattern}
-                    isDisabled={boolean('tooltip variant disable state', false)}
+                    {...args}
+                    {...patternProps}
                     {...props}
                   >
                     {Icon && <Icon />}
                   </Swatch>
                 </Cell>
-              </Tooltip>
+              </BaseTooltip>
             ))}
           </Row>
         ))}

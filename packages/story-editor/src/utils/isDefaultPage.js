@@ -17,12 +17,8 @@
 /**
  * External dependencies
  */
-import { shallowEqual } from '@web-stories-wp/react';
-
-/**
- * Internal dependencies
- */
-import { createPage } from '../elements';
+import { shallowEqual } from '@googleforcreators/react';
+import { createPage } from '@googleforcreators/elements';
 
 /**
  * @typedef {import('../../../types').Page} Page

@@ -17,28 +17,28 @@
 /**
  * External dependencies
  */
-import { useCallback, useBatchingCallback } from '@web-stories-wp/react';
+import { useCallback, useBatchingCallback } from '@googleforcreators/react';
 import {
   DANGER_ZONE_HEIGHT,
   FULLBLEED_HEIGHT,
   PAGE_WIDTH,
-} from '@web-stories-wp/units';
+} from '@googleforcreators/units';
+import { getHTMLFormatters } from '@googleforcreators/rich-text';
+import { ELEMENT_TYPES } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
 import objectWithout from '../../utils/objectWithout';
-import { ELEMENT_TYPES } from '../../elements';
 import { useStory } from '../../app/story';
-import { getHTMLFormatters } from '../richText/htmlManipulation';
-import usePageAsCanvas from '../../utils/usePageAsCanvas';
+import { useCalculateAccessibleTextColors } from '../../app/pageCanvas';
 import useInsertElement from './useInsertElement';
 
 const SCRIM_PADDING = 24;
 
 function useInsertTextSet(shouldUseSmartColor = false) {
   const insertElement = useInsertElement();
-  const { calculateAccessibleTextColors } = usePageAsCanvas();
+  const calculateAccessibleTextColors = useCalculateAccessibleTextColors();
 
   const { setSelectedElementsById } = useStory(
     ({ actions: { setSelectedElementsById } }) => {

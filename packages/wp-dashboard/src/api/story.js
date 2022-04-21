@@ -16,14 +16,15 @@
 /**
  * External dependencies
  */
-import { addQueryArgs } from '@web-stories-wp/design-system';
+import { addQueryArgs } from '@googleforcreators/url';
 import {
   ORDER_BY_SORT,
   STORIES_PER_REQUEST,
   STORY_SORT_OPTIONS,
   STORY_STATUS,
-} from '@web-stories-wp/dashboard';
-import { createSolidFromString } from '@web-stories-wp/patterns';
+} from '@googleforcreators/dashboard';
+import { createSolidFromString } from '@googleforcreators/patterns';
+import { snakeToCamelCaseObjectKeys } from '@web-stories-wp/wp-utils';
 
 /**
  * WordPress dependencies
@@ -34,7 +35,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import { STORY_FIELDS, STORY_EMBED } from './constants';
-import { reshapeStoryObject, snakeToCamelCaseObjectKeys } from './utils';
+import { reshapeStoryObject } from './utils';
 
 /**
  * Fetch stories ( When dashboard link is clicked. )
@@ -151,21 +152,35 @@ export const createStoryFromTemplate = async (config, template) => {
   });
 
   const { createdBy, pages, version, colors } = template;
-  const { getStoryPropsToSave } = await import(
-    /* webpackChunkName: "chunk-getStoryPropsToSave" */ '@web-stories-wp/story-editor'
+  const { getStoryMarkup } = await import(
+    /* webpackChunkName: "chunk-getStoryMarkup" */ '@googleforcreators/output'
   );
-  const storyPropsToSave = await getStoryPropsToSave({
-    story: {
-      status: 'auto-draft',
-      featuredMedia: {
-        id: 0,
-      },
+
+  const story = {
+    featuredMedia: {
+      id: 0,
+      url: '',
     },
-    pages,
-    metadata: {
-      publisher: createdBy,
+    publisherLogo: {
+      url: '',
     },
+    title: '',
+  };
+
+  const content = getStoryMarkup(story, pages, {
+    publisher: createdBy,
   });
+
+  const storyPropsToSave = {
+    content,
+    pages,
+    featuredMedia: story.featuredMedia,
+    title: story.title,
+    status: 'auto-draft',
+    meta: {
+      web_stories_publisher_logo: story.publisherLogo.id,
+    },
+  };
 
   const convertedColors = colors.map(({ color }) =>
     createSolidFromString(color)

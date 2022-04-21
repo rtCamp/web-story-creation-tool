@@ -25,10 +25,10 @@ import {
   useRef,
   useState,
   useDebouncedCallback,
-} from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import styled from 'styled-components';
-import { Text, THEME_CONSTANTS } from '@web-stories-wp/design-system';
+import { Text, THEME_CONSTANTS } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -49,6 +49,8 @@ const SHOW_LOADING_PILL_DELAY_MS = 1000;
 const StyledText = styled(Text)`
   color: ${({ theme }) => theme.colors.fg.secondary};
 `;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function PaginatedMediaGallery({
   providerType,
@@ -129,9 +131,6 @@ function PaginatedMediaGallery({
   // After loading a next page, see if we need to load another,
   // ie. when the page of results isn't full.
   useLayoutEffect(() => {
-    //eslint-disable-next-line @wordpress/react-no-unsafe-timeout
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
     async function loadNextPageIfNeededAfterGalleryRendering() {
       // Wait for <Gallery> to finish its render layout cycles first.
       await sleep(200);

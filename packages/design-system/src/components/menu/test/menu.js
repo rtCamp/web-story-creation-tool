@@ -18,7 +18,7 @@
  * External dependencies
  */
 import { fireEvent, screen } from '@testing-library/react';
-import { forwardRef } from '@web-stories-wp/react';
+import { forwardRef } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 
 /**
@@ -108,6 +108,7 @@ describe('<Menu />', () => {
     const OverrideRenderItem = forwardRef(({ isSelected, ...rest }, ref) => {
       return (
         <li {...rest} ref={ref}>
+          {/* eslint-disable-next-line jest/no-conditional-in-test */}
           {isSelected ? 'I AM SELECTED' : 'I AM EXTRA CONTENT'}
         </li>
       );

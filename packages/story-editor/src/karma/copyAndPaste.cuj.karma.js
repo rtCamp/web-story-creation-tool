@@ -120,17 +120,22 @@ function sequencedForEach(htmlCollection, op) {
       expect(selection).toEqual([newElement.id]);
     });
 
-    // Disable reason: flakey tests.
-    // See https://github.com/google/web-stories-wp/pull/6162
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    /* eslint-disable-next-line jasmine/no-disabled-tests --
+     * flakey tests.
+     * See https://github.com/googleforcreators/web-stories-wp/pull/6162
+     **/
     xit('retains all foreground animations', async () => {
-      // open effect chooser
+      // open effect
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.animationSection
+      );
       const effectChooserToggle =
-        fixture.editor.inspector.designPanel.animation.effectChooser;
+        fixture.editor.sidebar.designPanel.animation.effectChooser;
       await fixture.events.click(effectChooserToggle, { clickCount: 1 });
 
       // see that effect chooser is open
-      const effectChooser = fixture.screen.getByRole('list', {
+      const effectChooser = await fixture.screen.findByRole('list', {
         name: /Available Animations To Select/,
       });
 
@@ -217,8 +222,12 @@ describe('Background Copy & Paste', () => {
   };
 
   const openEffectChooser = async () => {
+    await fixture.events.click(fixture.editor.sidebar.designTab);
+    await fixture.events.click(
+      fixture.editor.sidebar.designPanel.animationSection
+    );
     const effectChooserToggle =
-      fixture.editor.inspector.designPanel.animation.effectChooser;
+      fixture.editor.sidebar.designPanel.animation.effectChooser;
     await fixture.events.click(effectChooserToggle, { clickCount: 1 });
   };
 
@@ -234,9 +243,10 @@ describe('Background Copy & Paste', () => {
     // Navigate back to previous page and add Background image
     await goToPreviousPage();
     const bgMedia = fixture.editor.library.media.item(0);
-    await fixture.events.click(bgMedia);
+    await fixture.events.mouse.clickOn(bgMedia, 20, 20);
+    await fixture.events.click(fixture.editor.sidebar.designTab);
     await fixture.events.click(
-      fixture.editor.inspector.designPanel.sizePosition.setAsBackground
+      fixture.editor.sidebar.designPanel.sizePosition.setAsBackground
     );
 
     // we want to zoom in a little bit so background
@@ -251,7 +261,11 @@ describe('Background Copy & Paste', () => {
     // Click twice to enter edit mode
     await fixture.events.click(bgFrame);
     await fixture.events.click(bgFrame);
-    await waitFor(() => fixture.editor.canvas.editLayer.sizeSlider);
+    await waitFor(() => {
+      if (!fixture.editor.canvas.editLayer.sizeSlider) {
+        throw new Error('sizeSlider not ready');
+      }
+    });
     const slider = fixture.editor.canvas.editLayer.sizeSlider;
     await fixture.events.mouse.seq(({ moveRel, moveBy, down, up }) => [
       moveRel(slider, 5, 5),
@@ -328,7 +342,7 @@ describe('Background Copy & Paste', () => {
       } = pasted.elementAnimations[0] || {};
 
       // animation properties are explicitly passed as of #6888
-      // https://github.com/google/web-stories-wp/pull/6888/files#diff-e2509f6271734915fc6fb3d6b0fd1a78d6d34df81e215f0a79f2fce50586bb86R119
+      // https://github.com/googleforcreators/web-stories-wp/pull/6888/files#diff-e2509f6271734915fc6fb3d6b0fd1a78d6d34df81e215f0a79f2fce50586bb86R119
       // so undefined properties are removed to check for object equality
       Object.keys(cPersisted).forEach((key) =>
         cPersisted[key] === undefined ? delete cPersisted[key] : {}

@@ -19,7 +19,7 @@
  */
 import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useContext } from '@web-stories-wp/react';
+import { useCallback, useEffect, useContext } from '@googleforcreators/react';
 import {
   BUTTON_TRANSITION_TIMING,
   Icons,
@@ -29,15 +29,15 @@ import {
   ThemeGlobals,
   NotificationBubble,
   BUBBLE_VARIANTS,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
-import useInspector from '../../../inspector/useInspector';
+import useSidebar from '../../../sidebar/useSidebar';
 import panelContext from '../context';
 import { PANEL_COLLAPSED_THRESHOLD } from '../panel';
-import { focusStyle } from '../../shared';
+import { focusStyle } from '../../shared/styles';
 import DragHandle from './handle';
 
 // If the header is collapsed, we're leaving 8px less padding to apply that from the content.
@@ -195,14 +195,13 @@ function Title({
     },
   } = useContext(panelContext);
   const {
-    state: { inspectorContentHeight },
-  } = useInspector();
+    state: { sidebarContentHeight },
+  } = useSidebar();
 
   useEffect(confirmTitle, [confirmTitle]);
 
   // Default max panel height is set to 70% of full available height.
-  const maxHeight =
-    maxHeightOverride || Math.round(inspectorContentHeight * 0.7);
+  const maxHeight = maxHeightOverride || Math.round(sidebarContentHeight * 0.7);
 
   const handleHeightChange = useCallback(
     (deltaHeight) =>
@@ -254,7 +253,11 @@ function Title({
         aria-controls={panelContentId}
         isCollapsed={isCollapsed}
       >
-        <IconWrapper>{canCollapse && <Icons.ChevronDownSmall />}</IconWrapper>
+        {canCollapse && (
+          <IconWrapper>
+            <Icons.ChevronDownSmall />
+          </IconWrapper>
+        )}
         <Heading
           isCollapsed={isCollapsed}
           id={panelTitleId}

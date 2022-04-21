@@ -24,23 +24,23 @@ import {
   useRef,
   useDebouncedCallback,
   shallowEqual,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 import styled from 'styled-components';
-import { Text, THEME_CONSTANTS } from '@web-stories-wp/design-system';
 import {
   BACKGROUND_ANIMATION_EFFECTS,
   BG_MAX_SCALE,
   BG_MIN_SCALE,
   DIRECTION,
   SCALE_DIRECTION,
-  progress,
   hasOffsets,
   STORY_ANIMATION_STATE,
   getAnimationEffectDefaults,
-} from '@web-stories-wp/animation';
+} from '@googleforcreators/animation';
+import { progress } from '@googleforcreators/units';
+
 /**
  * Internal dependencies
  */
@@ -55,10 +55,6 @@ const ANIMATION_PROPERTY = 'animation';
 
 const StyledRow = styled(Row)`
   margin-bottom: -1px;
-`;
-
-const Note = styled(Text)`
-  color: ${({ theme }) => theme.colors.fg.secondary};
 `;
 
 const GroupWrapper = styled.div`
@@ -194,10 +190,10 @@ function AnimationPanel({
       const hasOffset =
         ['media', 'image', 'video', 'gif'].includes(selectedElements[0].type) &&
         hasOffsets({ element: selectedElements[0] });
-      const normalizedScale = progress(selectedElements[0]?.scale || 0, [
-        BG_MIN_SCALE,
-        BG_MAX_SCALE,
-      ]);
+      const normalizedScale = progress(selectedElements[0]?.scale || 0, {
+        MIN: BG_MIN_SCALE,
+        MAX: BG_MAX_SCALE,
+      });
       return {
         [BACKGROUND_ANIMATION_EFFECTS.PAN.value]: {
           tooltip: backgroundAnimationTooltip,
@@ -232,18 +228,7 @@ function AnimationPanel({
   }, [selectedElements]);
 
   const selectedEffectTitle = getEffectName(updatedAnimations[0]?.type);
-  return selectedElements.length > 1 ? (
-    <SimplePanel name="animation" title={__('Animation', 'web-stories')}>
-      <Row>
-        <Note
-          forwardedAs="span"
-          size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}
-        >
-          {__('Group animation support coming soon.', 'web-stories')}
-        </Note>
-      </Row>
-    </SimplePanel>
-  ) : (
+  return selectedElements.length > 1 ? null : (
     <SimplePanel
       name="animation"
       title={__('Animation', 'web-stories')}

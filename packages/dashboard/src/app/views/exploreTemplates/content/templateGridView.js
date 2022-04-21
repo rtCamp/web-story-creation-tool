@@ -23,9 +23,9 @@ import {
   useFocusOut,
   useMemo,
   useState,
-} from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { noop, useGridViewKeys } from '@web-stories-wp/design-system';
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { useGridViewKeys } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -37,6 +37,7 @@ import {
   TemplateActionsPropType,
 } from '../../../../types';
 import { useConfig } from '../../../config';
+import { noop } from '../../../../utils';
 import TemplateGridItem, { FOCUS_TEMPLATE_CLASS } from './templateGridItem';
 
 function TemplateGridView({

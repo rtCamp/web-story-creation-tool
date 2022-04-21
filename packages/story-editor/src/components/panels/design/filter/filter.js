@@ -18,23 +18,35 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { useCallback } from '@web-stories-wp/react';
-
-/**
- * External dependencies
- */
-import { __, sprintf } from '@web-stories-wp/i18n';
+import { useCallback } from '@googleforcreators/react';
+import { __, _x, sprintf } from '@googleforcreators/i18n';
+import { getDefinitionForType, OverlayType } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
-import { OverlayPreset, OverlayType } from '../../../../utils/overlay';
 import { Row, Color, FilterToggle } from '../../../form';
 import { SimplePanel } from '../../panel';
-import { getDefinitionForType } from '../../../../elements';
 import { useCommonColorValue } from '../../shared';
+import useCORSProxy from '../../../../utils/useCORSProxy';
+import { useStory } from '../../../../app';
 import { MULTIPLE_VALUE } from '../../../../constants';
 import convertOverlay from './convertOverlay';
+
+const OverlayPreset = {
+  [OverlayType.NONE]: {
+    label: _x('None', 'overlay', 'web-stories'),
+  },
+  [OverlayType.SOLID]: {
+    label: __('Tint', 'web-stories'),
+  },
+  [OverlayType.LINEAR]: {
+    label: __('Linear', 'web-stories'),
+  },
+  [OverlayType.RADIAL]: {
+    label: __('Vignette', 'web-stories'),
+  },
+};
 
 function FilterPanel({ selectedElements, pushUpdate }) {
   const overlay = useCommonColorValue(selectedElements, 'overlay');
@@ -42,6 +54,11 @@ function FilterPanel({ selectedElements, pushUpdate }) {
   const overlayType = !overlay
     ? OverlayType.NONE
     : overlay.type || OverlayType.SOLID;
+  const { getProxiedUrl } = useCORSProxy();
+  const { isDefaultBackground } = selectedElements[0];
+  const currentPageBackgroundColor = useStory(
+    (v) => !isDefaultBackground || v.state.currentPage?.backgroundColor
+  );
 
   const updateOverlay = useCallback(
     (value) => pushUpdate({ overlay: value }, true),
@@ -49,7 +66,7 @@ function FilterPanel({ selectedElements, pushUpdate }) {
   );
 
   // Enable eyedropper only for solid colors
-  // https://github.com/google/web-stories-wp/pull/9488#issuecomment-950679465
+  // https://github.com/googleforcreators/web-stories-wp/pull/9488#issuecomment-950679465
   const hasEyedropper =
     overlayType !== OverlayType.RADIAL && overlayType !== OverlayType.LINEAR;
 
@@ -76,7 +93,11 @@ function FilterPanel({ selectedElements, pushUpdate }) {
                   label
                 )}
               >
-                <LayerIcon element={selectedElements[0]} />
+                <LayerIcon
+                  element={selectedElements[0]}
+                  getProxiedUrl={getProxiedUrl}
+                  currentPageBackgroundColor={currentPageBackgroundColor}
+                />
               </FilterToggle>
             );
           })}

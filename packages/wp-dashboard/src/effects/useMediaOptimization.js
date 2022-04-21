@@ -17,15 +17,15 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
-import { trackEvent } from '@web-stories-wp/tracking';
-import { useSnackbar } from '@web-stories-wp/design-system';
+import { useCallback } from '@googleforcreators/react';
+import { trackEvent } from '@googleforcreators/tracking';
+import { useSnackbar } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
 import { SUCCESS } from '../constants';
-import { useEditorSettings } from '../components/editorSettings';
+import useEditorSettings from '../components/editorSettings/useEditorSettings';
 
 export default function useMediaOptimization() {
   const { showSnackbar } = useSnackbar();

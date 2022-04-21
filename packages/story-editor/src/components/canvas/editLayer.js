@@ -19,25 +19,35 @@
  */
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { memo, useEffect, useRef } from '@web-stories-wp/react';
-import { _x, __ } from '@web-stories-wp/i18n';
-import { useKeyDownEffect } from '@web-stories-wp/design-system';
+import {
+  memo,
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+} from '@googleforcreators/react';
+import { _x, __ } from '@googleforcreators/i18n';
+import { useKeyDownEffect } from '@googleforcreators/design-system';
+import { withOverlay } from '@googleforcreators/moveable';
+import { getDefinitionForType } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
 import StoryPropTypes from '../../types';
-import { getDefinitionForType } from '../../elements';
 import { useStory, useCanvas } from '../../app';
-import withOverlay from '../overlay/withOverlay';
+import { Z_INDEX_EDIT_LAYER } from '../../constants/zIndex';
+import useVideoTrim from '../videoTrim/useVideoTrim';
+import VideoTrimmer from '../videoTrim/videoTrimmer';
 import EditElement from './editElement';
-import { Layer, PageArea, FooterArea, Z_INDEX } from './layout';
+import { Layer, PageArea, FooterArea } from './layout';
 import useFocusCanvas from './useFocusCanvas';
+import SingleSelectionMoveable from './singleSelectionMoveable';
 
-const LayerWithGrayout = styled(Layer)`
+const LayerWithGrayout = withOverlay(styled(Layer)`
   background-color: ${({ grayout, theme }) =>
     grayout ? theme.colors.opacity.overlayDark : 'transparent'};
-`;
+`);
 
 const EditPageArea = withOverlay(PageArea);
 
@@ -72,13 +82,19 @@ function EditLayer() {
 function EditLayerForElement({ element, showOverflow }) {
   const ref = useRef(null);
   const pageAreaRef = useRef(null);
-  const { editModeGrayout, EditMenu } = getDefinitionForType(element.type);
+  const { editModeGrayout } = getDefinitionForType(element.type);
+  const { isTrimMode } = useVideoTrim(({ state: { isTrimMode } }) => ({
+    isTrimMode,
+  }));
 
-  const { clearEditing } = useCanvas((state) => ({
+  const { clearEditing, onMoveableMount } = useCanvas((state) => ({
     clearEditing: state.actions.clearEditing,
+    onMoveableMount: state.state.onMoveableMount,
   }));
 
   const focusCanvas = useFocusCanvas();
+
+  const [editWrapper, setEditWrapper] = useState(null);
 
   useKeyDownEffect(ref, { key: 'esc', editable: true }, () => clearEditing(), [
     clearEditing,
@@ -90,13 +106,31 @@ function EditLayerForElement({ element, showOverflow }) {
     return () => focusCanvas(/* force */ false);
   }, [focusCanvas]);
 
+  const moveable = useRef(null);
+  const setRef = useCallback(
+    (moveableRef) => {
+      moveable.current = moveableRef;
+      onMoveableMount?.(moveableRef);
+    },
+    [onMoveableMount]
+  );
+
+  const onResize = useCallback(() => {
+    // Update moveable when resizing.
+    if (moveable.current) {
+      moveable.current.updateRect();
+    }
+  }, []);
+
+  const { hasEditModeMoveable } = getDefinitionForType(element.type);
+
   return (
     <LayerWithGrayout
       ref={ref}
       aria-label={_x('Edit layer', 'compound noun', 'web-stories')}
       data-testid="editLayer"
       grayout={editModeGrayout}
-      zIndex={Z_INDEX.EDIT}
+      zIndex={Z_INDEX_EDIT_LAYER}
       onPointerDown={(evt) => {
         if (evt.target === ref.current || evt.target === pageAreaRef.current) {
           clearEditing();
@@ -113,11 +147,24 @@ function EditLayerForElement({ element, showOverflow }) {
         showOverflow={showOverflow}
         overflow={showOverflow ? 'visible' : 'hidden'}
       >
-        <EditElement element={element} />
+        <EditElement
+          editWrapper={hasEditModeMoveable && editWrapper}
+          onResize={onResize}
+          element={element}
+          ref={setEditWrapper}
+        />
       </EditPageArea>
-      {EditMenu && (
+      {hasEditModeMoveable && editWrapper && (
+        <SingleSelectionMoveable
+          selectedElement={element}
+          targetEl={editWrapper}
+          isEditMode
+          ref={setRef}
+        />
+      )}
+      {isTrimMode && (
         <FooterArea showOverflow>
-          <EditMenu />
+          <VideoTrimmer />
         </FooterArea>
       )}
     </LayerWithGrayout>

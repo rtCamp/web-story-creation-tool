@@ -4,10 +4,10 @@
  *
  * Check if editor screen, add cross origin header and add crossorigin attribute to tags.
  *
- * @package   Google\Web_Stories\Traits
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2021 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -35,8 +35,6 @@ use Google\Web_Stories\User\Preferences;
 
 /**
  * Class Cross_Origin_Isolation
- *
- * @package Google\Web_Stories
  */
 class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	/**
@@ -68,10 +66,8 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 
 	/**
 	 * Init
-	 *
-	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		if ( ! $this->context->is_story_editor() ) {
 			return;
 		}
@@ -115,10 +111,10 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 * However, actual cross-origin isolation by sending COOP and COEP headers is only
 	 * needed when video optimization is enabled
 	 *
-	 * @link https://github.com/google/web-stories-wp/issues/9327
-	 * @link https://web.dev/coop-coep/
-	 *
 	 * @since 1.14.0
+	 *
+	 * @link https://github.com/googleforcreators/web-stories-wp/issues/9327
+	 * @link https://web.dev/coop-coep/
 	 *
 	 * @return bool Whether the conditional object is needed.
 	 */
@@ -158,10 +154,8 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 * Start output buffer to add headers and `crossorigin` attribute everywhere.
 	 *
 	 * @since 1.6.0
-	 *
-	 * @return void
 	 */
-	public function admin_header() {
+	public function admin_header(): void {
 		if ( $this->needs_isolation() ) {
 			header( 'Cross-Origin-Opener-Policy: same-origin' );
 			header( 'Cross-Origin-Embedder-Policy: require-corp' );
@@ -176,7 +170,6 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 * @since 1.6.0
 	 *
 	 * @param string $html HTML document as string.
-	 *
 	 * @return string Processed HTML document.
 	 */
 	protected function replace_in_dom( string $html ): string {
@@ -219,7 +212,7 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 				$cache_key = ( 'video' === $tag || 'audio' === $tag ) ? $tag : $attribute;
 
 				// If already processed tag/attribute and value before, skip.
-				if ( isset( $processed[ $cache_key ] ) && in_array( $value, $processed[ $cache_key ], true ) ) {
+				if ( isset( $processed[ $cache_key ] ) && \in_array( $value, $processed[ $cache_key ], true ) ) {
 					continue;
 				}
 
@@ -252,7 +245,6 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 * @param string $tag    The link tag for the enqueued style.
 	 * @param string $handle The style's registered handle.
 	 * @param string $href   The stylesheet's source URL.
-	 *
 	 * @return string|mixed
 	 */
 	public function style_loader_tag( $tag, $handle, $href ) {
@@ -267,7 +259,6 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 * @param string|mixed $tag The `<script>` tag for the enqueued script.
 	 * @param string       $handle    The script's registered handle.
 	 * @param string       $src       The script's source URL.
-	 *
 	 * @return string|mixed The filtered script tag.
 	 */
 	public function script_loader_tag( $tag, $handle, $src ) {
@@ -289,7 +280,6 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 *                                  fallback of 'mystery'.
 	 * @param string       $alt         Alternative text to use in the avatar image tag. Default empty.
 	 * @param array        $args        Arguments passed to get_avatar_data(), after processing.
-	 *
 	 * @return string|mixed
 	 */
 	public function get_avatar( $avatar, $id_or_email, $size, $default, $alt, array $args ) {
@@ -304,11 +294,10 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 * @param string|mixed $html HTML string.
 	 * @param string       $attribute Attribute to check for.
 	 * @param string|null  $url URL.
-	 *
 	 * @return string|mixed
 	 */
 	protected function add_attribute( $html, string $attribute, $url ) {
-		if ( ! $url || ! is_string( $html ) ) {
+		if ( ! $url || ! \is_string( $html ) ) {
 			return $html;
 		}
 
@@ -332,7 +321,7 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 				'crossorigin="anonymous" ' . $attribute . '="' . $url . '"',
 				"crossorigin='anonymous' {$attribute}='{$url}'",
 			],
-			$html 
+			$html
 		);
 
 		return $new_html;
@@ -342,10 +331,8 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 * Unhook wp_print_media_templates and replace with custom media templates.
 	 *
 	 * @since 1.8.0
-	 *
-	 * @return void
 	 */
-	public function override_media_templates() {
+	public function override_media_templates(): void {
 		remove_action( 'admin_footer', 'wp_print_media_templates' );
 		add_action( 'admin_footer', [ $this, 'custom_print_media_templates' ] );
 	}
@@ -354,10 +341,8 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 * Add crossorigin attribute to all tags that could have assets loaded from a different domain.
 	 *
 	 * @since 1.8.0
-	 *
-	 * @return void
 	 */
-	public function custom_print_media_templates() {
+	public function custom_print_media_templates(): void {
 		ob_start();
 		wp_print_media_templates();
 		$html = (string) ob_get_clean();
@@ -381,8 +366,6 @@ class Cross_Origin_Isolation extends Service_Base implements HasRequirements {
 	 *
 	 * @param string $string       String to search.
 	 * @param string $start_string String to search with.
-	 *
-	 * @return bool
 	 */
 	private function starts_with( string $string, string $start_string ): bool {
 		return 0 === strpos( $string, $start_string );

@@ -30,22 +30,34 @@ import './setLocaleData';
 /**
  * External dependencies
  */
-import Dashboard from '@web-stories-wp/dashboard';
-import { domReady, setAppElement } from '@web-stories-wp/design-system';
-import { StrictMode, render } from '@web-stories-wp/react';
-import { updateSettings } from '@web-stories-wp/date';
-import { initializeTracking } from '@web-stories-wp/tracking';
+import { Dashboard } from '@googleforcreators/dashboard';
+import { setAppElement } from '@googleforcreators/design-system';
+import { StrictMode, render } from '@googleforcreators/react';
+import { updateSettings } from '@googleforcreators/date';
+import { initializeTracking } from '@googleforcreators/tracking';
+import { bindToCallbacks } from '@web-stories-wp/wp-utils';
+import { __ } from '@googleforcreators/i18n';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
+
+/**
+ * WordPress dependencies
+ */
+import '@wordpress/dom-ready'; // Just imported here so it's part of the bundle. Usage is in inline scripts.
 
 /**
  * Internal dependencies
  */
-import getApiCallbacks from './api/utils/getApiCallbacks';
+import * as apiCallbacks from './api';
 import { GlobalStyle } from './theme';
-import { LEFT_RAIL_SECONDARY_NAVIGATION } from './constants';
+import {
+  LEFT_RAIL_SECONDARY_NAVIGATION,
+  TOOLBAR_HEIGHT,
+  MENU_FOLDED_WIDTH,
+} from './constants';
 import { Layout } from './components';
 
 window.webStories = window.webStories || {};
-window.webStories.domReady = domReady;
 
 /**
  * Initializes the Web Stories dashboard screen.
@@ -64,10 +76,18 @@ window.webStories.initializeStoryDashboard = (id, config) => {
   // Already tracking screen views in AppContent, no need to send page views as well.
   initializeTracking('Dashboard', false);
 
+  elementTypes.forEach(registerElementType);
+
   const dashboardConfig = {
     ...config,
-    apiCallbacks: getApiCallbacks(config),
+    apiCallbacks: bindToCallbacks(apiCallbacks, config),
     leftRailSecondaryNavigation: LEFT_RAIL_SECONDARY_NAVIGATION,
+    documentTitleSuffix: __('Web Stories \u2212 WordPress', 'web-stories'),
+    styleConstants: {
+      topOffset: TOOLBAR_HEIGHT,
+      leftOffset: MENU_FOLDED_WIDTH,
+    },
+    containerId: 'wpbody',
   };
 
   render(

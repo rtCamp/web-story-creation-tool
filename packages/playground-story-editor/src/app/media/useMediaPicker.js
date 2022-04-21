@@ -17,8 +17,8 @@
 /**
  * External dependencies
  */
-import { useEffect, useCallback, useMemo } from '@web-stories-wp/react';
-import { useConfig, useAPI } from '@web-stories-wp/story-editor';
+import { useEffect, useCallback, useMemo } from '@googleforcreators/react';
+import { useConfig, useAPI } from '@googleforcreators/story-editor';
 
 function useMediaPicker() {
   const { allowedMimeTypes } = useConfig();

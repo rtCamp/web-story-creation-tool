@@ -26,16 +26,16 @@ import {
   BUTTON_VARIANTS,
   Icons,
   themeHelpers,
-} from '@web-stories-wp/design-system';
-import { useState } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/design-system';
+import { useState } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 
 /**
  * Internal dependencies
  */
 import { getVisibleThumbnails } from '../../utils';
 import { StyledOverflowThumbnail } from '../../../checklistCard/styles';
-import { MAX_THUMBNAILS_DISPLAYED } from '../../../checklistCard';
+import { MAX_THUMBNAILS_DISPLAYED } from '../../../checklistCard/constants';
 
 const Wrapper = styled.div`
   grid-area: thumbnail;

@@ -19,13 +19,13 @@
  */
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
-import { useCallback, useMemo, useRef } from '@web-stories-wp/react';
-import { __, _x } from '@web-stories-wp/i18n';
-import stickers from '@web-stories-wp/stickers';
+import { useCallback, useMemo, useRef } from '@googleforcreators/react';
+import { __, _x } from '@googleforcreators/i18n';
+import stickers from '@googleforcreators/stickers';
 import {
   calcRotatedObjectPositionAndSize,
   dataPixels,
-} from '@web-stories-wp/units';
+} from '@googleforcreators/units';
 import {
   Button,
   LockToggle,
@@ -34,25 +34,24 @@ import {
   BUTTON_TYPES,
   BUTTON_SIZES,
   BUTTON_VARIANTS,
-  Tooltip,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
+import { getDefinitionForType } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
-import { MULTIPLE_DISPLAY_VALUE, MULTIPLE_VALUE } from '../../../../constants';
-import { getDefinitionForType } from '../../../../elements';
 import { SimplePanel } from '../../panel';
 import FlipControls from '../../shared/flipControls';
-import {
-  focusStyle,
-  getCommonValue,
-  inputContainerStyleOverride,
-  useCommonObjectValue,
-} from '../../shared';
+import { focusStyle, inputContainerStyleOverride } from '../../shared/styles';
+import { getCommonValue, useCommonObjectValue } from '../../shared';
 import useStory from '../../../../app/story/useStory';
+import {
+  MULTIPLE_VALUE,
+  MULTIPLE_DISPLAY_VALUE,
+  TRACKING_EVENTS,
+} from '../../../../constants';
 import usePerformanceTracking from '../../../../utils/usePerformanceTracking';
-import { TRACKING_EVENTS } from '../../../../constants/performanceTrackingEvents';
+import Tooltip from '../../../tooltip';
 import usePresubmitHandlers from './usePresubmitHandlers';
 import { getMultiSelectionMinMaxXY, isNum } from './utils';
 import { MIN_MAX, DEFAULT_FLIP } from './constants';

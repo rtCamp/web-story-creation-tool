@@ -2,10 +2,10 @@
 /**
  * Class Optimization
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2021 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -31,26 +31,20 @@ use Google\Web_Stories\Service_Base;
 
 /**
  * Class Optimization
- *
- * @package Google\Web_Stories\Media\Video
  */
 class Optimization extends Service_Base implements HasMeta {
 
 	/**
 	 * The optimized video id post meta key.
-	 *
-	 * @var string
 	 */
-	const OPTIMIZED_ID_POST_META_KEY = 'web_stories_optimized_id';
+	public const OPTIMIZED_ID_POST_META_KEY = 'web_stories_optimized_id';
 
 	/**
 	 * Init.
 	 *
 	 * @since 1.10.0
-	 *
-	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		$this->register_meta();
 	}
 
@@ -58,10 +52,8 @@ class Optimization extends Service_Base implements HasMeta {
 	 * Register meta
 	 *
 	 * @since 1.15.0
-	 *
-	 * @return void
 	 */
-	public function register_meta() {
+	public function register_meta(): void {
 		register_meta(
 			'post',
 			self::OPTIMIZED_ID_POST_META_KEY,

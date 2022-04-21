@@ -21,14 +21,18 @@ import {
   Text,
   themeHelpers,
   THEME_CONSTANTS,
-  Tooltip,
   TOOLTIP_PLACEMENT,
-} from '@web-stories-wp/design-system';
-import { __ } from '@web-stories-wp/i18n';
-import { useMemo } from '@web-stories-wp/react';
+} from '@googleforcreators/design-system';
+import { __ } from '@googleforcreators/i18n';
+import { useMemo } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+/**
+ * Internal dependencies
+ */
+import { Z_INDEX_STORY_DETAILS } from '../../../constants/zIndex';
+import Tooltip from '../../tooltip';
 
 const Dismiss = styled.button`
   all: unset;
@@ -83,6 +87,7 @@ function Tag({ children, onDismiss }) {
         title={__('Remove Tag', 'web-stories')}
         placement={TOOLTIP_PLACEMENT.BOTTOM}
         hasTail
+        popupZIndexOverride={Z_INDEX_STORY_DETAILS}
       >
         <Dismiss
           onClick={onDismiss}

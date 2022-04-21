@@ -18,21 +18,22 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { useCallback } from '@web-stories-wp/react';
+import { useCallback } from '@googleforcreators/react';
 import styled from 'styled-components';
-import { __ } from '@web-stories-wp/i18n';
-import { LockToggle, Icons } from '@web-stories-wp/design-system';
+import { __ } from '@googleforcreators/i18n';
+import { LockToggle, Icons } from '@googleforcreators/design-system';
+import { canSupportMultiBorder } from '@googleforcreators/masks';
 
 /**
  * Internal dependencies
  */
 import { StackableGroup, StackableInput } from '../../../form/stackable';
-import { canMaskHaveBorder } from '../../../../masks';
-import { useCommonObjectValue, focusStyle } from '../../shared';
-import { MULTIPLE_DISPLAY_VALUE, MULTIPLE_VALUE } from '../../../../constants';
+import useCommonObjectValue from '../../shared/useCommonObjectValue';
+import { focusStyle } from '../../shared/styles';
 import Tooltip from '../../../tooltip';
+import { MULTIPLE_VALUE, MULTIPLE_DISPLAY_VALUE } from '../../../../constants';
 
-const DEFAULT_BORDER_RADIUS = {
+export const DEFAULT_BORDER_RADIUS = {
   topLeft: 0,
   topRight: 0,
   bottomRight: 0,
@@ -76,7 +77,7 @@ function RadiusControls({ selectedElements, pushUpdateForObject }) {
   );
 
   const allSupportBorder = selectedElements.every((el) =>
-    canMaskHaveBorder(el)
+    canSupportMultiBorder(el)
   );
 
   const lockRadius = borderRadius.locked === true;

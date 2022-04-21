@@ -17,11 +17,12 @@
  * External dependencies
  */
 import { waitFor } from '@testing-library/react';
+import { TEXT_ELEMENT_DEFAULT_FONT } from '@googleforcreators/elements';
+
 /**
  * Internal dependencies
  */
 import { useStory } from '../../../app';
-import { TEXT_ELEMENT_DEFAULT_FONT } from '../../../app/font/defaultFonts';
 import { ACTIONS } from '../../../app/highlights';
 import { Fixture } from '../../../karma';
 import useInsertElement from '../useInsertElement';
@@ -55,6 +56,35 @@ describe('Quick Actions integration', () => {
 
       expect(fixture.screen.queryByTestId('quick-actions-menu')).toBeNull();
     });
+
+    it('quick menu should not be visible if no quick actions are present', async () => {
+      // when two different elements types are selected, there may not be any quick actions to show
+      // in that case, we shouldn't be rendering the context menu at all
+      // add shape to canvas
+      await fixture.editor.library.shapesTab.click();
+      await fixture.events.click(
+        fixture.editor.library.shapes.shape('Triangle')
+      );
+
+      // add text to canvas
+      await fixture.editor.library.textTab.click();
+      await fixture.events.click(
+        fixture.editor.library.text.preset('Paragraph')
+      );
+      await fixture.editor.canvas.framesLayer.waitFocusedWithin();
+
+      expect(
+        fixture.screen.queryByTestId('Element quick actions')
+      ).not.toBeNull();
+
+      // select both text and shape elements
+      await fixture.events.keyboard.down('Shift');
+      const triangle = fixture.editor.canvas.framesLayer.frames[1].node;
+      await clickOnTarget(triangle);
+      await fixture.events.keyboard.up('Shift');
+
+      expect(fixture.screen.queryByTestId('Element quick actions')).toBeNull();
+    });
   });
 
   describe('quick action menu should have no aXe accessibility violations', () => {
@@ -72,11 +102,9 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.changeBackgroundColorButton
       );
 
-      expect(
-        fixture.editor.inspector.designPanel.pageBackground
-      ).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.pageBackground).not.toBeNull();
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.pageBackground.backgroundColorInput
+        fixture.editor.sidebar.designPanel.pageBackground.backgroundColorInput
       );
     });
 
@@ -93,14 +121,16 @@ describe('Quick Actions integration', () => {
       expect(document.activeElement).toEqual(fixture.editor.library.mediaTab);
     });
 
-    it(`clicking the \`${ACTIONS.INSERT_TEXT.text}\` button should select the background and open the text tab in the library`, async () => {
+    it(`clicking the \`${ACTIONS.INSERT_TEXT.text}\` button should select the background, open the text tab in the library and insert the default text`, async () => {
       // click quick menu button
       await fixture.events.click(
         fixture.editor.canvas.quickActionMenu.insertTextButton
       );
-
+      expect(fixture.editor.canvas.framesLayer.frames.length).toBe(2);
       expect(fixture.editor.library.text).not.toBeNull();
-      expect(document.activeElement).toEqual(fixture.editor.library.textTab);
+      expect(document.activeElement).toEqual(
+        fixture.editor.canvas.framesLayer.frames[1].node
+      );
     });
 
     it('should allow clicking multiple actions', async () => {
@@ -111,9 +141,7 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.changeBackgroundColorButton
       );
 
-      expect(
-        fixture.editor.inspector.designPanel.pageBackground
-      ).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.pageBackground).not.toBeNull();
 
       // click quick menu button
       await fixture.events.click(
@@ -134,9 +162,14 @@ describe('Quick Actions integration', () => {
           width: 640 / 2,
           height: 529 / 2,
           resource: {
+            id: 10,
             type: 'image',
             mimeType: 'image/jpg',
             src: 'http://localhost:9876/__static__/earth.jpg',
+            alt: 'earth',
+            width: 640,
+            height: 529,
+            baseColor: '#734727',
           },
         })
       );
@@ -185,10 +218,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addAnimationButton
       );
 
-      expect(fixture.editor.inspector.designPanel.animation).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.animation).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.animation.effectChooser
+        fixture.editor.sidebar.designPanel.animation.effectChooser
       );
     });
 
@@ -199,10 +232,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addLinkButton
       );
 
-      expect(fixture.editor.inspector.designPanel.link).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.link).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.link.address
+        fixture.editor.sidebar.designPanel.link.address
       );
     });
 
@@ -213,8 +246,12 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // add animation to image
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.animationSection
+      );
       const effectChooserToggle =
-        fixture.editor.inspector.designPanel.animation.effectChooser;
+        fixture.editor.sidebar.designPanel.animation.effectChooser;
 
       await fixture.events.click(effectChooserToggle, { clickCount: 1 });
 
@@ -239,8 +276,12 @@ describe('Quick Actions integration', () => {
       );
 
       // apply filter
+      await fixture.events.click(fixture.editor.sidebar.designTab);
       await fixture.events.click(
-        fixture.editor.inspector.designPanel.filters.linear
+        fixture.editor.sidebar.designPanel.selectionSection
+      );
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.filters.linear
       );
 
       // verify the animations and styles were added
@@ -257,6 +298,10 @@ describe('Quick Actions integration', () => {
           animations: originalAnimations,
           selectedElement: originalSelectedElement,
         } = story);
+
+        if (!originalSelectedElement) {
+          throw new Error('story not ready');
+        }
 
         expect(originalSelectedElement.overlay.type).toBe('linear');
         expect(originalAnimations.length).toEqual(1);
@@ -281,15 +326,17 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // wait for the undo button to appear
-      await waitFor(
-        () =>
-          fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true }),
-        { timeout: 4000 }
-      );
-
+      await fixture.screen.findByRole('button', {
+        name: /^Undo$/,
+        hidden: true,
+        timeout: 4000,
+      });
       // click `undo` button on snackbar
       await fixture.events.click(
-        fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true })
+        await fixture.screen.findByRole('button', {
+          name: /^Undo$/,
+          hidden: true,
+        })
       );
 
       // Verify that new animations and styles match original animation
@@ -346,29 +393,16 @@ describe('Quick Actions integration', () => {
       );
     });
 
-    it(`should select the \`${ACTIONS.CHANGE_COLOR.text}\` button and select the shape style panel and focus the input`, async () => {
-      await fixture.events.click(
-        fixture.editor.canvas.quickActionMenu.changeColorButton
-      );
-
-      expect(
-        fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.hex
-      ).not.toBeNull();
-      expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.hex
-      );
-    });
-
     it(`should select the \`${ACTIONS.ADD_ANIMATION.text}\` button and select the animation panel and focus the dropdown`, async () => {
       // click quick menu button
       await fixture.events.click(
         fixture.editor.canvas.quickActionMenu.addAnimationButton
       );
 
-      expect(fixture.editor.inspector.designPanel.animation).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.animation).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.animation.effectChooser
+        fixture.editor.sidebar.designPanel.animation.effectChooser
       );
     });
 
@@ -378,10 +412,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addLinkButton
       );
 
-      expect(fixture.editor.inspector.designPanel.link).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.link).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.link.address
+        fixture.editor.sidebar.designPanel.link.address
       );
     });
 
@@ -392,8 +426,12 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // add animation to shape
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.animationSection
+      );
       const effectChooserToggle =
-        fixture.editor.inspector.designPanel.animation.effectChooser;
+        fixture.editor.sidebar.designPanel.animation.effectChooser;
 
       await fixture.events.click(effectChooserToggle, { clickCount: 1 });
 
@@ -408,18 +446,20 @@ describe('Quick Actions integration', () => {
       // the bot clicks the clear button too fast
       // the animation does not get removed if it is clicked before it stops playing
       // click "stop playing" and test the animations have been applied
-      await waitFor(
-        async () => {
-          await fixture.events.click(
-            fixture.screen.getByRole('button', { name: 'Stop Page Animations' })
-          );
-        },
-        { timeout: 4000 }
-      );
+      await waitFor(async () => {
+        await fixture.events.click(
+          await fixture.screen.findByRole('button', {
+            name: 'Stop Page Animations',
+          })
+        );
+      });
 
       // add styles to the shape
       await fixture.events.click(
-        fixture.editor.inspector.designPanel.sizePosition.opacity
+        fixture.editor.sidebar.designPanel.selectionSection
+      );
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.sizePosition.opacity
       );
       await fixture.events.keyboard.type('99');
       await fixture.events.keyboard.press('Enter');
@@ -427,24 +467,25 @@ describe('Quick Actions integration', () => {
       // verify the animations and styles were added
       let originalAnimations = [];
       let originalSelectedElement = null;
-      await waitFor(
-        async () => {
-          const story = await fixture.renderHook(() =>
-            useStory(({ state }) => ({
-              animations: state.pages[0].animations,
-              selectedElement: state.selectedElements[0],
-            }))
-          );
-          ({
-            animations: originalAnimations,
-            selectedElement: originalSelectedElement,
-          } = story);
+      await waitFor(async () => {
+        const story = await fixture.renderHook(() =>
+          useStory(({ state }) => ({
+            animations: state.pages[0].animations,
+            selectedElement: state.selectedElements[0],
+          }))
+        );
+        ({
+          animations: originalAnimations,
+          selectedElement: originalSelectedElement,
+        } = story);
 
-          expect(originalAnimations.length).toEqual(1);
-          expect(originalSelectedElement.opacity).toEqual(99);
-        },
-        { timeout: 4000 }
-      );
+        if (!originalSelectedElement) {
+          throw new Error('story not ready');
+        }
+
+        expect(originalAnimations.length).toEqual(1);
+        expect(originalSelectedElement.opacity).toEqual(99);
+      });
 
       // reset the element
       await fixture.events.click(
@@ -465,15 +506,17 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // wait for the undo button to appear
-      await waitFor(
-        () =>
-          fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true }),
-        { timeout: 4000 }
-      );
-
+      await fixture.screen.findByRole('button', {
+        name: /^Undo$/,
+        hidden: true,
+        timeout: 4000,
+      });
       // click `undo` button on snackbar
       await fixture.events.click(
-        fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true })
+        await fixture.screen.findByRole('button', {
+          name: /^Undo$/,
+          hidden: true,
+        })
       );
 
       // Verify that new animations match original animation
@@ -554,10 +597,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addAnimationButton
       );
 
-      expect(fixture.editor.inspector.designPanel.animation).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.animation).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.animation.effectChooser
+        fixture.editor.sidebar.designPanel.animation.effectChooser
       );
     });
 
@@ -568,8 +611,12 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // add animation to background image
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.animationSection
+      );
       const effectChooserToggle =
-        fixture.editor.inspector.designPanel.animation.effectChooser;
+        fixture.editor.sidebar.designPanel.animation.effectChooser;
 
       await fixture.events.click(effectChooserToggle, { clickCount: 1 });
 
@@ -584,18 +631,20 @@ describe('Quick Actions integration', () => {
       // the bot clicks the clear button too fast
       // the animation does not get removed if it is clicked before it stops playing
       // click "stop playing" and test the animations have been applied
-      await waitFor(
-        async () => {
-          await fixture.events.click(
-            fixture.screen.getByRole('button', { name: 'Stop Page Animations' })
-          );
-        },
-        { timeout: 4000 }
-      );
+      await waitFor(async () => {
+        await fixture.events.click(
+          await fixture.screen.findByRole('button', {
+            name: 'Stop Page Animations',
+          })
+        );
+      });
 
       // apply filter
       await fixture.events.click(
-        fixture.editor.inspector.designPanel.filters.linear
+        fixture.editor.sidebar.designPanel.selectionSection
+      );
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.filters.linear
       );
 
       // verify the styles were added
@@ -612,6 +661,10 @@ describe('Quick Actions integration', () => {
           animations: originalAnimations,
           selectedElement: originalSelectedElement,
         } = story);
+
+        if (!originalSelectedElement) {
+          throw new Error('story not ready');
+        }
 
         expect(originalSelectedElement.overlay.type).toBe('linear');
         expect(originalAnimations.length).toEqual(1);
@@ -636,15 +689,16 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // wait for the undo button to appear
-      await waitFor(
-        () =>
-          fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true }),
-        { timeout: 4000 }
-      );
-
+      await fixture.screen.findByRole('button', {
+        name: /^Undo$/,
+        hidden: true,
+      });
       // click `undo` button on snackbar
       await fixture.events.click(
-        fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true })
+        await fixture.screen.findByRole('button', {
+          name: /^Undo$/,
+          hidden: true,
+        })
       );
 
       // Verify that new animations match original animation
@@ -697,46 +751,16 @@ describe('Quick Actions integration', () => {
       await fixture.editor.canvas.framesLayer.waitFocusedWithin();
     });
 
-    it(`clicking the \`${ACTIONS.CHANGE_TEXT_COLOR.text}\` button should select the font styles on the design panel and focus the color input`, async () => {
-      // click quick menu button
-      await fixture.events.click(
-        fixture.editor.canvas.quickActionMenu.textColorButton
-      );
-
-      expect(fixture.editor.inspector.designPanel.textStyle).not.toBeNull();
-
-      const textStyleColorInput = fixture.screen.queryByRole('textbox', {
-        name: /^Text color$/,
-      });
-      expect(textStyleColorInput).toBeDefined();
-      expect(document.activeElement).toEqual(textStyleColorInput);
-    });
-
-    it(`clicking the \`${ACTIONS.CHANGE_FONT.text}\` button should select the font styles on the design panel and focus the font dropdown`, async () => {
-      // click quick menu button
-      await fixture.events.click(
-        fixture.editor.canvas.quickActionMenu.fontButton
-      );
-
-      expect(fixture.editor.inspector.designPanel.textStyle).not.toBeNull();
-
-      const fontDropdown = fixture.screen.queryByRole('button', {
-        name: /^Font family$/,
-      });
-      expect(fontDropdown).toBeDefined();
-      expect(document.activeElement).toEqual(fontDropdown);
-    });
-
     it(`clicking the \`${ACTIONS.ADD_ANIMATION.text}\` button should select the animation panel and focus the dropdown`, async () => {
       // click quick menu button
       await fixture.events.click(
         fixture.editor.canvas.quickActionMenu.addAnimationButton
       );
 
-      expect(fixture.editor.inspector.designPanel.animation).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.animation).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.animation.effectChooser
+        fixture.editor.sidebar.designPanel.animation.effectChooser
       );
     });
 
@@ -746,10 +770,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addLinkButton
       );
 
-      expect(fixture.editor.inspector.designPanel.link).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.link).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.link.address
+        fixture.editor.sidebar.designPanel.link.address
       );
     });
 
@@ -760,8 +784,12 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // add animation to text
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.animationSection
+      );
       const effectChooserToggle =
-        fixture.editor.inspector.designPanel.animation.effectChooser;
+        fixture.editor.sidebar.designPanel.animation.effectChooser;
 
       await fixture.events.click(effectChooserToggle, { clickCount: 1 });
 
@@ -776,30 +804,30 @@ describe('Quick Actions integration', () => {
       // the bot clicks the clear button too fast
       // the animation does not get removed if it is clicked before it stops playing
       // click "stop playing" and test the animations have been applied
-      await waitFor(
-        async () => {
-          await fixture.events.click(
-            fixture.screen.getByRole('button', { name: 'Stop Page Animations' })
-          );
-        },
-        { timeout: 4000 }
-      );
+      await waitFor(async () => {
+        await fixture.events.click(
+          await fixture.screen.findByRole('button', {
+            name: 'Stop Page Animations',
+          })
+        );
+      });
 
       // verify animations were added
       let originalAnimations = [];
-      await waitFor(
-        async () => {
-          const story = await fixture.renderHook(() =>
-            useStory(({ state }) => ({
-              animations: state.pages[0].animations,
-            }))
-          );
-          ({ animations: originalAnimations } = story);
+      await waitFor(async () => {
+        const story = await fixture.renderHook(() =>
+          useStory(({ state }) => ({
+            animations: state.pages[0].animations,
+          }))
+        );
+        ({ animations: originalAnimations } = story);
 
-          expect(originalAnimations.length).toEqual(1);
-        },
-        { timeout: 4000 }
-      );
+        if (originalAnimations.length === 0) {
+          throw new Error('story not ready');
+        }
+
+        expect(originalAnimations.length).toEqual(1);
+      });
 
       // reset the element
       await fixture.events.click(
@@ -818,15 +846,17 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // wait for the undo button to appear
-      await waitFor(
-        () =>
-          fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true }),
-        { timeout: 4000 }
-      );
 
+      await fixture.screen.findByRole('button', {
+        name: /^Undo$/,
+        hidden: true,
+      });
       // click `undo` button on snackbar
       await fixture.events.click(
-        fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true })
+        await fixture.screen.findByRole('button', {
+          name: /^Undo$/,
+          hidden: true,
+        })
       );
 
       // Verify that new animations match original animation
@@ -932,10 +962,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addAnimationButton
       );
 
-      expect(fixture.editor.inspector.designPanel.animation).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.animation).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.animation.effectChooser
+        fixture.editor.sidebar.designPanel.animation.effectChooser
       );
     });
 
@@ -945,10 +975,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addLinkButton
       );
 
-      expect(fixture.editor.inspector.designPanel.link).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.link).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.link.address
+        fixture.editor.sidebar.designPanel.link.address
       );
     });
 
@@ -957,7 +987,7 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addCaptionsButton
       );
       expect(
-        fixture.editor.inspector.designPanel.captions.addCaptionsButton
+        fixture.editor.sidebar.designPanel.captions.addCaptionsButton
       ).not.toBeNull();
     });
 
@@ -968,8 +998,12 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // add animation to video
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.animationSection
+      );
       const effectChooserToggle =
-        fixture.editor.inspector.designPanel.animation.effectChooser;
+        fixture.editor.sidebar.designPanel.animation.effectChooser;
 
       await fixture.events.click(effectChooserToggle, { clickCount: 1 });
 
@@ -984,18 +1018,20 @@ describe('Quick Actions integration', () => {
       // the bot clicks the clear button too fast
       // the animation does not get removed if it is clicked before it stops playing
       // click "stop playing" and test the animations have been applied
-      await waitFor(
-        async () => {
-          await fixture.events.click(
-            fixture.screen.getByRole('button', { name: 'Stop Page Animations' })
-          );
-        },
-        { timeout: 4000 }
-      );
+      await waitFor(async () => {
+        await fixture.events.click(
+          await fixture.screen.findByRole('button', {
+            name: 'Stop Page Animations',
+          })
+        );
+      });
 
       // apply filter
       await fixture.events.click(
-        fixture.editor.inspector.designPanel.filters.linear
+        fixture.editor.sidebar.designPanel.selectionSection
+      );
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.filters.linear
       );
 
       // verify the animations and styles were added
@@ -1012,6 +1048,10 @@ describe('Quick Actions integration', () => {
           animations: originalAnimations,
           selectedElement: originalSelectedElement,
         } = story);
+
+        if (!originalSelectedElement) {
+          throw new Error('story not ready');
+        }
 
         expect(originalSelectedElement.overlay.type).toBe('linear');
         expect(originalAnimations.length).toEqual(1);
@@ -1036,15 +1076,16 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // wait for the undo button to appear
-      await waitFor(
-        () =>
-          fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true }),
-        { timeout: 4000 }
-      );
-
+      await fixture.screen.findByRole('button', {
+        name: /^Undo$/,
+        hidden: true,
+      });
       // click `undo` button on snackbar
       await fixture.events.click(
-        fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true })
+        await fixture.screen.findByRole('button', {
+          name: /^Undo$/,
+          hidden: true,
+        })
       );
 
       // Verify that new animations and styles match original animation
@@ -1095,6 +1136,7 @@ describe('Quick Actions integration', () => {
       await clickOnTarget(
         fixture.editor.canvas.framesLayer.frame(sticker.id).node
       );
+      await fixture.events.click(fixture.editor.sidebar.designTab);
     });
 
     it(`clicking the \`${ACTIONS.ADD_ANIMATION.text}\` button should select the animation panel and focus the dropdown`, async () => {
@@ -1103,10 +1145,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addAnimationButton
       );
 
-      expect(fixture.editor.inspector.designPanel.animation).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.animation).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.animation.effectChooser
+        fixture.editor.sidebar.designPanel.animation.effectChooser
       );
     });
 
@@ -1116,10 +1158,10 @@ describe('Quick Actions integration', () => {
         fixture.editor.canvas.quickActionMenu.addLinkButton
       );
 
-      expect(fixture.editor.inspector.designPanel.link).not.toBeNull();
+      expect(fixture.editor.sidebar.designPanel.link).not.toBeNull();
 
       expect(document.activeElement).toEqual(
-        fixture.editor.inspector.designPanel.link.address
+        fixture.editor.sidebar.designPanel.link.address
       );
     });
 
@@ -1130,8 +1172,12 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // add animation to image
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.animationSection
+      );
       const effectChooserToggle =
-        fixture.editor.inspector.designPanel.animation.effectChooser;
+        fixture.editor.sidebar.designPanel.animation.effectChooser;
 
       await fixture.events.click(effectChooserToggle, { clickCount: 1 });
 
@@ -1146,18 +1192,20 @@ describe('Quick Actions integration', () => {
       // the bot clicks the clear button too fast
       // the animation does not get removed if it is clicked before it stops playing
       // click "stop playing" and test the animations have been applied
-      await waitFor(
-        async () => {
-          await fixture.events.click(
-            fixture.screen.getByRole('button', { name: 'Stop Page Animations' })
-          );
-        },
-        { timeout: 4000 }
-      );
+      await waitFor(async () => {
+        await fixture.events.click(
+          await fixture.screen.findByRole('button', {
+            name: 'Stop Page Animations',
+          })
+        );
+      });
 
       // apply opacity
       await fixture.events.click(
-        fixture.editor.inspector.designPanel.sizePosition.opacity
+        fixture.editor.sidebar.designPanel.selectionSection
+      );
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.sizePosition.opacity
       );
       await fixture.events.keyboard.type('40');
       await fixture.events.keyboard.press('Enter');
@@ -1176,6 +1224,10 @@ describe('Quick Actions integration', () => {
           animations: originalAnimations,
           selectedElement: originalSelectedElement,
         } = story);
+
+        if (!originalSelectedElement) {
+          throw new Error('story not ready');
+        }
 
         expect(originalSelectedElement.opacity).toBe(40);
         expect(originalAnimations.length).toEqual(1);
@@ -1200,15 +1252,16 @@ describe('Quick Actions integration', () => {
       ).toBeNull();
 
       // wait for the undo button to appear
-      await waitFor(
-        () =>
-          fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true }),
-        { timeout: 4000 }
-      );
-
+      await fixture.screen.findByRole('button', {
+        name: /^Undo$/,
+        hidden: true,
+      });
       // click `undo` button on snackbar
       await fixture.events.click(
-        fixture.screen.getByRole('button', { name: /^Undo$/, hidden: true })
+        await fixture.screen.findByRole('button', {
+          name: /^Undo$/,
+          hidden: true,
+        })
       );
 
       // Verify that new animations and styles match original animation

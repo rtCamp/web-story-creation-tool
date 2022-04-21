@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * External dependencies
  */
 import { render, act, waitFor } from '@testing-library/react';
-// eslint-disable-next-line import/named
-import { MockMoveable } from 'react-moveable';
+import { withOverlay } from '@googleforcreators/moveable';
+import { MockMoveable } from 'react-moveable'; // eslint-disable-line import/named -- This is a custom Jest mock
 import PropTypes from 'prop-types';
-import { forwardRef } from '@web-stories-wp/react';
-import { UnitsProvider } from '@web-stories-wp/units';
+import { forwardRef } from '@googleforcreators/react';
+import { UnitsProvider } from '@googleforcreators/units';
+import { TransformProvider } from '@googleforcreators/transform';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
 
 /**
  * Internal dependencies
  */
-import withOverlay from '../../overlay/withOverlay';
 import CanvasContext from '../../../app/canvas/context';
 import Selection from '../selection';
 import StoryContext from '../../../app/story/context';
-import TransformProvider from '../../transform/transformProvider';
 
 const pageSize = { width: 100, height: 100 };
 
@@ -58,6 +58,10 @@ describe('singleSelectionMoveable', () => {
   let target;
   let storyContext;
   let canvasContext;
+
+  beforeAll(() => {
+    elementTypes.forEach(registerElementType);
+  });
 
   beforeEach(() => {
     updateSelectedElements = jest.fn();

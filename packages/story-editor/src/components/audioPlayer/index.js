@@ -19,7 +19,12 @@
  */
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
-import { useState, useCallback, useRef } from '@web-stories-wp/react';
+import {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+} from '@googleforcreators/react';
 import {
   THEME_CONSTANTS,
   themeHelpers,
@@ -28,13 +33,16 @@ import {
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
-} from '@web-stories-wp/design-system';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/design-system';
+import { __ } from '@googleforcreators/i18n';
+import { ResourcePropTypes } from '@googleforcreators/media';
 
 /**
  * Internal dependencies
  */
+import { Z_INDEX_STORY_DETAILS } from '../../constants/zIndex';
 import Tooltip from '../tooltip';
+import useCORSProxy from '../../utils/useCORSProxy';
 
 const StyledButton = styled(Button)`
   ${({ theme }) =>
@@ -70,10 +78,12 @@ const Audio = styled.audio`
   display: none;
 `;
 
-function AudioPlayer({ title, src, mimeType }) {
+function AudioPlayer({ title, src, mimeType, tracks = [], audioId, loop }) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const playerRef = useRef();
+
+  const { getProxiedUrl } = useCORSProxy();
 
   const handlePlayPause = useCallback(() => {
     const player = playerRef.current;
@@ -84,49 +94,84 @@ function AudioPlayer({ title, src, mimeType }) {
 
     if (isPlaying) {
       player.pause();
-      setIsPlaying(false);
     } else {
-      player
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {});
+      player.play().catch(() => {});
     }
-  }, [isPlaying, setIsPlaying]);
+  }, [isPlaying]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+
+    if (!player) {
+      return undefined;
+    }
+
+    const onAudioPlay = () => setIsPlaying(true);
+    const onAudioPause = () => setIsPlaying(false);
+    const onAudioEnd = () => {
+      player.currentTime = 0;
+      setIsPlaying(false);
+    };
+
+    player.addEventListener('play', onAudioPlay);
+    player.addEventListener('pause', onAudioPause);
+    player.addEventListener('ended', onAudioEnd);
+    return () => {
+      player.removeEventListener('play', onAudioPlay);
+      player.removeEventListener('pause', onAudioPause);
+      player.removeEventListener('ended', onAudioEnd);
+    };
+  }, [playerRef]);
+
+  const buttonTitle = isPlaying
+    ? __('Pause', 'web-stories')
+    : __('Play', 'web-stories');
+
+  const tracksFormatted = tracks.map((track) => {
+    const trackSrc = getProxiedUrl(track, track?.track);
+    return {
+      ...track,
+      track: trackSrc,
+    };
+  });
 
   return (
     <Wrapper>
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption, styled-components-a11y/media-has-caption */}
-      <Audio crossOrigin="anonymous" loop ref={playerRef}>
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption, styled-components-a11y/media-has-caption -- No captions wanted/needed here. */}
+      <Audio crossOrigin="anonymous" loop={loop} ref={playerRef} id={audioId}>
         <source src={src} type={mimeType} />
+        {tracksFormatted &&
+          tracksFormatted.map(
+            ({ srclang, label, track: trackSrc, id: key }, i) => (
+              <track
+                srcLang={srclang}
+                label={label}
+                // Hides the track from the user.
+                // Displaying happens in MediaCaptionsLayer instead.
+                kind="metadata"
+                src={trackSrc}
+                key={key}
+                default={i === 0}
+              />
+            )
+          )}
       </Audio>
       <div>{title}</div>
-      <div>
-        {isPlaying ? (
-          <Tooltip hasTail title={__('Pause', 'web-stories')}>
-            <StyledButton
-              type={BUTTON_TYPES.TERTIARY}
-              size={BUTTON_SIZES.SMALL}
-              variant={BUTTON_VARIANTS.SQUARE}
-              aria-label={__('Pause', 'web-stories')}
-              onClick={handlePlayPause}
-            >
-              <Icons.StopFilled />
-            </StyledButton>
-          </Tooltip>
-        ) : (
-          <Tooltip hasTail title={__('Play', 'web-stories')}>
-            <StyledButton
-              type={BUTTON_TYPES.TERTIARY}
-              size={BUTTON_SIZES.SMALL}
-              variant={BUTTON_VARIANTS.SQUARE}
-              aria-label={__('Play', 'web-stories')}
-              onClick={handlePlayPause}
-            >
-              <Icons.PlayFilled />
-            </StyledButton>
-          </Tooltip>
-        )}
-      </div>
+      <Tooltip
+        hasTail
+        title={buttonTitle}
+        popupZIndexOverride={Z_INDEX_STORY_DETAILS}
+      >
+        <StyledButton
+          type={BUTTON_TYPES.TERTIARY}
+          size={BUTTON_SIZES.SMALL}
+          variant={BUTTON_VARIANTS.SQUARE}
+          aria-label={buttonTitle}
+          onClick={handlePlayPause}
+        >
+          {isPlaying ? <Icons.StopFilled /> : <Icons.PlayFilled />}
+        </StyledButton>
+      </Tooltip>
     </Wrapper>
   );
 }
@@ -135,6 +180,9 @@ AudioPlayer.propTypes = {
   title: PropTypes.string.isRequired,
   src: PropTypes.string.isRequired,
   mimeType: PropTypes.string.isRequired,
+  audioId: PropTypes.string,
+  loop: PropTypes.bool,
+  tracks: PropTypes.arrayOf(ResourcePropTypes.trackResource),
 };
 
 export default AudioPlayer;

@@ -22,18 +22,15 @@ import {
   createSolid,
   generatePatternStyles,
   isPatternEqual,
-} from '@web-stories-wp/patterns';
+} from '@googleforcreators/patterns';
+import { getHTMLInfo } from '@googleforcreators/rich-text';
+import { generateFontFamily } from '@googleforcreators/element-library';
+import { BACKGROUND_TEXT_MODE } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
-import { generateFontFamily } from '../elements/text/util';
-import {
-  BACKGROUND_TEXT_MODE,
-  MULTIPLE_VALUE,
-  PRESET_TYPES,
-} from '../constants';
-import { getHTMLInfo } from '../components/richText/htmlManipulation';
+import { PRESET_TYPES, MULTIPLE_VALUE } from '../constants';
 import objectPick from './objectPick';
 
 const TEXT_PRESET_STYLES = [
@@ -121,7 +118,7 @@ function getExtractedInlineValue(value) {
   return value !== MULTIPLE_VALUE ? value : null;
 }
 
-function getTextInlineStyles(content) {
+export function getTextInlineStyles(content) {
   const { color, fontWeight, isItalic, isUnderline, letterSpacing } =
     getHTMLInfo(content);
   return {

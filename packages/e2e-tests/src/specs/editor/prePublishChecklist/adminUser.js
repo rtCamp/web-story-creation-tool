@@ -23,15 +23,14 @@ import {
   triggerHighPriorityChecklistSection,
   uploadPublisherLogoEditor,
   takeSnapshot,
+  addTextElement,
+  insertStoryTitle,
 } from '@web-stories-wp/e2e-test-utils';
 
 describe('Pre-Publish Checklist : Admin User', () => {
-  const addNewTextElement = async () => {
-    await expect(page).toClick('button[aria-label="Add new text element"]');
-  };
   const addNewPage = async () => {
     await expect(page).toClick('button[aria-label="Add New Page"]');
-    await addNewTextElement();
+    await addTextElement();
   };
   const addPages = async (number) => {
     for (let i = 0; i < number; i++) {
@@ -54,7 +53,13 @@ describe('Pre-Publish Checklist : Admin User', () => {
 
   it('should show that there is no poster attached to the story', async () => {
     await expect(page).toClick('[data-testid^="mediaElement"]');
+    const insertButton = await page.waitForXPath(
+      `//li//span[contains(text(), 'Insert image')]`
+    );
+    await insertButton.click();
     await expect(page).toMatchElement('[data-testid="imageElement"]');
+
+    await insertStoryTitle('Prepublish Checklist - admin - no poster warning');
 
     await publishStory();
 
@@ -70,18 +75,20 @@ describe('Pre-Publish Checklist : Admin User', () => {
   });
 
   it('should show cards related to poster image issues', async () => {
-    await addNewTextElement();
+    await addTextElement();
     await addPages(3);
 
     await expect(page).toClick('button', { text: 'Publish' });
-    await expect(page).toClick('button', { text: 'Review Checklist' });
+    await expect(page).toClick(
+      'div[aria-label="Story details"] button[aria-label^="Checklist"]'
+    );
     await expect(page).toMatch('Add poster image');
 
     await expect(page).toClick('p', { text: 'Document' });
 
     //find publish panel button
     const publishPanelButton = await expect(page).toMatchElement(
-      '#inspector-tab-document button',
+      '#sidebar-tab-document button',
       { text: 'Publishing' }
     );
 
@@ -90,6 +97,8 @@ describe('Pre-Publish Checklist : Admin User', () => {
     );
 
     //open publish panel if not open
+
+    //eslint-disable-next-line jest/no-conditional-in-test
     if (!isPublishPanelExpanded) {
       await publishPanelButton.click();
     }
@@ -99,11 +108,13 @@ describe('Pre-Publish Checklist : Admin User', () => {
   });
 
   it('should focus on media button when poster image issue card is clicked', async () => {
-    await addNewTextElement();
+    await addTextElement();
     await addPages(3);
 
     await expect(page).toClick('button', { text: 'Publish' });
-    await expect(page).toClick('button', { text: 'Review Checklist' });
+    await expect(page).toClick(
+      'div[aria-label="Story details"] button[aria-label^="Checklist"]'
+    );
     const title = await expect(page).toMatchElement('h2', {
       text: 'Add poster image',
     });

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# TODO: Move to ~/.huskyrc instead.
+# See https://typicode.github.io/husky/#/?id=command-not-found
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+. "$(dirname "$0")/_/husky.sh"
+
+npx lint-staged --relative

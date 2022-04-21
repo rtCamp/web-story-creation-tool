@@ -17,12 +17,12 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { Button, themeHelpers } from '@web-stories-wp/design-system';
+import { Button, themeHelpers } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
-import { focusStyle } from '../panels/shared';
+import { focusStyle } from '../panels/shared/styles';
 import { NAVIGATION_HEIGHT } from './constants';
 
 export const NavBar = styled.div`

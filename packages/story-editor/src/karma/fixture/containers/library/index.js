@@ -57,10 +57,6 @@ export class Library extends Container {
     return this.getByRole('tab', { name: /Text library/ });
   }
 
-  get textAdd() {
-    return this.getByRole('button', { name: /Add new text element/ });
-  }
-
   get text() {
     return this._get(
       this.getByRole('tabpanel', { name: /Text library/ }),
@@ -113,6 +109,10 @@ export class Shapes extends Container {
 export class Media extends Container {
   constructor(node, path) {
     super(node, path);
+  }
+
+  get searchBar() {
+    return this.getByRole('searchbox');
   }
 
   item(index) {
@@ -170,5 +170,12 @@ export class Media3P extends Container {
 
   get mediaElements() {
     return this.getAllByTestId(/^mediaElement/);
+  }
+
+  insertionBtnByIndex(index) {
+    const buttons = this.getAllByRole('button', {
+      name: /Open insertion menu/,
+    });
+    return buttons[index];
   }
 }

@@ -26,28 +26,43 @@ import {
   useRef,
   useState,
   useCallback,
-} from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { PatternPropType, hasGradient } from '@web-stories-wp/patterns';
-import { useKeyDownEffect } from '@web-stories-wp/design-system';
+  useEffect,
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { PatternPropType, hasGradient } from '@googleforcreators/patterns';
+import {
+  useKeyDownEffect,
+  themeHelpers,
+} from '@googleforcreators/design-system';
+import { useTransform } from '@googleforcreators/transform';
 
 /**
  * Internal dependencies
  */
 import useFocusTrapping from '../../utils/useFocusTrapping';
-import { useTransform } from '../transform';
 import useStory from '../../app/story/useStory';
 import CustomColorPicker from './customColorPicker';
 import BasicColorPicker from './basicColorPicker';
 
+const PICKER_WIDTH = 208;
+
 const Container = styled.div`
   border-radius: 8px;
   background: ${({ theme }) => theme.colors.bg.secondary};
-  width: 256px;
   user-select: none;
   display: flex;
   flex-direction: column;
+  gap: 12px;
   align-items: stretch;
+  ${({ maxHeight }) =>
+    maxHeight
+      ? `
+          height: ${maxHeight}px;
+          width: ${PICKER_WIDTH + themeHelpers.SCROLLBAR_WIDTH}px;
+        `
+      : `
+          width: ${PICKER_WIDTH}px;
+        `};
   overflow: hidden;
 
   &.picker-appear {
@@ -70,9 +85,13 @@ function ColorPicker({
   allowsGradient = false,
   allowsOpacity = true,
   allowsSavedColors = false,
+  hasEyedropper = true,
+  maxHeight = null,
   onClose = () => {},
   changedStyle = 'background',
   onDimensionChange = () => {},
+  allowsSavedColorDeletion = true,
+  shouldCloseOnSelection = false,
 }) {
   const [showDialog, setShowDialog] = useState(false);
   // If initial color is a gradient, start by showing a custom color picker.
@@ -100,9 +119,25 @@ function ColorPicker({
     leading: true,
   });
 
+  // Floating menu color picker doesn't stay mounted
+  // So, if the eyedropper is used from inside a floating menu color picker
+  // the debounced onChange can never be seen.
+  // this gives us a way to process that change when no longer mounted
+  const isMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   const handleColorChange = useCallback(
     (newColor) => {
-      onDebouncedChange(newColor);
+      if (isMounted.current) {
+        onDebouncedChange(newColor);
+      } else {
+        onChange(newColor);
+      }
+
       selectedElementIds.forEach((id) => {
         pushTransform(id, {
           color: newColor,
@@ -111,7 +146,13 @@ function ColorPicker({
         });
       });
     },
-    [onDebouncedChange, selectedElementIds, changedStyle, pushTransform]
+    [
+      onChange,
+      onDebouncedChange,
+      selectedElementIds,
+      changedStyle,
+      pushTransform,
+    ]
   );
 
   const maybeClose = () => {
@@ -162,6 +203,7 @@ function ColorPicker({
         role="dialog"
         aria-label={__('Color and gradient picker', 'web-stories')}
         ref={containerRef}
+        maxHeight={maxHeight}
       >
         <ActualColorPicker
           color={color}
@@ -171,10 +213,13 @@ function ColorPicker({
           showCustomPicker={showCustomPicker}
           hideCustomPicker={hideCustomPicker}
           handleClose={handleCloseAndRefocus}
+          hasEyedropper={hasEyedropper}
           allowsSavedColors={allowsSavedColors}
           showDialog={showDialog}
           setShowDialog={setShowDialog}
           changedStyle={changedStyle}
+          allowsSavedColorDeletion={allowsSavedColorDeletion}
+          shouldCloseOnSelection={shouldCloseOnSelection}
         />
       </Container>
     </CSSTransition>
@@ -188,9 +233,13 @@ ColorPicker.propTypes = {
   allowsOpacity: PropTypes.bool,
   allowsSavedColors: PropTypes.bool,
   isEyedropperActive: PropTypes.bool,
+  maxHeight: PropTypes.number,
   color: PatternPropType,
   changedStyle: PropTypes.string,
   onDimensionChange: PropTypes.func,
+  hasEyedropper: PropTypes.bool,
+  allowsSavedColorDeletion: PropTypes.bool,
+  shouldCloseOnSelection: PropTypes.bool,
 };
 
 export default ColorPicker;

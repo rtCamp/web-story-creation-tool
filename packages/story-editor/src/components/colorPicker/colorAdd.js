@@ -19,17 +19,17 @@
  */
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { __ } from '@web-stories-wp/i18n';
-import { Icons } from '@web-stories-wp/design-system';
+import { __ } from '@googleforcreators/i18n';
+import { Icons } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
-import { focusStyle } from '../panels/shared';
+import { focusStyle } from '../panels/shared/styles';
 import useAddPreset from '../../utils/useAddPreset';
 import { PRESET_TYPES } from '../../constants';
 
-const COLOR_SIZE = 32;
+const COLOR_SIZE = 24;
 const AddColorAction = styled.button`
   cursor: pointer;
   background-color: transparent;

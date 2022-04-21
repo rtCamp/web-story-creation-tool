@@ -16,8 +16,8 @@
 /**
  * External dependencies
  */
-import { migrate } from '@web-stories-wp/migration/src/migrate';
-import { createPage, getUniquePresets } from '@web-stories-wp/story-editor';
+import { migrate } from '@googleforcreators/migration/src/migrate';
+import { createPage, getUniquePresets } from '@googleforcreators/story-editor';
 
 function getInitialStoryState() {
   const globalStoryStyles = {

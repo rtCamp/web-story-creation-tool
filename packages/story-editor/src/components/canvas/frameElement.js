@@ -18,33 +18,50 @@
  * External dependencies
  */
 import styled from 'styled-components';
+import { sprintf, __ } from '@googleforcreators/i18n';
 import {
   useCallback,
   useLayoutEffect,
   useRef,
   useState,
-} from '@web-stories-wp/react';
-import { useUnits } from '@web-stories-wp/units';
-
-/**
- * Internal dependencies
- */
-import StoryPropTypes from '../../types';
-import { getDefinitionForType } from '../../elements';
-import { useStory, useTransform, useCanvas } from '../../app';
+  memo,
+  useCombinedRefs,
+} from '@googleforcreators/react';
+import { useUnits } from '@googleforcreators/units';
+import { useTransformHandler } from '@googleforcreators/transform';
+import PropTypes from 'prop-types';
+import { getDefinitionForType } from '@googleforcreators/elements';
 import {
   elementWithPosition,
   elementWithSize,
   elementWithRotation,
-} from '../../elements/shared';
-import WithMask from '../../masks/frame';
+} from '@googleforcreators/element-library';
+import { FrameWithMask as WithMask } from '@googleforcreators/masks';
+import {
+  useKeyDownEffect,
+  useLiveRegion,
+  prettifyShortcut,
+} from '@googleforcreators/design-system';
+
+/**
+ * Internal dependencies
+ */
+import {
+  useStory,
+  useTransform,
+  useCanvas,
+  useConfig,
+  useDropTargets,
+} from '../../app';
 import WithLink from '../elementLink/frame';
-import { useTransformHandler } from '../transform';
-import { getElementMask } from '../../masks';
-import { MaskTypes } from '../../masks/constants';
 import useDoubleClick from '../../utils/useDoubleClick';
 import usePerformanceTracking from '../../utils/usePerformanceTracking';
-import { TRACKING_EVENTS } from '../../constants/performanceTrackingEvents';
+import { TRACKING_EVENTS } from '../../constants';
+import {
+  FOCUS_GROUPS,
+  useFocusGroupRef,
+  useEditLayerFocusManager,
+} from './editLayerFocusManager';
 
 // @todo: should the frame borders follow clip lines?
 
@@ -53,12 +70,9 @@ import { TRACKING_EVENTS } from '../../constants/performanceTrackingEvents';
 const Wrapper = styled.div`
   ${elementWithPosition}
   ${elementWithSize}
-	${elementWithRotation}
-  pointer-events: ${({ maskDisabled }) => (maskDisabled ? 'initial' : 'none')};
-
-  outline: 1px solid transparent;
+   ${elementWithRotation}
+   outline: 1px solid transparent;
   transition: outline-color 0.5s;
-
   &:focus,
   &:active,
   &:hover {
@@ -78,43 +92,91 @@ const EmptyFrame = styled.div`
 
 const NOOP = () => {};
 
-function FrameElement({ element }) {
-  const setEditingElement = useCanvas(
-    ({ actions }) => actions.setEditingElement
+const FRAME_ELEMENT_MESSAGE = sprintf(
+  /* translators: 1: Ctrl Key 2: Alt Key */
+  __(
+    'To exit the canvas area, press Escape. Press Tab to move to the next group or element. To enter floating menu, press %1$s %2$s p.',
+    'web-stories'
+  ),
+  prettifyShortcut('ctrl'),
+  prettifyShortcut('alt')
+);
+
+function FrameElement({ id }) {
+  const speak = useLiveRegion();
+  const enterFocusGroup = useEditLayerFocusManager(
+    ({ enterFocusGroup }) => enterFocusGroup
   );
-  const { id, type, flip } = element;
+  const [isTransforming, setIsTransforming] = useState(false);
+  const focusGroupRef = useFocusGroupRef(FOCUS_GROUPS.ELEMENT_SELECTION);
+
+  const {
+    setNodeForElement,
+    handleSelectElement,
+    isEditing,
+    setEditingElement,
+    setEditingElementWithState,
+  } = useCanvas(({ state, actions }) => ({
+    setNodeForElement: actions.setNodeForElement,
+    handleSelectElement: actions.handleSelectElement,
+    isEditing: state.isEditing,
+    setEditingElement: actions.setEditingElement,
+    setEditingElementWithState: actions.setEditingElementWithState,
+  }));
+  const { isSelected, isOnlySelectedElement, isActive, isBackground, element } =
+    useStory(({ state }) => {
+      const isSelected = state.selectedElementIds.includes(id);
+      const isOnlySelectedElement =
+        isSelected && state.selectedElementIds.length === 1;
+      const isActive = isOnlySelectedElement && !isTransforming && !isEditing;
+
+      return {
+        isSelected,
+        isBackground: state.currentPage?.elements[0].id === id,
+        element: state.currentPage?.elements.find((el) => el.id === id),
+        isOnlySelectedElement,
+        isActive,
+      };
+    });
+  const { type, flip } = element;
   const { Frame, isMaskable, Controls } = getDefinitionForType(type);
   const elementRef = useRef();
+  const combinedFocusGroupRef = useCombinedRefs(elementRef, focusGroupRef); // Only attach focus group ref to one element.
   const [hovering, setHovering] = useState(false);
-  const isAnythingTransforming = useTransform(
-    ({ state }) => state.isAnythingTransforming
+  const { isRTL, styleConstants: { topOffset } = {} } = useConfig();
+
+  const {
+    draggingResource,
+    activeDropTargetId,
+    isDropSource,
+    registerDropTarget,
+    unregisterDropTarget,
+  } = useDropTargets(
+    ({
+      state: { draggingResource, activeDropTargetId },
+      actions: { isDropSource, registerDropTarget, unregisterDropTarget },
+    }) => ({
+      draggingResource,
+      activeDropTargetId,
+      isDropSource,
+      registerDropTarget,
+      unregisterDropTarget,
+    })
   );
 
   const onPointerEnter = () => setHovering(true);
   const onPointerLeave = () => setHovering(false);
 
-  const { setNodeForElement, handleSelectElement, isEditing } = useCanvas(
-    ({ state, actions }) => ({
-      setNodeForElement: actions.setNodeForElement,
-      handleSelectElement: actions.handleSelectElement,
-      isEditing: state.isEditing,
-    })
+  const isLinkActive = useTransform(
+    ({ state }) => !isSelected && hovering && !state.isAnythingTransforming
   );
-  const { isSelected, isSingleElement, isBackground } = useStory(
-    ({ state }) => ({
-      isSelected: state.selectedElementIds.includes(id),
-      isSingleElement: state.selectedElementIds.length === 1,
-      isBackground: state.currentPage?.elements[0].id === id,
-    })
-  );
+
   const getBox = useUnits(({ actions }) => actions.getBox);
 
   useLayoutEffect(() => {
     setNodeForElement(id, elementRef.current);
   }, [id, setNodeForElement]);
   const box = getBox(element);
-
-  const [isTransforming, setIsTransforming] = useState(false);
 
   useTransformHandler(id, (transform) => {
     const target = elementRef.current;
@@ -137,32 +199,45 @@ function FrameElement({ element }) {
   );
   const handleMediaClick = useDoubleClick(NOOP, handleMediaDoubleClick);
 
-  // For elements with no mask, handle events by the wrapper.
-  const mask = getElementMask(element);
-  const maskDisabled =
-    !mask?.type || (isBackground && mask.type !== MaskTypes.RECTANGLE);
-  const eventHandlers = {
-    onMouseDown: (evt) => {
+  /**
+   * Announce keyboard options on element.
+   *
+   * Using a live region because an `aria-label` would remove
+   * any labels/content that would be read from children.
+   */
+  const handleFocus = useCallback(
+    (evt) => {
       if (!isSelected) {
         handleSelectElement(id, evt);
       }
+
+      // no floating menu on background, so no need to announce
+      // possible floating menu keyboard navigation commands
+      if (isBackground) {
+        return;
+      }
+      speak(FRAME_ELEMENT_MESSAGE);
+    },
+    [handleSelectElement, id, isBackground, isSelected, speak]
+  );
+
+  const handleMouseDown = useCallback(
+    (evt) => {
+      if (!isSelected) {
+        handleSelectElement(id, evt);
+      }
+
       elementRef.current.focus({ preventScroll: true });
+
       if (!isBackground) {
         evt.stopPropagation();
       }
     },
-    onFocus: (evt) => {
-      if (!isSelected) {
-        handleSelectElement(id, evt);
-      }
-    },
-    onPointerEnter,
-    onPointerLeave,
-    onClick: isMedia ? handleMediaClick(id) : null,
-  };
+    [handleSelectElement, id, isBackground, isSelected]
+  );
 
   usePerformanceTracking({
-    node: maskDisabled ? elementRef.current : null,
+    node: elementRef.current,
     eventData: {
       ...TRACKING_EVENTS.SELECT_ELEMENT,
       label: element.type,
@@ -170,44 +245,63 @@ function FrameElement({ element }) {
     eventType: 'pointerdown',
   });
 
+  useKeyDownEffect(
+    elementRef,
+    { key: ['ctrl+alt+p'] },
+    () => {
+      enterFocusGroup({
+        groupId: FOCUS_GROUPS.EDIT_ELEMENT,
+        cleanup: () => elementRef.current?.focus(),
+      });
+    },
+    [enterFocusGroup]
+  );
+
   return (
-    <WithLink
-      element={element}
-      active={!isSelected && hovering && !isAnythingTransforming}
-      anchorRef={elementRef}
-    >
+    <WithLink element={element} active={isLinkActive} anchorRef={elementRef}>
       {Controls && (
         <Controls
           isTransforming={isTransforming}
-          isSelected={isSelected}
-          isSingleElement={isSingleElement}
-          isEditing={isEditing}
           box={box}
           elementRef={elementRef}
           element={element}
+          isRTL={isRTL}
+          topOffset={topOffset}
+          isActive={isActive}
         />
       )}
       <Wrapper
-        ref={elementRef}
+        ref={combinedFocusGroupRef}
         data-element-id={id}
         {...box}
-        // Needed for being able to focus on the selected element on canvas, e.g. for entering edit mode.
-        // eslint-disable-next-line styled-components-a11y/no-noninteractive-tabindex
-        tabIndex={0}
-        aria-labelledby={`layer-${id}`}
+        tabIndex={-1}
+        role="presentation"
         hasMask={isMaskable}
         data-testid="frameElement"
-        maskDisabled={maskDisabled}
-        {...(maskDisabled ? eventHandlers : null)}
+        onMouseDown={handleMouseDown}
+        onFocus={handleFocus}
+        onPointerEnter={onPointerEnter}
+        onPointerLeave={onPointerLeave}
+        onClick={isMedia ? handleMediaClick(id) : null}
       >
         <WithMask
           element={element}
           fill
           flip={flip}
-          eventHandlers={!maskDisabled ? eventHandlers : null}
+          draggingResource={draggingResource}
+          activeDropTargetId={activeDropTargetId}
+          isDropSource={isDropSource}
+          registerDropTarget={registerDropTarget}
+          unregisterDropTarget={unregisterDropTarget}
         >
           {Frame ? (
-            <Frame wrapperRef={elementRef} element={element} box={box} />
+            <Frame
+              wrapperRef={elementRef}
+              element={element}
+              box={box}
+              isOnlySelectedElement={isOnlySelectedElement}
+              setEditingElementWithState={setEditingElementWithState}
+            />
           ) : (
             <EmptyFrame />
           )}
@@ -218,7 +312,7 @@ function FrameElement({ element }) {
 }
 
 FrameElement.propTypes = {
-  element: StoryPropTypes.element.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
-export default FrameElement;
+export default memo(FrameElement);

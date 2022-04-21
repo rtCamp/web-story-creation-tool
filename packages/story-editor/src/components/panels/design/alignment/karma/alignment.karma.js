@@ -41,15 +41,21 @@ describe('Alignment Panel', () => {
     fixture.restore();
   });
 
-  // Disable reason: not implemented yet
-  // eslint-disable-next-line jasmine/no-disabled-tests
+  // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
   xit('should have no active alignment buttons');
 
   describe('When there is one element on canvas', () => {
     beforeEach(async () => {
       // Add first text element
-      await fixture.events.click(fixture.editor.library.textAdd);
-      await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
+      await fixture.editor.library.textTab.click();
+      await fixture.events.click(
+        fixture.editor.library.text.preset('Paragraph')
+      );
+      await waitFor(() => {
+        if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+          throw new Error('node not ready');
+        }
+      });
 
       // It will correctly be selected now
     });
@@ -57,14 +63,13 @@ describe('Alignment Panel', () => {
     describe('CUJ: Creator can Transform an Element: Align element to page', () => {
       it('should not show a border when focusing an alignment button using mouse', async () => {
         // Click left align
+        await fixture.events.click(fixture.editor.sidebar.designTab);
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.alignment.left
+          fixture.editor.sidebar.designPanel.alignment.left
         );
 
         // Expect button to have focus
-        expect(
-          fixture.editor.inspector.designPanel.alignment.left
-        ).toHaveFocus();
+        expect(fixture.editor.sidebar.designPanel.alignment.left).toHaveFocus();
 
         // Expect element to be left-aligned
         const textFrame = fixture.editor.canvas.framesLayer.frame(textA);
@@ -78,14 +83,15 @@ describe('Alignment Panel', () => {
 
       it('should show a border when focusing an alignment button using keyboard', async () => {
         // Click left align
+        await fixture.events.click(fixture.editor.sidebar.designTab);
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.alignment.left
+          fixture.editor.sidebar.designPanel.alignment.left
         );
 
         // Press "tab" once - focus should now be on "center align"
         await fixture.events.keyboard.press('tab');
         expect(
-          fixture.editor.inspector.designPanel.alignment.center
+          fixture.editor.sidebar.designPanel.alignment.center
         ).toHaveFocus();
 
         // Expect "center align" button to have visible outline
@@ -94,42 +100,37 @@ describe('Alignment Panel', () => {
         );
       });
 
-      // Disable reason: not implemented yet
-      // eslint-disable-next-line jasmine/no-disabled-tests
+      // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
       xit('should have the correct active alignment buttons');
 
-      // Disable reason: not implemented yet
-      // eslint-disable-next-line jasmine/no-disabled-tests
+      // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
       xit('should align element left on canvas');
 
-      // Disable reason: not implemented yet
-      // eslint-disable-next-line jasmine/no-disabled-tests
+      // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
       xit('should align element center on canvas');
 
-      // Disable reason: not implemented yet
-      // eslint-disable-next-line jasmine/no-disabled-tests
+      // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
       xit('should align element right on canvas');
 
-      // Disable reason: not implemented yet
-      // eslint-disable-next-line jasmine/no-disabled-tests
+      // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
       xit('should align element top on canvas');
 
-      // Disable reason: not implemented yet
-      // eslint-disable-next-line jasmine/no-disabled-tests
+      // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
       xit('should align element middle on canvas');
 
-      // Disable reason: not implemented yet
-      // eslint-disable-next-line jasmine/no-disabled-tests
+      // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
       xit('should align element bottom on canvas');
     });
 
     describe('CUJ: Creator can Transform an Element: Align element to on another', () => {
-      // Disable reason: not implemented yet
-      // eslint-disable-next-line jasmine/no-disabled-tests
+      // eslint-disable-next-line jasmine/no-disabled-tests -- not implemented yet
       xdescribe('When there are two elements on canvas', () => {
         beforeEach(async () => {
           // Add second text element
-          await fixture.events.click(fixture.editor.library.textAdd);
+          await fixture.editor.library.textTab.click();
+          await fixture.events.click(
+            fixture.editor.library.text.preset('Paragraph')
+          );
 
           // TODO: move second text element to appropriate place
 
@@ -153,7 +154,10 @@ describe('Alignment Panel', () => {
         describe('When there are three elements on canvas', () => {
           beforeEach(async () => {
             // Add third text element
-            await fixture.events.click(fixture.editor.library.textAdd);
+            await fixture.editor.library.textTab.click();
+            await fixture.events.click(
+              fixture.editor.library.text.preset('Paragraph')
+            );
 
             // TODO: move third text element to appropriate place
 

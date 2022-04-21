@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 /**
- * External dependencies
- */
-import { waitFor } from '@testing-library/react';
-
-/**
  * Internal dependencies
  */
 import { Fixture } from '../../../../../karma';
@@ -45,8 +40,10 @@ describe('Video Accessibility Panel', () => {
 
   describe('CUJ: Creator Can Manipulate an Image/Video on Canvas: Set different poster image', () => {
     beforeEach(async () => {
-      await fixture.events.click(fixture.editor.library.media.item(5)); // item 5 is a video
-      vaPanel = fixture.editor.inspector.designPanel.videoAccessibility;
+      const mediaItem = fixture.editor.library.media.item(5);
+      await fixture.events.mouse.clickOn(mediaItem, 20, 20); // item 5 is a video
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      vaPanel = fixture.editor.sidebar.designPanel.videoAccessibility;
     });
 
     it('should allow user to edit and reset poster image using mouse', async () => {
@@ -93,7 +90,7 @@ describe('Video Accessibility Panel', () => {
       expect(vaPanel.posterMenuButton).toHaveFocus();
 
       await fixture.events.keyboard.press('Enter');
-      await waitFor(() => expect(vaPanel.posterMenuEdit).toBeDefined());
+      expect(vaPanel.posterMenuEdit).toBeDefined();
       await fixture.snapshot('Menu open');
 
       // And click on edit

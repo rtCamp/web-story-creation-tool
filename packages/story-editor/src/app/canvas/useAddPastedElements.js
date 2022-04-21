@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { useBatchingCallback } from '@web-stories-wp/react';
+import { useBatchingCallback } from '@googleforcreators/react';
 /**
  * Internal dependencies
  */
@@ -33,7 +33,7 @@ function useAddPastedElements() {
     addAnimations,
   } = useStory(
     ({
-      state: { currentPage, selectedElements },
+      state: { currentPage },
       actions: {
         addElements,
         deleteSelectedElements,
@@ -45,7 +45,6 @@ function useAddPastedElements() {
     }) => {
       return {
         currentPage,
-        selectedElements,
         addElements,
         deleteSelectedElements,
         updateCurrentPageProperties,

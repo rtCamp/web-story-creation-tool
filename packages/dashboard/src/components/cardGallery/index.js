@@ -24,9 +24,9 @@ import {
   useMemo,
   useRef,
   useState,
-} from '@web-stories-wp/react';
-import { __, sprintf } from '@web-stories-wp/i18n';
-import { useGridViewKeys } from '@web-stories-wp/design-system';
+} from '@googleforcreators/react';
+import { __, sprintf } from '@googleforcreators/i18n';
+import { useGridViewKeys } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -145,18 +145,13 @@ function CardGallery({ galleryPosters, isRTL, galleryLabel }) {
     <GalleryContainer ref={containerRef}>
       <Thumbnails
         ref={gridRef}
+        role="group"
         aria-label={galleryLabel}
         data-testid="mini-cards-container"
       >
         {GalleryItems}
       </Thumbnails>
-      <DisplayPage
-        aria-label={sprintf(
-          /* translators: %s: active preview page number */
-          __('Active Page Preview - Page %s', 'web-stories'),
-          selectedGridItemIndex + 1
-        )}
-      >
+      <DisplayPage>
         {galleryPosters[selectedGridItemIndex] && (
           <picture>
             <source
@@ -170,7 +165,11 @@ function CardGallery({ galleryPosters, isRTL, galleryLabel }) {
             <img
               src={galleryPosters[selectedGridItemIndex].png}
               decoding="async"
-              alt={getPosterAltCopy(selectedGridItemIndex + 1)}
+              alt={sprintf(
+                /* translators: %s: active preview page number */
+                __('Active Page Preview - Page %s', 'web-stories'),
+                selectedGridItemIndex + 1
+              )}
               width={DEFAULT_GRID_IMG_WIDTH}
               height={DEFAULT_GRID_IMG_HEIGHT}
             />

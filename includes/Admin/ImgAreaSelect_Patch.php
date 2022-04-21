@@ -2,10 +2,10 @@
 /**
  * Class ImgAreaSelect_Patch.
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -34,16 +34,12 @@ use Google\Web_Stories\Infrastructure\Service;
 
 /**
  * Class ImgAreaSelect_Patch
- *
- * @package Google\Web_Stories
  */
 class ImgAreaSelect_Patch implements Conditional, Service, Registerable {
 	/**
 	 * Web Stories editor script handle.
-	 *
-	 * @var string
 	 */
-	const SCRIPT_HANDLE = 'imgareaselect';
+	public const SCRIPT_HANDLE = 'imgareaselect';
 
 	/**
 	 * Assets instance.
@@ -88,10 +84,8 @@ class ImgAreaSelect_Patch implements Conditional, Service, Registerable {
 	 * Runs on instantiation.
 	 *
 	 * @since 1.10.0
-	 *
-	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		add_filter( 'script_loader_tag', [ $this, 'script_loader_tag' ], 10, 3 );
 	}
 
@@ -103,11 +97,10 @@ class ImgAreaSelect_Patch implements Conditional, Service, Registerable {
 	 * @param string|mixed $tag    The `<script>` tag for the enqueued script.
 	 * @param string       $handle The script's registered handle.
 	 * @param string       $src    The script's source URL.
-	 *
 	 * @return string|mixed The filtered script tag.
 	 */
 	public function script_loader_tag( $tag, $handle, $src ) {
-		if ( ! is_string( $tag ) || self::SCRIPT_HANDLE !== $handle || ! $this->context->is_story_editor() ) {
+		if ( ! \is_string( $tag ) || self::SCRIPT_HANDLE !== $handle || ! $this->context->is_story_editor() ) {
 			return $tag;
 		}
 

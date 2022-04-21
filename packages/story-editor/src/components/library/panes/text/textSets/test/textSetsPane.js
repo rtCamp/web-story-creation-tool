@@ -17,18 +17,18 @@
 /**
  * External dependencies
  */
-import { useRef } from '@web-stories-wp/react';
+import { useRef } from '@googleforcreators/react';
 import { screen } from '@testing-library/react';
+import { TransformContext } from '@googleforcreators/transform';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import LibraryContext from '../../../../context';
-import TransformContext from '../../../../../transform/context';
 import FontContext from '../../../../../../app/font/context';
 import APIContext from '../../../../../../app/api/context';
 import ConfigContext from '../../../../../../app/config/context';
-import { renderWithTheme } from '../../../../../../testUtils';
 import StoryContext from '../../../../../../app/story/context';
 import TextSetsPane from '../textSetsPane';
 
@@ -50,6 +50,8 @@ function setup() {
   const fontsValue = {
     actions: {
       maybeEnqueueFontStyle: jest.fn(),
+      getCustomFonts: jest.fn(),
+      getCuratedFonts: jest.fn(),
     },
   };
   const apiValue = {
@@ -86,7 +88,6 @@ function setup() {
   );
 }
 
-// eslint-disable-next-line react/prop-types
 function MockPane({ children }) {
   const ref = useRef();
   return <div ref={ref}>{children(ref)}</div>;

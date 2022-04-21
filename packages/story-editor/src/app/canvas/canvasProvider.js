@@ -24,9 +24,9 @@ import {
   useMemo,
   useRef,
   useState,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import SAT from 'sat';
-import { UnitsProvider } from '@web-stories-wp/units';
+import { UnitsProvider } from '@googleforcreators/units';
 
 /**
  * Internal dependencies
@@ -55,8 +55,6 @@ function CanvasProvider({ children }) {
   const [eyedropperPixelData, setEyedropperPixelData] = useState(null);
   const [isEyedropperActive, setIsEyedropperActive] = useState(null);
   const [eyedropperCallback, setEyedropperCallback] = useState(null);
-  const [pageCanvasData, setPageCanvasData] = useState(null);
-  const [pageCanvasPromise, setPageCanvasPromise] = useState(null);
 
   // IntersectionObserver tracks clientRects which is what we need here.
   // different from use case of useIntersectionEffect because this is extensible
@@ -96,7 +94,8 @@ function CanvasProvider({ children }) {
   } = useEditingElement();
 
   const {
-    currentPage,
+    elements,
+    backgroundElementId,
     selectedElementIds,
     toggleElementInSelection,
     setSelectedElementsById,
@@ -105,8 +104,10 @@ function CanvasProvider({ children }) {
       state: { currentPage, selectedElementIds },
       actions: { toggleElementInSelection, setSelectedElementsById },
     }) => {
+      const elements = currentPage?.elements || [];
       return {
-        currentPage,
+        elements,
+        backgroundElementId: elements[0]?.id,
         selectedElementIds,
         toggleElementInSelection,
         setSelectedElementsById,
@@ -133,7 +134,7 @@ function CanvasProvider({ children }) {
         setSelectedElementsById({ elementIds: [elId] });
       }
       evt.currentTarget.focus({ preventScroll: true });
-      if (currentPage?.elements[0].id !== elId) {
+      if (backgroundElementId !== elId) {
         evt.stopPropagation();
       }
 
@@ -151,7 +152,7 @@ function CanvasProvider({ children }) {
     },
     [
       editingElement,
-      currentPage?.elements,
+      backgroundElementId,
       clearEditing,
       toggleElementInSelection,
       setSelectedElementsById,
@@ -161,7 +162,7 @@ function CanvasProvider({ children }) {
   const selectIntersection = useCallback(
     ({ x: lx, y: ly, width: lw, height: lh }) => {
       const lassoP = createPolygon(0, lx, ly, lw, lh);
-      const newSelectedElementIds = currentPage.elements
+      const newSelectedElementIds = elements
         .filter(({ isBackground }) => !isBackground)
         .map(({ id, rotationAngle, x, y, width, height }) => {
           const elementP = createPolygon(rotationAngle, x, y, width, height);
@@ -170,7 +171,7 @@ function CanvasProvider({ children }) {
         .filter((id) => id);
       setSelectedElementsById({ elementIds: newSelectedElementIds });
     },
-    [currentPage, setSelectedElementsById]
+    [elements, setSelectedElementsById]
   );
 
   // Reset editing mode when selection changes.
@@ -192,6 +193,8 @@ function CanvasProvider({ children }) {
 
   useCanvasCopyPaste();
 
+  const [onMoveableMount, setMoveableMount] = useState(null);
+
   const state = useMemo(
     () => ({
       state: {
@@ -210,10 +213,9 @@ function CanvasProvider({ children }) {
         eyedropperCallback,
         eyedropperImg,
         eyedropperPixelData,
-        pageCanvasData,
-        pageCanvasPromise,
         boundingBoxes,
         clientRectObserver,
+        onMoveableMount,
       },
       actions: {
         setPageContainer,
@@ -233,8 +235,7 @@ function CanvasProvider({ children }) {
         setEyedropperCallback,
         setEyedropperImg,
         setEyedropperPixelData,
-        setPageCanvasData,
-        setPageCanvasPromise,
+        setMoveableMount,
       },
     }),
     [
@@ -252,8 +253,6 @@ function CanvasProvider({ children }) {
       eyedropperCallback,
       eyedropperImg,
       eyedropperPixelData,
-      pageCanvasData,
-      pageCanvasPromise,
       boundingBoxes,
       clientRectObserver,
       getNodeForElement,
@@ -263,6 +262,8 @@ function CanvasProvider({ children }) {
       clearEditing,
       handleSelectElement,
       selectIntersection,
+      onMoveableMount,
+      setMoveableMount,
     ]
   );
   return (

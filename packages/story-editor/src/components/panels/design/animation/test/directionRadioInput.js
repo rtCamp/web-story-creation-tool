@@ -17,15 +17,15 @@
 /**
  * External dependencies
  */
-import { useState } from '@web-stories-wp/react';
+import { useState } from '@googleforcreators/react';
 import { fireEvent, screen } from '@testing-library/react';
 import PropTypes from 'prop-types';
-import { DIRECTION, SCALE_DIRECTION } from '@web-stories-wp/animation';
+import { DIRECTION, SCALE_DIRECTION } from '@googleforcreators/animation';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
-import { renderWithTheme } from '../../../../../testUtils';
 import { DirectionRadioInput } from '../directionRadioInput';
 
 function DirectionRadioInputUncontrolled({ onChange, directions }) {

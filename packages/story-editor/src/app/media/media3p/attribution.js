@@ -16,19 +16,19 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@web-stories-wp/i18n';
+import { __, sprintf } from '@googleforcreators/i18n';
 import styled, { css } from 'styled-components';
 import { rgba } from 'polished';
 import {
   Text as DefaultText,
   THEME_CONSTANTS,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
 import { TenorLogoFull, UnsplashLogoFull } from '../../../icons';
-import { ReactComponent as CoverrLogoFull } from '../../../images/coverr_logo.svg';
+import CoverrLogoFull from '../../../images/coverr_logo.svg';
 
 const AttributionPill = styled.div`
   position: absolute;

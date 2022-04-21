@@ -19,16 +19,18 @@
  */
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { useCallback, useRef } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { PillGroup } from '@web-stories-wp/design-system';
+import { useCallback, useRef } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { PillGroup } from '@googleforcreators/design-system';
+import { BACKGROUND_TEXT_MODE } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
-import { BACKGROUND_TEXT_MODE } from '../../../../constants';
 import { Color, Row } from '../../../form';
-import { useCommonColorValue, getCommonValue, focusStyle } from '../../shared';
+import { focusStyle } from '../../shared/styles';
+import useCommonColorValue from '../../shared/useCommonColorValue';
+import getCommonValue from '../../shared/getCommonValue';
 import { applyHiddenPadding, removeHiddenPadding } from './utils';
 
 const FillRow = styled(Row)`

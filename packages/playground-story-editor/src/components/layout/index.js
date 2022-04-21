@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { InterfaceSkeleton } from '@web-stories-wp/story-editor';
+import { InterfaceSkeleton } from '@googleforcreators/story-editor';
 
 /**
  * Internal dependencies

@@ -17,16 +17,13 @@
 /**
  * External dependencies
  */
-import { addQueryArgs } from '@web-stories-wp/design-system';
+import { addQueryArgs } from '@googleforcreators/url';
+import { snakeToCamelCaseObjectKeys } from '@web-stories-wp/wp-utils';
 
 /**
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-/**
- * Internal dependencies
- */
-import { snakeCaseToCamelCase } from './utils';
 
 /**
  * Get all taxonomies.
@@ -43,17 +40,10 @@ export async function getTaxonomies(config) {
   });
 
   return Object.values(result).map((taxonomy) => {
-    taxonomy.rest_path = taxonomy['_links']?.['wp:items']?.[0]?.href;
+    taxonomy.restPath = taxonomy['_links']?.['wp:items']?.[0]?.href;
     delete taxonomy['_links'];
 
-    const entries = Object.entries(taxonomy);
-
-    const formattedEntries = entries.map((entry) => [
-      snakeCaseToCamelCase(entry[0]),
-      entry[1],
-    ]);
-
-    return Object.fromEntries(formattedEntries);
+    return snakeToCamelCaseObjectKeys(taxonomy, ['capabilities', 'visibility']);
   });
 }
 

@@ -18,7 +18,7 @@
  * External dependencies
  */
 import { within } from '@testing-library/react';
-import { getRelativeDisplayDate } from '@web-stories-wp/date';
+import { getRelativeDisplayDate } from '@googleforcreators/date';
 
 /**
  * Internal dependencies
@@ -81,6 +81,8 @@ describe('CUJ: Creator can view their stories in list view: ', () => {
       await expectAsync(listViewTable).toHaveNoViolations();
 
       expect(listViewTable).toBeTruthy();
+
+      await fixture.snapshot('List View');
     });
 
     it('should switch to List View and back to Grid View', async () => {
@@ -104,6 +106,8 @@ describe('CUJ: Creator can view their stories in list view: ', () => {
       const { storiesOrderById } = await getStoriesState();
 
       expect(storyElements.length).toEqual(storiesOrderById.length);
+
+      await fixture.snapshot('Grid View');
     });
 
     it('should Rename a story', async () => {
@@ -116,10 +120,10 @@ describe('CUJ: Creator can view their stories in list view: ', () => {
       // drop the header row using slice
       const rows = fixture.screen.getAllByRole('row').slice(1);
 
-      const utils = within(rows[1]);
+      const utils = within(rows[0]);
 
       const titleCell = utils.getByRole('heading', {
-        name: storiesSortedByModified[1].title,
+        name: storiesSortedByModified[0].title,
       });
 
       await fixture.events.hover(titleCell);
@@ -139,7 +143,7 @@ describe('CUJ: Creator can view their stories in list view: ', () => {
       const inputLength = input.value.length;
 
       for (let iter = 0; iter < inputLength; iter++) {
-        // disable eslint to prevet overlapping .act calls
+        // disable eslint to prevent overlapping .act calls
         // eslint-disable-next-line no-await-in-loop
         await fixture.events.keyboard.press('Backspace');
       }
@@ -147,6 +151,8 @@ describe('CUJ: Creator can view their stories in list view: ', () => {
       await fixture.events.keyboard.type('A New Title');
 
       await fixture.events.keyboard.press('Enter');
+
+      await fixture.snapshot('Rename story');
 
       expect(utils.getByText(/^A New Title$/)).toBeTruthy();
     });
@@ -182,6 +188,8 @@ describe('CUJ: Creator can view their stories in list view: ', () => {
       const duplicate = utils.getByText(/^Duplicate/);
 
       await fixture.events.click(duplicate);
+
+      await fixture.snapshot('Duplicate story');
 
       // requery rows
       rows = fixture.screen.getAllByRole('row').slice(1);
@@ -225,6 +233,8 @@ describe('CUJ: Creator can view their stories in list view: ', () => {
       const confirmDeleteButton = fixture.screen.getByRole('button', {
         name: /^Confirm deleting/,
       });
+
+      await fixture.snapshot('Delete story');
 
       await fixture.events.click(confirmDeleteButton);
 
@@ -271,6 +281,62 @@ describe('CUJ: Creator can view their stories in list view: ', () => {
       rows = fixture.screen.getAllByRole('row').slice(1);
 
       expect(rows.length).toEqual(storiesSortedByModified.length);
+    });
+  });
+
+  describe('Creator should be prevented from performing basic updates on locked stories from dashboard list view', () => {
+    it('should not Rename a locked story', async () => {
+      const { stories, storiesOrderById } = await getStoriesState();
+
+      const storiesSortedByModified = storiesOrderById.map((id) => stories[id]);
+
+      await clickListView();
+
+      // drop the header row using slice
+      const rows = fixture.screen.getAllByRole('row').slice(1);
+
+      const utils = within(rows[1]);
+
+      const titleCell = utils.getByRole('heading', {
+        name: new RegExp(`^${storiesSortedByModified[1].title}`),
+      });
+
+      await fixture.events.hover(titleCell);
+
+      const moreOptionsButton = utils.getByRole('button', {
+        name: /^Context menu for/,
+      });
+
+      await fixture.events.click(moreOptionsButton);
+
+      const rename = utils.getByText(/^Rename/);
+      expect(rename.hasAttribute('disabled')).toBe(true);
+    });
+
+    it('should not Delete a locked story', async () => {
+      const { stories, storiesOrderById } = await getStoriesState();
+      const storiesSortedByModified = storiesOrderById.map((id) => stories[id]);
+
+      await clickListView();
+
+      // drop the header row using slice
+      const rows = fixture.screen.getAllByRole('row').slice(1);
+
+      const utils = within(rows[1]);
+      const titleCell = utils.getByRole('heading', {
+        name: new RegExp(`^${storiesSortedByModified[1].title}`),
+      });
+
+      await fixture.events.hover(titleCell);
+
+      const moreOptionsButton = utils.getByRole('button', {
+        name: /^Context menu for/,
+      });
+
+      await fixture.events.click(moreOptionsButton);
+
+      const deleteButton = utils.getByText(/^Delete/);
+      expect(deleteButton.hasAttribute('disabled')).toBe(true);
     });
   });
 

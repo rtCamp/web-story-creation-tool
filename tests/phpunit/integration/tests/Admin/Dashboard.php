@@ -15,18 +15,8 @@
  * limitations under the License.
  */
 
-
 namespace Google\Web_Stories\Tests\Integration\Admin;
 
-use Google\Web_Stories\Admin\Google_Fonts;
-use Google\Web_Stories\Assets;
-use Google\Web_Stories\Context;
-use Google\Web_Stories\Decoder;
-use Google\Web_Stories\Integrations\Site_Kit;
-use Google\Web_Stories\Locale;
-use Google\Web_Stories\Settings;
-use Google\Web_Stories\Story_Post_Type;
-use Google\Web_Stories\Font_Post_Type;
 use Google\Web_Stories\Tests\Integration\Capabilities_Setup;
 use Google\Web_Stories\Tests\Integration\DependencyInjectedTestCase;
 
@@ -46,7 +36,7 @@ class Dashboard extends DependencyInjectedTestCase {
 	protected static $cpt_has_archive = 'cpt_has_archive';
 	protected static $cpt_no_archive  = 'cpt_no_archive';
 
-	public static function wpSetUpBeforeClass( $factory ) {
+	public static function wpSetUpBeforeClass( $factory ): void {
 		self::$user_id = $factory->user->create(
 			[
 				'role' => 'administrator',
@@ -68,12 +58,12 @@ class Dashboard extends DependencyInjectedTestCase {
 		);
 	}
 
-	public static function wpTearDownAfterClass() {
+	public static function wpTearDownAfterClass(): void {
 		unregister_post_type( self::$cpt_no_archive );
 		unregister_post_type( self::$cpt_has_archive );
 	}
 
-	public function set_up() {
+	public function set_up(): void {
 		parent::set_up();
 
 		$this->instance = $this->injector->make( \Google\Web_Stories\Admin\Dashboard::class );
@@ -81,7 +71,7 @@ class Dashboard extends DependencyInjectedTestCase {
 		$this->add_caps_to_roles();
 	}
 
-	public function tear_down() {
+	public function tear_down(): void {
 		$this->remove_caps_from_roles();
 
 		wp_dequeue_script( \Google\Web_Stories\Admin\Dashboard::SCRIPT_HANDLE );
@@ -93,7 +83,7 @@ class Dashboard extends DependencyInjectedTestCase {
 	/**
 	 * @covers ::get_hook_suffix
 	 */
-	public function test_get_not_set_hook_suffix() {
+	public function test_get_not_set_hook_suffix(): void {
 		$this->instance->add_menu_page();
 		$this->assertFalse( $this->instance->get_hook_suffix( 'nothing' ) );
 	}
@@ -102,7 +92,7 @@ class Dashboard extends DependencyInjectedTestCase {
 	 * @covers ::add_menu_page
 	 * @covers ::get_hook_suffix
 	 */
-	public function test_add_menu_page_no_user() {
+	public function test_add_menu_page_no_user(): void {
 		$this->instance->add_menu_page();
 		$this->assertFalse( $this->instance->get_hook_suffix( 'stories-dashboard' ) );
 		$this->assertFalse( $this->instance->get_hook_suffix( 'stories-dashboard-explore' ) );
@@ -113,7 +103,7 @@ class Dashboard extends DependencyInjectedTestCase {
 	 * @covers ::add_menu_page
 	 * @covers ::get_hook_suffix
 	 */
-	public function test_add_menu_page_user_without_permission() {
+	public function test_add_menu_page_user_without_permission(): void {
 		$this->remove_caps_from_roles();
 
 		wp_set_current_user( self::$user_id );
@@ -128,7 +118,7 @@ class Dashboard extends DependencyInjectedTestCase {
 	 * @covers ::add_menu_page
 	 * @covers ::get_hook_suffix
 	 */
-	public function test_add_menu_page() {
+	public function test_add_menu_page(): void {
 		wp_set_current_user( self::$user_id );
 		wp_get_current_user()->add_cap( 'edit_web-stories' );
 
@@ -144,7 +134,7 @@ class Dashboard extends DependencyInjectedTestCase {
 	/**
 	 * @covers ::enqueue_assets
 	 */
-	public function test_enqueue_assets_wrong_page() {
+	public function test_enqueue_assets_wrong_page(): void {
 		wp_set_current_user( self::$user_id );
 
 		$this->instance->add_menu_page();
@@ -156,14 +146,14 @@ class Dashboard extends DependencyInjectedTestCase {
 	/**
 	 * @covers ::enqueue_assets
 	 */
-	public function test_enqueue_assets() {
+	public function test_enqueue_assets(): void {
 		wp_set_current_user( self::$user_id );
 
 		$experiments = $this->createMock( \Google\Web_Stories\Experiments::class );
 		$experiments->method( 'get_experiment_statuses' )
 					->willReturn( [] );
 
-		$assets = $this->getMockBuilder( Assets::class )->setMethods( [ 'get_asset_metadata' ] )->getMock();
+		$assets = $this->getMockBuilder( \Google\Web_Stories\Assets::class )->setMethods( [ 'get_asset_metadata' ] )->getMock();
 		$assets->method( 'get_asset_metadata' )
 			->willReturn(
 				[
@@ -175,20 +165,26 @@ class Dashboard extends DependencyInjectedTestCase {
 				]
 			);
 
-		$post_type      = new Story_Post_Type( new Settings(), $experiments );
-		$font_post_type = new Font_Post_Type( $post_type );
+		$site_kit       = $this->injector->make( \Google\Web_Stories\Integrations\Site_Kit::class );
+		$decoder        = $this->injector->make( \Google\Web_Stories\Decoder::class );
+		$locale         = $this->injector->make( \Google\Web_Stories\Locale::class );
+		$google_fonts   = $this->injector->make( \Google\Web_Stories\Admin\Google_Fonts::class );
+		$font_post_type = $this->injector->make( \Google\Web_Stories\Font_Post_Type::class );
+		$post_type      = $this->injector->make( \Google\Web_Stories\Story_Post_Type::class );
+		$context        = $this->injector->make( \Google\Web_Stories\Context::class );
+		$types          = $this->injector->make( \Google\Web_Stories\Media\Types::class );
 
 		$this->instance = new \Google\Web_Stories\Admin\Dashboard(
 			$experiments,
-			$this->createMock( Site_Kit::class ),
-			$this->createMock( Decoder::class ),
-			$this->createMock( Locale::class ),
-			( new Google_Fonts() ),
+			$site_kit,
+			$decoder,
+			$locale,
+			$google_fonts,
 			$assets,
 			$font_post_type,
 			$post_type,
-			new Context( $post_type ),
-			$this->createMock( \Google\Web_Stories\Media\Types::class )
+			$context,
+			$types
 		);
 
 		$this->instance->add_menu_page();

@@ -25,31 +25,40 @@ import {
   useState,
   useRef,
   useUnmount,
-} from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import {
   getPreviewText,
   getOpaquePattern,
   PatternPropType,
-} from '@web-stories-wp/patterns';
+} from '@googleforcreators/patterns';
 import {
   HexInput,
   Text,
   THEME_CONSTANTS,
   Swatch,
+  Icons,
+  Popup,
   PLACEMENT,
-} from '@web-stories-wp/design-system';
-
+  CONTEXT_MENU_SKIP_ELEMENT,
+} from '@googleforcreators/design-system';
+import { v4 as uuidv4 } from 'uuid';
 /**
  * Internal dependencies
  */
+import {
+  default as FocusTrapButton,
+  handleReturnTrappedFocus,
+} from '../../floatingMenu/elements/shared/focusTrapButton';
 import { MULTIPLE_VALUE, MULTIPLE_DISPLAY_VALUE } from '../../../constants';
-import Popup from '../../popup';
 import ColorPicker from '../../colorPicker';
-import useInspector from '../../inspector/useInspector';
+import useSidebar from '../../sidebar/useSidebar';
 import DefaultTooltip from '../../tooltip';
-import { focusStyle, inputContainerStyleOverride } from '../../panels/shared';
-import { useCanvas } from '../../../app';
+import {
+  focusStyle,
+  inputContainerStyleOverride,
+} from '../../panels/shared/styles';
+import { useCanvas, useConfig } from '../../../app';
 
 const Preview = styled.div`
   height: 36px;
@@ -96,9 +105,15 @@ const buttonStyle = css`
   background: transparent;
 `;
 
+const minimalInputContainerStyleOverride = css`
+  ${inputContainerStyleOverride};
+  padding-right: 6px;
+`;
+
 const ColorButton = styled(Preview).attrs(buttonAttrs)`
   border-radius: 4px;
   ${buttonStyle}
+  display: flex;
   &:focus {
     box-shadow: 0px 0px 0 2px ${({ theme }) => theme.colors.bg.primary},
       0px 0px 0 4px ${({ theme }) => theme.colors.border.focus};
@@ -122,30 +137,62 @@ const TextualPreview = styled.div`
   height: 32px;
 `;
 
+const MixedLabel = styled(TextualPreview)`
+  align-self: center;
+  padding: 6px 6px 6px 38px;
+`;
+
 const StyledSwatch = styled(Swatch)`
   ${focusStyle};
+`;
+
+const ChevronContainer = styled.div`
+  width: ${({ isSmall }) => (isSmall ? '28px' : '58px')};
+  display: flex;
+  justify-content: ${({ isSmall }) => (isSmall ? 'center' : 'flex-end')};
+  align-items: center;
+  align-self: center;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
 `;
 
 const loadReactColor = () =>
   import(/* webpackChunkName: "chunk-react-color" */ 'react-color');
 
-const SPACING = { x: 20 };
 const ColorInput = forwardRef(function ColorInput(
   {
     onChange,
-    allowsGradient = false,
-    allowsOpacity = true,
-    allowsSavedColors = false,
     value = null,
     label = null,
     changedStyle,
+    pickerPlacement = PLACEMENT.RIGHT_START,
+    isInDesignMenu = false,
+    hasInputs = true,
+    pickerProps,
+    spacing,
+    tooltipPlacement,
+    colorFocusTrap = false,
+    ...props
   },
   ref
 ) {
+  /**
+   * isolate the ref used for color input that
+   * is nested in a focus trap(when colorFocusTrap is true).
+   * This preserves existing color input functionality outside
+   * of floating menu while letting floating menu use
+   * the logic for the color input and do its own thing with focus.
+   */
+  const focusTrapInputRef = useRef();
+
+  const colorFocusTrapButtonRef = useRef();
   const isMixed = value === MULTIPLE_VALUE;
   value = isMixed ? '' : value;
 
-  const previewPattern = isMixed
+  const previewPattern = !value
     ? { color: { r: 0, g: 0, b: 0, a: 0 } }
     : getOpaquePattern(value);
   const previewText = getPreviewText(value);
@@ -158,20 +205,37 @@ const ColorInput = forwardRef(function ColorInput(
       isEyedropperActive,
     })
   );
+  const { isRTL, styleConstants: { topOffset } = {} } = useConfig();
+  const [dynamicPlacement, setDynamicPlacement] = useState(pickerPlacement);
 
   const {
-    refs: { inspector },
-  } = useInspector();
+    refs: { sidebar },
+  } = useSidebar();
+
+  const positionPlacement = useCallback(
+    (popupRef) => {
+      // if the popup was assigned as top as in the case of floating menus, we want to check that it will fit
+      if (pickerPlacement?.startsWith('top')) {
+        // check to see if there's an overlap with the window edge
+        const { top } = popupRef.current?.getBoundingClientRect() || {};
+        if (top <= topOffset) {
+          setDynamicPlacement(pickerPlacement.replace('top', 'bottom'));
+        }
+      }
+    },
+    [pickerPlacement, topOffset]
+  );
 
   const colorType = value?.type;
   // Allow editing always in case of solid color of if color type is missing (mixed)
-  const isEditable = !colorType || colorType === 'solid';
+  const isEditable = (!colorType || colorType === 'solid') && hasInputs;
 
   const buttonProps = {
     onClick: () => setPickerOpen(true),
     'aria-label': label,
     onPointerEnter: () => loadReactColor(),
     onFocus: () => loadReactColor(),
+    tabIndex: props.tabIndex,
   };
 
   // Always hide color picker on unmount - note the double arrows
@@ -180,66 +244,123 @@ const ColorInput = forwardRef(function ColorInput(
   const onClose = useCallback(() => setPickerOpen(false), []);
 
   const tooltip = __('Open color picker', 'web-stories');
+
+  const containerStyle = isInDesignMenu
+    ? minimalInputContainerStyleOverride
+    : inputContainerStyleOverride;
+
   return (
     <>
       {isEditable ? (
         // If editable, only the visual preview component is a button
         // And the text is an input field
         <Preview ref={previewRef}>
-          <Input
-            ref={ref}
-            aria-label={label}
-            value={isMixed ? null : value}
-            onChange={onChange}
-            isIndeterminate={isMixed}
-            placeholder={isMixed ? MULTIPLE_DISPLAY_VALUE : ''}
-            containerStyleOverride={inputContainerStyleOverride}
-          />
+          {colorFocusTrap ? (
+            <FocusTrapButton
+              ref={colorFocusTrapButtonRef}
+              inputRef={focusTrapInputRef}
+              inputLabel={label}
+            >
+              <Input
+                ref={focusTrapInputRef}
+                aria-label={label}
+                value={isMixed ? null : value}
+                onChange={onChange}
+                isIndeterminate={isMixed}
+                placeholder={isMixed ? MULTIPLE_DISPLAY_VALUE : ''}
+                containerStyleOverride={containerStyle}
+                id={uuidv4()}
+                onKeyDown={(e) =>
+                  handleReturnTrappedFocus(e, colorFocusTrapButtonRef)
+                }
+                inputClassName={CONTEXT_MENU_SKIP_ELEMENT}
+                {...props}
+              />
+            </FocusTrapButton>
+          ) : (
+            <Input
+              ref={ref}
+              aria-label={label}
+              value={isMixed ? null : value}
+              onChange={onChange}
+              isIndeterminate={isMixed}
+              placeholder={isMixed ? MULTIPLE_DISPLAY_VALUE : ''}
+              containerStyleOverride={containerStyle}
+              id={uuidv4()}
+              {...props}
+            />
+          )}
           <ColorPreview>
-            <Tooltip title={tooltip} hasTail>
-              <StyledSwatch isSmall pattern={previewPattern} {...buttonProps} />
+            <Tooltip title={tooltip} hasTail placement={tooltipPlacement}>
+              <StyledSwatch
+                isSmall
+                pattern={previewPattern}
+                id={uuidv4()}
+                {...buttonProps}
+              />
             </Tooltip>
           </ColorPreview>
         </Preview>
       ) : (
         // If not editable, the whole component is a button
-        <Tooltip title={tooltip} hasTail>
-          <ColorButton ref={previewRef} {...buttonProps}>
+        <Tooltip title={tooltip} hasTail placement={tooltipPlacement}>
+          <ColorButton ref={previewRef} id={uuidv4()} {...buttonProps}>
             <ColorPreview>
               <Swatch
-                isSmall
                 isPreview
                 role="status"
                 tabIndex="-1"
                 pattern={previewPattern}
+                isIndeterminate={isMixed}
               />
             </ColorPreview>
-            <TextualPreview>
-              <Text size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}>
-                {previewText}
-              </Text>
-            </TextualPreview>
+            {hasInputs ? (
+              <TextualPreview>
+                <Text size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}>
+                  {previewText}
+                </Text>
+              </TextualPreview>
+            ) : (
+              <>
+                {/* We display Mixed value even without inputs */}
+                {isMixed && (
+                  <MixedLabel>
+                    <Text
+                      size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}
+                      as="span"
+                    >
+                      {MULTIPLE_DISPLAY_VALUE}
+                    </Text>
+                  </MixedLabel>
+                )}
+                <ChevronContainer isSmall={isMixed}>
+                  <Icons.ChevronDown />
+                </ChevronContainer>
+              </>
+            )}
           </ColorButton>
         </Tooltip>
       )}
       <Popup
+        isRTL={isRTL}
         anchor={previewRef}
-        dock={inspector}
+        dock={isInDesignMenu ? null : sidebar}
         isOpen={pickerOpen}
-        placement={PLACEMENT.LEFT_START}
-        spacing={SPACING}
+        placement={dynamicPlacement}
+        spacing={spacing}
         invisible={isEyedropperActive}
+        topOffset={topOffset}
+        refCallback={positionPlacement}
+        resetXOffset
         renderContents={({ propagateDimensionChange }) => (
           <ColorPicker
             color={isMixed ? null : value}
             isEyedropperActive={isEyedropperActive}
             onChange={onChange}
-            allowsGradient={allowsGradient}
-            allowsOpacity={allowsOpacity}
-            allowsSavedColors={allowsSavedColors}
             onClose={onClose}
             changedStyle={changedStyle}
             onDimensionChange={propagateDimensionChange}
+            {...pickerProps}
           />
         )}
       />
@@ -249,12 +370,15 @@ const ColorInput = forwardRef(function ColorInput(
 
 ColorInput.propTypes = {
   value: PropTypes.oneOfType([PatternPropType, PropTypes.string]),
-  allowsGradient: PropTypes.bool,
-  allowsOpacity: PropTypes.bool,
-  allowsSavedColors: PropTypes.bool,
+  pickerProps: PropTypes.object,
   onChange: PropTypes.func.isRequired,
   label: PropTypes.string,
   changedStyle: PropTypes.string,
+  pickerPlacement: PropTypes.string,
+  isInDesignMenu: PropTypes.bool,
+  hasInputs: PropTypes.bool,
+  spacing: PropTypes.object,
+  tooltipPlacement: PropTypes.string,
 };
 
 export default ColorInput;

@@ -17,18 +17,17 @@
 /**
  * External dependencies
  */
-import { useEffect } from '@web-stories-wp/react';
+import { useCallback, useEffect, useRef } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { createSolid, PatternPropType } from '@web-stories-wp/patterns';
+import { createSolid, PatternPropType } from '@googleforcreators/patterns';
 import {
   Button,
   Icons,
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
-} from '@web-stories-wp/design-system';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/design-system';
+import { __ } from '@googleforcreators/i18n';
 
 /**
  * Internal dependencies
@@ -40,11 +39,6 @@ import PatternTypePicker from './patternTypePicker';
 import useColor from './useColor';
 import AddCustomColor from './addCustomColor';
 
-const Body = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
 function CustomColorPicker({
   color,
   allowsGradient,
@@ -53,6 +47,7 @@ function CustomColorPicker({
   handleClose,
   hideCustomPicker,
   allowsSavedColors,
+  hasEyedropper,
 }) {
   const {
     state: { type, stops, currentStopIndex, currentColor, generatedColor },
@@ -70,6 +65,14 @@ function CustomColorPicker({
     },
   } = useColor();
 
+  const isMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  // If color picker isn't mounted while using eyedropper, generatedColor won't update.
   useEffect(() => {
     if (generatedColor) {
       handleColorChange(generatedColor);
@@ -84,6 +87,21 @@ function CustomColorPicker({
       load(createSolid(0, 0, 0));
     }
   }, [color, load]);
+
+  const handleColorPickerChange = useCallback(
+    (e) => {
+      updateCurrentColor(e);
+      // If using the eyedropper in floating menu, the popup unmounts
+      // so the generatedColor won't ever be updated
+      // check for unmount and if so, we know this change event
+      // is from the eyedropper so we can just grab the rgb and
+      // trigger the rest of the change for the element.
+      if (!isMounted.current && e?.rgb) {
+        handleColorChange({ color: e.rgb });
+      }
+    },
+    [updateCurrentColor, handleColorChange]
+  );
 
   return (
     <>
@@ -105,32 +123,31 @@ function CustomColorPicker({
           setToSolid={setToSolid}
         />
       )}
-      <Body>
-        {type !== 'solid' && (
-          <GradientPicker
-            stops={stops}
-            currentStopIndex={currentStopIndex}
-            onSelect={selectStop}
-            onReverse={reverseStops}
-            onAdd={addStopAt}
-            onDelete={removeCurrentStop}
-            onRotate={rotateClockwise}
-            onMove={moveCurrentStopBy}
-            type={type}
-          />
-        )}
-        <CurrentColorPicker
-          color={currentColor}
-          onChange={updateCurrentColor}
-          showOpacity={allowsOpacity}
+      {type !== 'solid' && (
+        <GradientPicker
+          stops={stops}
+          currentStopIndex={currentStopIndex}
+          onSelect={selectStop}
+          onReverse={reverseStops}
+          onAdd={addStopAt}
+          onDelete={removeCurrentStop}
+          onRotate={rotateClockwise}
+          onMove={moveCurrentStopBy}
+          type={type}
         />
-        {allowsSavedColors && (
-          <AddCustomColor
-            color={generatedColor || color}
-            onSave={hideCustomPicker}
-          />
-        )}
-      </Body>
+      )}
+      <CurrentColorPicker
+        color={currentColor}
+        onChange={handleColorPickerChange}
+        showOpacity={allowsOpacity}
+        hasEyedropper={hasEyedropper}
+      />
+      {allowsSavedColors && (
+        <AddCustomColor
+          color={generatedColor || color}
+          onSave={hideCustomPicker}
+        />
+      )}
     </>
   );
 }
@@ -143,6 +160,7 @@ CustomColorPicker.propTypes = {
   allowsOpacity: PropTypes.bool,
   allowsSavedColors: PropTypes.bool,
   color: PatternPropType,
+  hasEyedropper: PropTypes.bool,
 };
 
 export default CustomColorPicker;

@@ -18,10 +18,9 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { useCallback, useMemo } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { Icons, Text, THEME_CONSTANTS } from '@web-stories-wp/design-system';
-import { useFeatures } from 'flagged';
+import { useCallback, useMemo } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { Icons, Text, THEME_CONSTANTS } from '@googleforcreators/design-system';
 /**
  * Internal dependencies
  */
@@ -73,8 +72,10 @@ export default function StoryListView({
   storySort,
   storyStatus,
 }) {
-  const { enablePostLocking } = useFeatures();
-  const { userId } = useConfig();
+  const {
+    userId,
+    styleConstants: { topOffset },
+  } = useConfig();
 
   const onSortTitleSelected = useCallback(
     (newStorySort) => {
@@ -104,27 +105,19 @@ export default function StoryListView({
         <StoryListItem
           key={`story-${story.id}`}
           story={story}
-          userId={enablePostLocking && userId}
+          userId={userId}
           renameStory={renameStory}
           storyStatus={storyStatus}
           storyMenu={storyMenu}
         />
       ))
     );
-  }, [
-    enablePostLocking,
-    hideStoryList,
-    renameStory,
-    stories,
-    storyStatus,
-    storyMenu,
-    userId,
-  ]);
+  }, [hideStoryList, renameStory, stories, storyStatus, storyMenu, userId]);
 
   return (
     <ListView data-testid="story-list-view">
       <Table aria-label={__('List view of created stories', 'web-stories')}>
-        <StickyTableHeader>
+        <StickyTableHeader topOffset={topOffset}>
           <TableRow>
             <TablePreviewHeaderCell
               onClick={() => onSortTitleSelected(STORY_SORT_OPTIONS.NAME)}

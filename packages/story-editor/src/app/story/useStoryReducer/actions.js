@@ -119,12 +119,12 @@ const updateElementById =
       payload: { elementIds: [elementId], properties },
     });
 
-const duplicateElementById =
+const duplicateElementsById =
   (dispatch) =>
-  ({ elementId }) =>
+  ({ elementIds }) =>
     dispatch({
-      type: types.DUPLICATE_ELEMENT_BY_ID,
-      payload: { elementId },
+      type: types.DUPLICATE_ELEMENTS_BY_ID,
+      payload: { elementIds },
     });
 
 const updateSelectedElements =
@@ -219,9 +219,23 @@ const toggleLayer =
       payload: { metaKey, shiftKey, elementId },
     });
 
+const copySelectedElement = (dispatch) => () =>
+  dispatch({
+    type: types.COPY_SELECTED_ELEMENT,
+  });
+
+const updateElementsByFontFamily =
+  (dispatch) =>
+  ({ family, properties }) =>
+    dispatch({
+      type: types.UPDATE_ELEMENTS_BY_FONT_FAMILY,
+      payload: { family, properties },
+    });
+
 export const exposedActions = {
   addPage,
   addPageAt,
+  copySelectedElement,
   deletePage,
   deleteCurrentPage,
   updatePageProperties,
@@ -237,7 +251,7 @@ export const exposedActions = {
   updateElementsByResourceId,
   deleteElementsByResourceId,
   updateElementById,
-  duplicateElementById,
+  duplicateElementsById,
   updateSelectedElements,
   combineElements,
   setBackgroundElement,
@@ -253,6 +267,7 @@ export const exposedActions = {
   addAnimations,
   updateStory,
   toggleLayer,
+  updateElementsByFontFamily,
 };
 
 // Internal actions

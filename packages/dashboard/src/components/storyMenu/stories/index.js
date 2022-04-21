@@ -18,11 +18,10 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { actions } from '@storybook/addon-actions';
 /**
  * Internal dependencies
  */
-import { useState } from '@web-stories-wp/react';
+import { useState } from '@googleforcreators/react';
 import StoryMenu, { MoreVerticalButton } from '..';
 import { STORY_CONTEXT_MENU_ITEMS } from '../../../constants';
 
@@ -51,8 +50,7 @@ export const _default = () => {
       <StoryMenu
         onMoreButtonSelected={setContextMenuId}
         contextMenuId={contextMenuId}
-        onMenuItemSelected={(item, story) => {
-          actions('onClick ', item.label, story.id);
+        onMenuItemSelected={() => {
           setContextMenuId(-1);
         }}
         menuItems={STORY_CONTEXT_MENU_ITEMS}

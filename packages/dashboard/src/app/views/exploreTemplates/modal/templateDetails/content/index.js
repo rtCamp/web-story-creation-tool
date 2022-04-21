@@ -17,8 +17,8 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { useMemo } from '@web-stories-wp/react';
-import { sprintf, __ } from '@web-stories-wp/i18n';
+import { useEffect, useMemo, useState } from '@googleforcreators/react';
+import { sprintf, __ } from '@googleforcreators/i18n';
 import styled from 'styled-components';
 import {
   Button,
@@ -30,7 +30,7 @@ import {
   Icons,
   Text,
   THEME_CONSTANTS,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -73,7 +73,7 @@ const PaginationContainer = styled.div`
         `}
 `;
 
-const TemplateTag = styled(Chip)`
+const TemplateTag = styled(Chip).attrs({ forwardedAs: 'li' })`
   margin-right: 12px;
   margin-bottom: 12px;
   > span {
@@ -96,13 +96,16 @@ function DetailsContent({
   template,
 }) {
   const { postersByPage, title, description, tags, colors } = template || {};
+  const [galleryPosters, setGalleryPosters] = useState([]);
 
-  const galleryPosters = useMemo(() => {
+  useEffect(() => {
     if (postersByPage) {
-      return Object.values(postersByPage).map((poster, index) => ({
-        id: index,
-        ...poster,
-      }));
+      setGalleryPosters(
+        Object.values(postersByPage).map((poster, index) => ({
+          id: index,
+          ...poster,
+        }))
+      );
     }
     return undefined;
   }, [postersByPage]);
@@ -131,6 +134,7 @@ function DetailsContent({
         aria-label={__('View previous template', 'web-stories')}
         onClick={() => {
           switchToTemplateByOffset(previousIndex);
+          setGalleryPosters([]);
         }}
         disabled={disablePrevious}
       >
@@ -146,6 +150,7 @@ function DetailsContent({
         aria-label={__('View next template', 'web-stories')}
         onClick={() => {
           switchToTemplateByOffset(nextIndex);
+          setGalleryPosters([]);
         }}
         disabled={disableNext}
       >
@@ -205,7 +210,10 @@ function DetailsContent({
                 {description}
               </DescriptionText>
 
-              <MetadataContainer>
+              <MetadataContainer
+                role="list"
+                aria-label={__('Template tags', 'web-stories')}
+              >
                 {tags.map((tag) => (
                   <TemplateTag key={tag} disabled>
                     {tag}
@@ -213,7 +221,11 @@ function DetailsContent({
                 ))}
               </MetadataContainer>
               <MetadataContainer>
-                <ColorList colors={colors} size={32} />
+                <ColorList
+                  colors={colors}
+                  size={32}
+                  aria-label={__('Template colors', 'web-stories')}
+                />
               </MetadataContainer>
             </DetailContainer>
           </TemplateDetails>

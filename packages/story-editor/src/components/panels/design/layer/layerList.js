@@ -18,9 +18,9 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { Fragment, useCallback, memo } from '@web-stories-wp/react';
+import { Fragment, useCallback, memo } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 
 /**
  * Internal dependencies
@@ -45,6 +45,7 @@ const LayerList = styled(Reorderable).attrs({
   align-items: stretch;
   user-select: ${({ hasUserSelect }) => (hasUserSelect ? 'none' : 'initial')};
   overflow-y: auto;
+  padding-bottom: 4px; // for when panel has scroll
 `;
 
 const LayerSeparator = styled(ReorderableSeparator)`

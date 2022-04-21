@@ -45,9 +45,17 @@ describe('Border Panel', () => {
 
   describe('CUJ: Creator can Manipulate Shape: Border', () => {
     it('should allow the user to add border for text element', async () => {
-      await fixture.events.click(fixture.editor.library.textAdd);
-      await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
-      const panel = fixture.editor.inspector.designPanel.border;
+      await fixture.editor.library.textTab.click();
+      await fixture.events.click(
+        fixture.editor.library.text.preset('Paragraph')
+      );
+      await waitFor(() => {
+        if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+          throw new Error('node not ready');
+        }
+      });
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      const panel = fixture.editor.sidebar.designPanel.border;
 
       await fixture.events.click(panel.width(), { clickCount: 3 });
       await fixture.events.keyboard.type('2');
@@ -77,8 +85,10 @@ describe('Border Panel', () => {
 
     it('should allow user to add border for media', async () => {
       // Add media element and basic border.
-      await fixture.events.click(fixture.editor.library.media.item(0));
-      const panel = fixture.editor.inspector.designPanel.border;
+      const mediaItem = fixture.editor.library.media.item(0);
+      await fixture.events.mouse.clickOn(mediaItem, 20, 20);
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      const panel = fixture.editor.sidebar.designPanel.border;
       await fixture.events.click(panel.width(), { clickCount: 3 });
       await fixture.events.keyboard.type('10');
       await fixture.events.keyboard.press('Tab');
@@ -90,6 +100,9 @@ describe('Border Panel', () => {
       await fixture.events.keyboard.press('Tab');
 
       await waitFor(() => {
+        if (borderColor.opacity.getAttribute('value') !== '30%') {
+          throw new Error('opacity not set yet');
+        }
         expect(borderColor.opacity.getAttribute('value')).toBe('30%');
       });
 
@@ -113,7 +126,8 @@ describe('Border Panel', () => {
       fixture.editor.library.shapes.shape('Rectangle')
     );
 
-    const panel = fixture.editor.inspector.designPanel.border;
+    await fixture.events.click(fixture.editor.sidebar.designTab);
+    const panel = fixture.editor.sidebar.designPanel.border;
     await fixture.events.click(panel.width(), { clickCount: 3 });
     await fixture.events.keyboard.type('5');
     await fixture.events.keyboard.press('Tab');
@@ -127,10 +141,25 @@ describe('Border Panel', () => {
     await fixture.snapshot('Shape element with border');
   });
 
-  it('should not allow border for non-rectangular shape', async () => {
+  it('should allow border for non-rectangular shape', async () => {
     await fixture.events.click(fixture.editor.library.shapesTab);
     await fixture.events.click(fixture.editor.library.shapes.shape('Circle'));
-    // Verify that panel is not found.
-    expect(() => fixture.editor.inspector.designPanel.border).toThrow();
+
+    await fixture.events.click(fixture.editor.sidebar.designTab);
+    const panel = fixture.editor.sidebar.designPanel.border;
+    await fixture.events.click(panel.width(), { clickCount: 3 });
+    await fixture.events.keyboard.type('10');
+    await fixture.events.keyboard.press('Tab');
+
+    const [element] = await getSelection();
+    const {
+      border: { left },
+    } = element;
+    expect(left).toBe(10);
+
+    await fixture.snapshot('Non-rectangular shape element with border');
+
+    // Verify that border cannot have opacity
+    expect(() => panel.borderColor.opacity).toThrow();
   });
 });

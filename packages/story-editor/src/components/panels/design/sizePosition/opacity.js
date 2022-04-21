@@ -17,18 +17,19 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
+import { useCallback } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
-import { __, _x } from '@web-stories-wp/i18n';
-import { Icons, NumericInput } from '@web-stories-wp/design-system';
+import { __, _x } from '@googleforcreators/i18n';
+import { Icons, NumericInput } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
-import { getCommonValue, inputContainerStyleOverride } from '../../shared';
-import { MULTIPLE_DISPLAY_VALUE, MULTIPLE_VALUE } from '../../../../constants';
+import getCommonValue from '../../shared/getCommonValue';
+import { inputContainerStyleOverride } from '../../shared/styles';
+import { MULTIPLE_VALUE, MULTIPLE_DISPLAY_VALUE } from '../../../../constants';
 
-const MIN_MAX = {
+export const MIN_MAX = {
   OPACITY: {
     MIN: 0,
     MAX: 100,

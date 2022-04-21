@@ -18,12 +18,12 @@
  * External dependencies
  */
 import { screen } from '@testing-library/react';
-import { FIELD_TYPES } from '@web-stories-wp/animation';
+import { FIELD_TYPES } from '@googleforcreators/animation';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
-import { renderWithTheme } from '../../../../../testUtils';
 import EffectInput from '../effectInput';
 
 describe('<EffectInput />', () => {

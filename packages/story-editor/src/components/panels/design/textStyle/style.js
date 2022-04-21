@@ -19,29 +19,26 @@
  */
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { useCallback } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+import { useCallback } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import {
   NumericInput,
   Icons,
   ToggleButton,
   BUTTON_SIZES,
   BUTTON_VARIANTS,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
+import { stripHTML } from '@googleforcreators/dom';
+import { clamp } from '@googleforcreators/units';
 
 /**
  * Internal dependencies
  */
 import { useFont } from '../../../../app/font';
-import stripHTML from '../../../../utils/stripHTML';
-import clamp from '../../../../utils/clamp';
 import { Row, usePresubmitHandler } from '../../../form';
+import { focusStyle, inputContainerStyleOverride } from '../../shared/styles';
+import { getCommonValue } from '../../shared';
 import { MULTIPLE_VALUE, MULTIPLE_DISPLAY_VALUE } from '../../../../constants';
-import {
-  focusStyle,
-  getCommonValue,
-  inputContainerStyleOverride,
-} from '../../shared';
 import useRichTextFormatting from './useRichTextFormatting';
 
 const MIN_MAX = {

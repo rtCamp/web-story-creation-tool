@@ -18,14 +18,13 @@
  */
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
-import { theme as dsTheme } from '@web-stories-wp/design-system';
+import { theme as dsTheme } from '@googleforcreators/design-system';
 /**
  * Internal dependencies
  */
-import { ThumbnailWrapper } from '..';
+import ThumbnailWrapper from '../thumbnailWrapper';
 import { MAX_THUMBNAILS_DISPLAYED } from '../../../../checklistCard';
 
-// eslint-disable-next-line react/prop-types
 const Wrapper = ({ children }) => (
   <ThemeProvider theme={dsTheme}>{children}</ThemeProvider>
 );

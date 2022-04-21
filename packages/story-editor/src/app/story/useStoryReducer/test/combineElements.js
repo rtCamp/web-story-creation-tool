@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * External dependencies
+ */
+import { MaskTypes } from '@googleforcreators/masks';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
 
 /**
  * Internal dependencies
  */
-import { MaskTypes } from '../../../../masks/constants';
 import { setupReducer } from './_utils';
 
 describe('combineElements', () => {
+  beforeAll(() => {
+    elementTypes.forEach(registerElementType);
+  });
+
   it('should do nothing if first element is missing', () => {
     const { restore, combineElements } = setupReducer();
 
@@ -547,7 +556,7 @@ describe('combineElements', () => {
       });
     });
 
-    it('should not preserve the border of origin element when combining with non-rectangular', () => {
+    it('should preserve the border of origin element even when combining with non-rectangular', () => {
       const { restore, combineElements } = setupReducer();
 
       const state = getDefaultState5();
@@ -576,6 +585,12 @@ describe('combineElements', () => {
         y: 10,
         focalX: 50,
         focalY: 50,
+        border: {
+          bottom: 10,
+          left: 10,
+          right: 10,
+          top: 10,
+        },
       });
     });
   });
@@ -650,7 +665,7 @@ describe('combineElements', () => {
       });
     });
 
-    it('should not preserve the border of origin element when combining with non-rectangular', () => {
+    it('should not preserve the border radius of origin element when combining with non-rectangular', () => {
       const { restore, combineElements } = setupReducer();
 
       const state = getDefaultState6();

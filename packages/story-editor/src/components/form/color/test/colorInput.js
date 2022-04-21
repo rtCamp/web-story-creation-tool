@@ -21,26 +21,23 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import {
   createSolid,
   getPreviewText as getPreviewTextMock,
-} from '@web-stories-wp/patterns';
+} from '@googleforcreators/patterns';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
-import { MULTIPLE_VALUE, MULTIPLE_DISPLAY_VALUE } from '../../../../constants';
-import { renderWithTheme } from '../../../../testUtils';
 import ColorInput from '../colorInput';
 import getPreviewStyleMock from '../getPreviewStyle';
 import { StoryContext } from '../../../../app/story';
-
-jest.mock('@web-stories-wp/design-system', () => ({
-  ...jest.requireActual('@web-stories-wp/design-system'),
-  Popup: ({ children, isOpen }) => (isOpen ? children : null),
-}));
+import { ConfigContext } from '../../../../app/config';
+import getDefaultConfig from '../../../../getDefaultConfig';
+import { MULTIPLE_VALUE, MULTIPLE_DISPLAY_VALUE } from '../../../../constants';
 
 jest.mock('../getPreviewStyle', () => jest.fn());
-jest.mock('@web-stories-wp/patterns', () => {
+jest.mock('@googleforcreators/patterns', () => {
   return {
-    ...jest.requireActual('@web-stories-wp/patterns'),
+    ...jest.requireActual('@googleforcreators/patterns'),
     getPreviewText: jest.fn(),
   };
 });
@@ -62,10 +59,13 @@ function arrange(children = null) {
       updateStory: jest.fn(),
     },
   };
+
   renderWithTheme(
-    <StoryContext.Provider value={storyContextValue}>
-      {children}
-    </StoryContext.Provider>
+    <ConfigContext.Provider value={getDefaultConfig()}>
+      <StoryContext.Provider value={storyContextValue}>
+        {children}
+      </StoryContext.Provider>
+    </ConfigContext.Provider>
   );
   const button = screen.getByRole('button', { name: 'Color' });
   const input = screen.queryByLabelText('Color', { selector: 'input' });

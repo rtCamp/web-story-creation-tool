@@ -18,14 +18,15 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { forwardRef } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { isValidUrl, withProtocol, Input } from '@web-stories-wp/design-system';
+import { forwardRef } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { Input } from '@googleforcreators/design-system';
+import { isValidUrl, withProtocol } from '@googleforcreators/url';
 
 /**
  * Internal dependencies
  */
-import { inputContainerStyleOverride } from '../panels/shared';
+import { inputContainerStyleOverride } from '../panels/shared/styles';
 import Row from './row';
 
 const MIN_MAX = {

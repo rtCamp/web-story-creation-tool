@@ -59,8 +59,8 @@ jest.mock('../utils/useMediaUploadQueue', () => ({
 
 const mockShowSnackbar = jest.fn();
 
-jest.mock('@web-stories-wp/design-system', () => ({
-  ...jest.requireActual('@web-stories-wp/design-system'),
+jest.mock('@googleforcreators/design-system', () => ({
+  ...jest.requireActual('@googleforcreators/design-system'),
   useSnackbar: jest.fn(() => ({
     showSnackbar: mockShowSnackbar,
   })),
@@ -70,7 +70,10 @@ jest.mock('../../config', () => ({
   useConfig: jest.fn(() => ({
     allowedMimeTypes: {
       image: [],
+      vector: [],
       video: [],
+      caption: [],
+      audio: [],
     },
   })),
 }));

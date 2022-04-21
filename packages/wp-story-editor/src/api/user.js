@@ -18,15 +18,41 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 
+function transformResponse(response) {
+  return {
+    id: response.id,
+    trackingOptin: response.meta.web_stories_tracking_optin,
+    onboarding: response.meta.web_stories_onboarding,
+    mediaOptimization: response.meta.web_stories_media_optimization,
+  };
+}
+
 export function getCurrentUser(config) {
   return apiFetch({
     path: config.api.currentUser,
-  });
+  }).then(transformResponse);
 }
+
 export function updateCurrentUser(config, data) {
+  const { trackingOptin, onboarding, mediaOptimization } = data;
+
+  const wpKeysMapping = {
+    meta: {
+      web_stories_tracking_optin: trackingOptin,
+      web_stories_onboarding: onboarding,
+      web_stories_media_optimization: mediaOptimization,
+    },
+  };
+
+  Object.entries(wpKeysMapping.meta).forEach(([key, value]) => {
+    if (value === undefined) {
+      delete wpKeysMapping.meta[key];
+    }
+  });
+
   return apiFetch({
     path: config.api.currentUser,
     method: 'POST',
-    data,
-  });
+    data: wpKeysMapping,
+  }).then(transformResponse);
 }

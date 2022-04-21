@@ -17,23 +17,25 @@
 /**
  * External dependencies
  */
-import {
-  fireEvent,
-  screen,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import MockDate from 'mockdate';
-import { setAppElement } from '@web-stories-wp/design-system';
+import { setAppElement } from '@googleforcreators/design-system';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import StoryContext from '../../../../app/story/context';
+import useIsUploadingToStory from '../../../../utils/useIsUploadingToStory';
 import ConfigContext from '../../../../app/config/context';
-import MediaContext from '../../../../app/media/context';
-import { renderWithTheme } from '../../../../testUtils';
-import { CheckpointContext } from '../../../checklist';
+import {
+  CheckpointContext,
+  ChecklistCountProvider,
+  PPC_CHECKPOINT_STATE,
+} from '../../../checklist';
 import PublishButton from '../publish';
+
+jest.mock('../../../../utils/useIsUploadingToStory');
 
 function arrange({
   props: extraButtonProps,
@@ -45,7 +47,10 @@ function arrange({
   checklist: extraChecklistProps,
 } = {}) {
   const saveStory = jest.fn();
-  const onReviewDialogRequest = jest.fn();
+  const handleReviewChecklist = jest.fn();
+  const showPriorityIssues = jest.fn();
+
+  useIsUploadingToStory.mockImplementation(() => extraMediaProps?.isUploading);
 
   const storyContextValue = {
     state: {
@@ -55,7 +60,7 @@ function arrange({
       meta: { isSaving: false, isFreshlyPublished: false, ...extraMetaProps },
       story: {
         title: 'Example Story',
-        status: 'draft',
+        excerpt: '',
         storyId: 123,
         date: null,
         editLink: 'http://localhost/wp-admin/post.php?post=123&action=edit',
@@ -70,35 +75,37 @@ function arrange({
     actions: { saveStory },
   };
   const configValue = {
-    ...extraConfigProps,
-  };
-  const mediaContextValue = {
-    local: {
-      state: { ...extraMediaProps },
+    allowedMimeTypes: {},
+    capabilities: {},
+    metadata: {
+      publisher: 'publisher title',
     },
+    ...extraConfigProps,
   };
   const prepublishChecklistContextValue = {
     state: {
-      shouldReviewDialogBeSeen: false,
+      checkpoint: PPC_CHECKPOINT_STATE.UNAVAILABLE,
       ...extraChecklistProps,
     },
     actions: {
-      onReviewDialogRequest,
+      showPriorityIssues,
+      handleReviewChecklist,
     },
   };
   renderWithTheme(
     <ConfigContext.Provider value={configValue}>
       <StoryContext.Provider value={storyContextValue}>
-        <CheckpointContext.Provider value={prepublishChecklistContextValue}>
-          <MediaContext.Provider value={mediaContextValue}>
+        <ChecklistCountProvider hasChecklist>
+          <CheckpointContext.Provider value={prepublishChecklistContextValue}>
             <PublishButton {...extraButtonProps} />
-          </MediaContext.Provider>
-        </CheckpointContext.Provider>
+          </CheckpointContext.Provider>
+        </ChecklistCountProvider>
       </StoryContext.Provider>
     </ConfigContext.Provider>
   );
   return {
     saveStory,
+    showPriorityIssues,
   };
 }
 
@@ -115,14 +122,24 @@ describe('PublishButton', () => {
   afterAll(() => {
     document.documentElement.removeChild(modalWrapper);
     MockDate.reset();
+    jest.clearAllMocks();
   });
 
   it('should be able to publish', () => {
-    const { saveStory } = arrange();
+    const { saveStory, showPriorityIssues } = arrange();
 
     const publishButton = screen.getByRole('button', { name: 'Publish' });
     expect(publishButton).toBeEnabled();
     fireEvent.click(publishButton);
+
+    expect(showPriorityIssues).toHaveBeenCalledTimes(1);
+
+    const publishModal = screen.getByRole('dialog');
+
+    const publishModalButton = within(publishModal).getByRole('button', {
+      name: 'Publish',
+    });
+    fireEvent.click(publishModalButton);
 
     expect(saveStory).toHaveBeenCalledWith({
       status: 'publish',
@@ -144,6 +161,13 @@ describe('PublishButton', () => {
     expect(publishButton).toBeEnabled();
     fireEvent.click(publishButton);
 
+    const publishModal = screen.getByRole('dialog');
+
+    const publishModalButton = within(publishModal).getByRole('button', {
+      name: 'Submit for review',
+    });
+    fireEvent.click(publishModalButton);
+
     expect(saveStory).toHaveBeenCalledWith({
       status: 'pending',
     });
@@ -163,62 +187,6 @@ describe('PublishButton', () => {
     expect(publishButton).toBeDisabled();
   });
 
-  it('should display review dialog before publishing', async () => {
-    const { saveStory } = arrange({
-      checklist: { shouldReviewDialogBeSeen: true },
-    });
-
-    const publishButton = screen.getByRole('button', { name: 'Publish' });
-    fireEvent.click(publishButton);
-
-    expect(saveStory).not.toHaveBeenCalled();
-
-    const reviewButton = screen.queryByRole('button', {
-      name: 'Review Checklist',
-    });
-    expect(reviewButton).toBeInTheDocument();
-
-    const publishAnywayButton = screen.getByRole('button', {
-      name: 'Continue to publish',
-    });
-    fireEvent.click(publishAnywayButton);
-
-    expect(saveStory).toHaveBeenCalledWith({
-      status: 'publish',
-    });
-
-    await waitForElementToBeRemoved(() =>
-      screen.queryByRole('button', { name: 'Continue to publish' })
-    );
-  });
-
-  it('should not publish story if reviewing checklist errors', async () => {
-    const { saveStory } = arrange({
-      checklist: { shouldReviewDialogBeSeen: true },
-    });
-
-    const publishButton = screen.getByRole('button', { name: 'Publish' });
-    fireEvent.click(publishButton);
-
-    expect(saveStory).not.toHaveBeenCalled();
-
-    const publishAnywayButton = screen.queryByRole('button', {
-      name: 'Continue to publish',
-    });
-    expect(publishAnywayButton).toBeInTheDocument();
-
-    const reviewButton = screen.getByRole('button', {
-      name: 'Review Checklist',
-    });
-    fireEvent.click(reviewButton);
-
-    expect(saveStory).not.toHaveBeenCalled();
-
-    await waitForElementToBeRemoved(() =>
-      screen.queryByRole('button', { name: 'Review Checklist' })
-    );
-  });
-
   it('should update window location when publishing', () => {
     const { saveStory } = arrange({
       story: { title: 'Some title' },
@@ -226,6 +194,13 @@ describe('PublishButton', () => {
     const publishButton = screen.getByRole('button', { name: 'Publish' });
 
     fireEvent.click(publishButton);
+    const publishModal = screen.getByRole('dialog');
+
+    const publishModalButton = within(publishModal).getByRole('button', {
+      name: 'Publish',
+    });
+    fireEvent.click(publishModalButton);
+
     expect(saveStory).toHaveBeenCalledTimes(1);
     expect(window.location.href).toContain('post=123&action=edit');
   });

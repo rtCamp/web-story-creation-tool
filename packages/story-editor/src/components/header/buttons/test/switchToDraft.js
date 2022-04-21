@@ -18,15 +18,17 @@
  * External dependencies
  */
 import { fireEvent, screen } from '@testing-library/react';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import StoryContext from '../../../../app/story/context';
-import MediaContext from '../../../../app/media/context';
-import { renderWithTheme } from '../../../../testUtils';
+import useIsUploadingToStory from '../../../../utils/useIsUploadingToStory';
 import { CheckpointContext } from '../../../checklist';
 import SwitchToDraftButton from '../switchToDraft';
+
+jest.mock('../../../../utils/useIsUploadingToStory');
 
 function arrange({
   props: extraButtonProps,
@@ -37,7 +39,8 @@ function arrange({
   checklist: extraChecklistProps,
 } = {}) {
   const saveStory = jest.fn();
-  const onReviewDialogRequest = jest.fn();
+
+  useIsUploadingToStory.mockImplementation(() => extraMediaProps?.isUploading);
 
   const storyContextValue = {
     state: {
@@ -60,27 +63,17 @@ function arrange({
     },
     actions: { saveStory },
   };
-  const mediaContextValue = {
-    local: {
-      state: { ...extraMediaProps },
-    },
-  };
 
   const prepublishChecklistContextValue = {
     state: {
-      shouldReviewDialogBeSeen: false,
+      hasHighPriorityIssues: false,
       ...extraChecklistProps,
-    },
-    actions: {
-      onReviewDialogRequest,
     },
   };
   renderWithTheme(
     <StoryContext.Provider value={storyContextValue}>
       <CheckpointContext.Provider value={prepublishChecklistContextValue}>
-        <MediaContext.Provider value={mediaContextValue}>
-          <SwitchToDraftButton {...extraButtonProps} />
-        </MediaContext.Provider>
+        <SwitchToDraftButton {...extraButtonProps} />
       </CheckpointContext.Provider>
     </StoryContext.Provider>
   );

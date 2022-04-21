@@ -22,22 +22,26 @@ import {
   useRef,
   useState,
   useFocusOut,
-} from '@web-stories-wp/react';
-import { format, formatTime, is12Hour } from '@web-stories-wp/date';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/react';
+import { format, formatTime, is12Hour } from '@googleforcreators/date';
+import { __ } from '@googleforcreators/i18n';
 import {
   DropDownSelect,
-  PLACEMENT,
   useKeyDownEffect,
-} from '@web-stories-wp/design-system';
+  Popup,
+} from '@googleforcreators/design-system';
 import {
   DateTime,
   Row,
-  Popup,
   useStory,
   focusStyle,
-} from '@web-stories-wp/story-editor';
+  useConfig,
+} from '@googleforcreators/story-editor';
 
+/**
+ * Internal dependencies
+ */
+import { TOOLBAR_HEIGHT } from '../../../constants';
 // date-fns format without timezone.
 const TIMEZONELESS_FORMAT = 'Y-m-d\\TH:i:s';
 
@@ -59,7 +63,7 @@ function PublishTime() {
     })
   );
   const use12HourFormat = is12Hour();
-
+  const { isRTL } = useConfig();
   /* translators: Date format, see https://www.php.net/manual/en/datetime.format.php */
   const shortDateFormat = __('d/m/Y', 'web-stories');
 
@@ -128,9 +132,11 @@ function PublishTime() {
         />
       </Row>
       <Popup
+        topOffset={TOOLBAR_HEIGHT}
         anchor={dateFieldRef}
         isOpen={showDatePicker}
-        placement={PLACEMENT.BOTTOM_END}
+        isRTL={isRTL}
+        zIndex={10}
         renderContents={({ propagateDimensionChange }) => (
           <DateTime
             value={floatingDate ? displayDate : date}

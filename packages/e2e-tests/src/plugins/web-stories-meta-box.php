@@ -1,10 +1,15 @@
 <?php
 /**
  * Plugin Name: Web Stories Test Plugin: Meta Box
- * Plugin URI:  https://github.com/google/web-stories-wp
+ * Plugin URI:  https://github.com/googleforcreators/web-stories-wp
  * Description: Test plugin for custom meta boxes.
  * Author:      Google
  * Author URI:  https://opensource.google.com/
+ * License: Apache License 2.0
+ * License URI: https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * @copyright 2022 Google LLC
+ * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  */
 
 /**

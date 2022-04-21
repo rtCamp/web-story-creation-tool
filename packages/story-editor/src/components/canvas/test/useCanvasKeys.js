@@ -18,7 +18,9 @@
  * External dependencies
  */
 import { render, fireEvent } from '@testing-library/react';
-import { useRef } from '@web-stories-wp/react';
+import { useRef } from '@googleforcreators/react';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
 
 /**
  * Internal dependencies
@@ -26,7 +28,6 @@ import { useRef } from '@web-stories-wp/react';
 import useCanvasKeys from '../../../app/canvas/useCanvasKeys';
 import StoryContext from '../../../app/story/context.js';
 import CanvasContext from '../../../app/canvas/context.js';
-import TransformContext from '../../transform/context';
 
 const Canvas = () => {
   const ref = useRef(null);
@@ -35,6 +36,10 @@ const Canvas = () => {
 };
 
 describe('useCanvasKeys', function () {
+  beforeAll(() => {
+    elementTypes.forEach(registerElementType);
+  });
+
   it('should select all elements and collect their IDs when mod+a is pressed.', () => {
     const setSelectedElementsById = jest.fn();
 
@@ -116,38 +121,5 @@ describe('useCanvasKeys', function () {
     });
 
     expect(deleteSelectedElements).toHaveBeenCalledWith();
-  });
-
-  it('should deselect items when the "Escape" key is pressed.', () => {
-    const clearSelection = jest.fn();
-    const clearTransforms = jest.fn();
-
-    const { container } = render(
-      <TransformContext.Provider
-        value={{
-          actions: { clearTransforms },
-        }}
-      >
-        <StoryContext.Provider
-          value={{
-            state: {
-              currentPage: { elements: [{ id: '123' }] },
-              selectedElements: [{ id: '123' }],
-            },
-            actions: { clearSelection },
-          }}
-        >
-          <Canvas />
-        </StoryContext.Provider>
-      </TransformContext.Provider>
-    );
-
-    fireEvent.keyDown(container, {
-      key: 'Escape',
-      which: 27,
-    });
-
-    expect(clearSelection).toHaveBeenCalledWith();
-    expect(clearTransforms).toHaveBeenCalledWith();
   });
 });

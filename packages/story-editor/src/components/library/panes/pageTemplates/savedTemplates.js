@@ -22,14 +22,14 @@ import {
   Text,
   THEME_CONSTANTS,
   useSnackbar,
-} from '@web-stories-wp/design-system';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/design-system';
+import { __ } from '@googleforcreators/i18n';
 import {
   useCallback,
   useLayoutEffect,
   useRef,
   useState,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
@@ -120,7 +120,7 @@ function SavedTemplates({ pageSize, loadTemplates, isLoading, ...rest }) {
   );
 
   return (
-    // tabIndex is required for FireFox bug when using keyboard to navigate from Chips to Template
+    // tabIndex is required for FireFox bug when using keyboard to navigate from Saved / Default Templates dropdown to Template
     <Wrapper ref={ref} tabIndex={-1}>
       {!isLoading && ref.current ? (
         <TemplateList

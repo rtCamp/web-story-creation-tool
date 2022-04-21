@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 import {
   Button,
   BUTTON_SIZES,
@@ -25,9 +25,9 @@ import {
   BUTTON_VARIANTS,
   Tooltip,
   Icons,
-} from '@web-stories-wp/design-system';
-import { useCallback } from '@web-stories-wp/react';
-import { useStory, useHistory } from '@web-stories-wp/story-editor';
+} from '@googleforcreators/design-system';
+import { useCallback } from '@googleforcreators/react';
+import { useStory, useHistory } from '@googleforcreators/story-editor';
 import styled from 'styled-components';
 /**
  * Internal dependencies

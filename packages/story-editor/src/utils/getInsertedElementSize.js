@@ -22,12 +22,8 @@ import {
   PAGE_HEIGHT,
   PAGE_WIDTH,
   DEFAULT_DPR,
-} from '@web-stories-wp/units';
-
-/**
- * Internal dependencies
- */
-import { getDefinitionForType } from '../elements';
+} from '@googleforcreators/units';
+import { getDefinitionForType } from '@googleforcreators/elements';
 
 const RESIZE_WIDTH_DIRECTION = [1, 0];
 

@@ -18,11 +18,12 @@
  * External dependencies
  */
 import { axe } from 'jest-axe';
+import { renderWithTheme } from '@googleforcreators/test-utils';
+
 /**
  * Internal dependencies
  */
 import { useCanvas, useCanvasBoundingBox } from '../../../../../../app';
-import { renderWithTheme } from '../../../../../../testUtils';
 import Attribution from '../attribution';
 import MediaElement from '../mediaElement';
 import { useLocalMedia } from '../../../../../../app/media';
@@ -55,8 +56,8 @@ const RESOURCE = {
   sizes: {
     full: {
       file: 'media/unsplash:1234',
-      source_url: 'http://lala.com',
-      mime_type: 'image/jpeg',
+      sourceUrl: 'http://lala.com',
+      mimeType: 'image/jpeg',
       width: 530,
       height: 353,
     },
@@ -96,6 +97,7 @@ describe('automated accessibility tests', () => {
         resource={RESOURCE}
         width={RESOURCE.width}
         height={RESOURCE.height}
+        onInsert={() => {}}
       />
     );
 
@@ -119,6 +121,7 @@ describe('automated accessibility tests', () => {
         resource={RESOURCE}
         width={RESOURCE.width}
         height={RESOURCE.height}
+        onInsert={() => {}}
       />
     );
 

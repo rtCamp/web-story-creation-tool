@@ -23,7 +23,7 @@ import {
   useRef,
   forwardRef,
   useDebouncedCallback,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 
@@ -69,6 +69,9 @@ const Container = styled.div`
  * @param {Function} props.activeItemRenderer Active item renderer in case a activeItemLabel is not enough.
  * @param {boolean} props.isInline If to display the selection list inline instead of as a separate popup modal.
  * @param {string} props.dropDownLabel The visible label of the dropdown select.
+ * @param {number} props.zIndex an override for default zIndex of popup
+ * @param {string} props.title The title of the dialog (popup) container of the list.
+ * @param {string} props.dropdownButtonLabel The label attached to the unexpanded datalist (button)
  * @return {*} Render.
  */
 const Datalist = forwardRef(function Datalist(
@@ -90,6 +93,11 @@ const Datalist = forwardRef(function Datalist(
     dropDownLabel = '',
     highlightStylesOverride,
     hasDropDownBorder = false,
+    zIndex,
+    listStyleOverrides,
+    containerStyleOverrides,
+    title,
+    dropdownButtonLabel,
     ...rest
   },
   ref
@@ -141,7 +149,9 @@ const Datalist = forwardRef(function Datalist(
       getOptionsByQuery={getOptionsByQuery}
       hasSearch={hasSearch}
       isInline={isInline}
+      title={title}
       hasDropDownBorder={hasDropDownBorder}
+      containerStyleOverrides={containerStyleOverrides}
       renderContents={({
         searchKeyword,
         setIsExpanded,
@@ -166,6 +176,7 @@ const Datalist = forwardRef(function Datalist(
           searchResultsLabel={searchResultsLabel}
           focusSearch={focusSearch}
           renderer={renderer}
+          listStyleOverrides={listStyleOverrides}
         />
       )}
     />
@@ -198,11 +209,17 @@ const Datalist = forwardRef(function Datalist(
         dropDownLabel={dropDownLabel}
         onSelectClick={toggleDropDown}
         selectButtonStylesOverride={highlightStylesOverride || focusStyle}
+        aria-label={dropdownButtonLabel}
         {...rest}
       />
       {isOpen && !disabled && isInline && list}
       {!disabled && !isInline && (
-        <Popup anchor={internalRef} isOpen={isOpen} fillWidth={DEFAULT_WIDTH}>
+        <Popup
+          anchor={internalRef}
+          isOpen={isOpen}
+          fillWidth={DEFAULT_WIDTH}
+          zIndex={zIndex}
+        >
           {list}
         </Popup>
       )}
@@ -229,6 +246,11 @@ Datalist.propTypes = {
   dropDownLabel: PropTypes.string,
   isInline: PropTypes.bool,
   hasDropDownBorder: PropTypes.bool,
+  zIndex: PropTypes.number,
+  containerStyleOverrides: PropTypes.array,
+  listStyleOverrides: PropTypes.array,
+  title: PropTypes.string,
+  dropdownButtonLabel: PropTypes.string,
 };
 
 export default Datalist;

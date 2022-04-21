@@ -19,7 +19,8 @@
  */
 import { ThemeProvider } from 'styled-components';
 import PropTypes from 'prop-types';
-import { PAGE_WIDTH, PAGE_RATIO } from '@web-stories-wp/units';
+import { PAGE_WIDTH, PAGE_RATIO } from '@googleforcreators/units';
+import { TransformProvider, useTransform } from '@googleforcreators/transform';
 
 /**
  * Internal dependencies
@@ -30,9 +31,11 @@ import { CanvasProvider } from '../../../app/canvas';
 import LayoutContext from '../../../app/layout/context';
 import ConfigProvider from '../../../app/config/configProvider';
 import StoryContext from '../../../app/story/context';
-import { TransformProvider, useTransform } from '../../transform';
 import theme from '../../../theme';
 import useEditingElement from '../../../app/canvas/useEditingElement';
+import { DropTargetsProvider } from '../../dropTargets';
+import { MediaProvider } from '../../../app/media';
+import EditLayerFocusManager from '../editLayerFocusManager';
 
 jest.mock('../../../app/canvas/useEditingElement');
 
@@ -54,7 +57,10 @@ export function TestFrameElement({
   const configContext = {
     ...inputConfigContext,
     allowedMimeTypes: {
+      audio: [],
       image: [],
+      caption: [],
+      vector: [],
       video: [],
       ...(inputConfigContext && inputConfigContext.allowedMimeTypes),
     },
@@ -65,6 +71,13 @@ export function TestFrameElement({
       selectedElements: [],
       selectedElementIds: [],
       ...(inputStoryContext && inputStoryContext.state),
+      currentPage: {
+        ...(inputStoryContext.state?.currentPage || {}),
+        elements: [
+          element,
+          ...(inputStoryContext.state?.currentPage?.elements || []),
+        ],
+      },
     },
     actions: {
       toggleElementInSelection: () => {},
@@ -86,9 +99,13 @@ export function TestFrameElement({
           <LayoutContext.Provider value={LAYOUT_CONTEXT}>
             <CanvasProvider>
               <TransformProvider>
-                <WithRefs refs={refs}>
-                  <FrameElement element={element} />
-                </WithRefs>
+                <DropTargetsProvider>
+                  <WithRefs refs={refs}>
+                    <EditLayerFocusManager>
+                      <FrameElement id={element.id} />
+                    </EditLayerFocusManager>
+                  </WithRefs>
+                </DropTargetsProvider>
               </TransformProvider>
             </CanvasProvider>
           </LayoutContext.Provider>
@@ -115,10 +132,14 @@ export function TestDisplayElement({
   const configContext = {
     ...inputConfigContext,
     allowedMimeTypes: {
+      audio: [],
       image: [],
+      caption: [],
+      vector: [],
       video: [],
       ...(inputConfigContext && inputConfigContext.allowedMimeTypes),
     },
+    capabilities: { hasUploadMediaAction: true },
   };
   const storyContext = {
     ...inputStoryContext,
@@ -145,11 +166,13 @@ export function TestDisplayElement({
         <StoryContext.Provider value={storyContext}>
           <LayoutContext.Provider value={LAYOUT_CONTEXT}>
             <CanvasProvider>
-              <TransformProvider>
-                <WithRefs refs={refs}>
-                  <DisplayElement element={element} page={null} />
-                </WithRefs>
-              </TransformProvider>
+              <MediaProvider>
+                <TransformProvider>
+                  <WithRefs refs={refs}>
+                    <DisplayElement element={element} page={null} />
+                  </WithRefs>
+                </TransformProvider>
+              </MediaProvider>
             </CanvasProvider>
           </LayoutContext.Provider>
         </StoryContext.Provider>

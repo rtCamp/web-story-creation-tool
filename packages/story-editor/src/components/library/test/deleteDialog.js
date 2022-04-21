@@ -18,13 +18,16 @@
  * External dependencies
  */
 import { waitFor, fireEvent, screen } from '@testing-library/react';
-import { setAppElement, SnackbarContext } from '@web-stories-wp/design-system';
+import {
+  setAppElement,
+  SnackbarContext,
+} from '@googleforcreators/design-system';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import DeleteDialog from '../panes/media/local/deleteDialog';
-import { renderWithTheme } from '../../../testUtils';
 import ApiContext from '../../../app/api/context';
 import MediaContext from '../../../app/media/context';
 

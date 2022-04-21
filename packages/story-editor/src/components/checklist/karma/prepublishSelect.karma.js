@@ -18,6 +18,7 @@
  * External dependencies
  */
 import { waitFor, within } from '@testing-library/react';
+import { TEXT_ELEMENT_DEFAULT_FONT } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
@@ -25,7 +26,6 @@ import { waitFor, within } from '@testing-library/react';
 import { Fixture } from '../../../karma';
 import { useStory } from '../../../app';
 import { useInsertElement } from '../../canvas';
-import { TEXT_ELEMENT_DEFAULT_FONT } from '../../../app/font/defaultFonts';
 import { ACCESSIBILITY_COPY, DESIGN_COPY, PRIORITY_COPY } from '../constants';
 
 describe('Pre-publish checklist select offending elements onClick', () => {
@@ -57,6 +57,9 @@ describe('Pre-publish checklist select offending elements onClick', () => {
       await fixture.events.click(fixture.editor.canvas.pageActions.addPage);
       // eslint-disable-next-line no-await-in-loop, no-loop-func
       await waitFor(() => {
+        if (!fixture.editor.footer.carousel.pages.length) {
+          throw new Error('page not yet added');
+        }
         expect(fixture.editor.footer.carousel.pages.length).toBe(
           clickCount + 1
         );
@@ -251,7 +254,7 @@ describe('Pre-publish checklist select offending elements onClick', () => {
       );
     });
 
-    it('should open the design inspector panel and focus the text input', async () => {
+    it('should open the style pane and focus the text input', async () => {
       await fixture.act(() => {
         insertElement('image', {
           x: 0,
@@ -259,11 +262,14 @@ describe('Pre-publish checklist select offending elements onClick', () => {
           width: 640 / 2,
           height: 529 / 2,
           resource: {
-            width: 640,
-            height: 529,
+            id: 10,
             type: 'image',
             mimeType: 'image/jpg',
             src: 'http://localhost:9876/__static__/earth.jpg',
+            alt: '',
+            width: 640,
+            height: 529,
+            baseColor: '#734727',
           },
         });
       });
@@ -283,9 +289,7 @@ describe('Pre-publish checklist select offending elements onClick', () => {
       await fixture.events.click(thumbnail);
       await fixture.events.sleep(500);
       expect(
-        fixture.editor.inspector.designPanel.node.contains(
-          document.activeElement
-        )
+        fixture.editor.sidebar.designPanel.node.contains(document.activeElement)
       ).toBeTrue();
       await fixture.snapshot(
         'design tab opened and focused by checklist panel'
@@ -303,7 +307,9 @@ describe('Pre-publish checklist select offending elements onClick', () => {
             width: 640,
             height: 529,
             type: 'video',
-            src: 'http://localhost:9876/__static__/earth.mp4',
+            mimeType: 'video/mp4',
+            src: 'http://localhost:9876/__static__/beach.mp4',
+            alt: 'Beach',
           },
         });
       });
@@ -325,7 +331,7 @@ describe('Pre-publish checklist select offending elements onClick', () => {
       await fixture.events.click(thumbnail);
       await fixture.events.sleep(500);
 
-      const mediaButton = await fixture.editor.inspector.designPanel
+      const mediaButton = await fixture.editor.sidebar.designPanel
         .videoAccessibility.posterMenuButton;
       expect(mediaButton.contains(document.activeElement)).toBeTrue();
 
@@ -345,8 +351,9 @@ describe('Pre-publish checklist select offending elements onClick', () => {
             width: 640,
             height: 529,
             type: 'video',
-            src: 'http://localhost:9876/__static__/earth.mp4',
-            alt: 'Planet Earth',
+            mimeType: 'video/mp4',
+            src: 'http://localhost:9876/__static__/beach.mp4',
+            alt: 'Beach',
           },
         });
       });
@@ -365,7 +372,7 @@ describe('Pre-publish checklist select offending elements onClick', () => {
       // press enter on video preview in card
       await fixture.events.keyboard.press('Enter');
 
-      const mediaButton = await fixture.editor.inspector.designPanel
+      const mediaButton = await fixture.editor.sidebar.designPanel
         .videoAccessibility.posterMenuButton;
       expect(mediaButton.contains(document.activeElement)).toBeTrue();
 

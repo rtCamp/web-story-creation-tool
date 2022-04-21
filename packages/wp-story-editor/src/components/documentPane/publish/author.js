@@ -17,24 +17,24 @@
 /**
  * External dependencies
  */
-import { __ } from '@web-stories-wp/i18n';
-import { useCallback, useEffect, useState } from '@web-stories-wp/react';
-import { Datalist } from '@web-stories-wp/design-system';
+import { __ } from '@googleforcreators/i18n';
+import { useCallback, useEffect, useState } from '@googleforcreators/react';
+import { Datalist } from '@googleforcreators/design-system';
 import {
   Row,
   useStory,
   useAPI,
-  useInspector,
-} from '@web-stories-wp/story-editor';
+  useSidebar,
+} from '@googleforcreators/story-editor';
 
 function Author() {
   const {
     actions: { getAuthors },
   } = useAPI();
   const {
-    state: { tab, users, isUsersLoading },
+    state: { users, isUsersLoading },
     actions: { loadUsers },
-  } = useInspector();
+  } = useSidebar();
   const { isSaving, author, updateStory } = useStory(
     ({
       state: {
@@ -55,10 +55,8 @@ function Author() {
   const [visibleOptions, setVisibleOptions] = useState(null);
 
   useEffect(() => {
-    if (tab === 'document') {
-      loadUsers();
-    }
-  }, [tab, loadUsers]);
+    loadUsers();
+  }, [loadUsers]);
 
   const getAuthorsBySearch = useCallback(
     (search) => {
@@ -104,13 +102,15 @@ function Author() {
     placeholder: isLoading ? __('Loading…', 'web-stories') : '',
     disabled: isLoading ? true : isSaving,
     primaryOptions: isLoading ? [] : visibleOptions,
+    zIndex: 10,
   };
   return (
     <Row>
       <Datalist.DropDown
         options={queriedUsers}
         searchResultsLabel={__('Search results', 'web-stories')}
-        aria-label={__('Author', 'web-stories')}
+        dropdownButtonLabel={__('Author', 'web-stories')}
+        title={__('Available authors', 'web-stories')}
         {...dropDownParams}
       />
     </Row>

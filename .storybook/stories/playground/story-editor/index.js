@@ -17,8 +17,12 @@
 /**
  * External dependencies
  */
-import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
-import styled from 'styled-components';
+import {
+  StoryEditor,
+  InterfaceSkeleton,
+} from '@googleforcreators/story-editor';
+import { elementTypes } from '@googleforcreators/element-library';
+import { registerElementType } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
@@ -31,20 +35,18 @@ export default {
   title: 'Playground/Stories Editor',
 };
 
-const AppContainer = styled.div`
-  height: 100vh;
-`;
-
 export const _default = () => {
   const content = window.localStorage.getItem(LOCAL_STORAGE_CONTENT_KEY);
   const story = content ? JSON.parse(content) : {};
   const apiCallbacks = { saveStoryById, getMedia, getFonts };
 
+  elementTypes.forEach(registerElementType);
+
   return (
-    <AppContainer>
+    <div style={{ height: '100vh' }}>
       <StoryEditor config={{ apiCallbacks }} initialEdits={{ story }}>
         <InterfaceSkeleton header={<HeaderLayout />} />
       </StoryEditor>
-    </AppContainer>
+    </div>
   );
 };

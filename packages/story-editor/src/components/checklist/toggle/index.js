@@ -16,11 +16,11 @@
 /**
  * External dependencies
  */
-import { useMemo } from '@web-stories-wp/react';
+import { useMemo } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { __, _n, sprintf } from '@web-stories-wp/i18n';
-import { Icons, noop } from '@web-stories-wp/design-system';
+import { __, _n, sprintf } from '@googleforcreators/i18n';
+import { Icons } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -29,6 +29,7 @@ import { ToggleButton } from '../../toggleButton';
 import { useCategoryCount } from '../countContext';
 import { useCheckpoint } from '../checkpointContext';
 import { ISSUE_TYPES, PPC_CHECKPOINT_STATE } from '../constants';
+import { noop } from '../../../utils/noop';
 
 const MainIcon = styled(Icons.Checkbox)`
   height: 32px;
@@ -38,6 +39,7 @@ const MainIcon = styled(Icons.Checkbox)`
 
 const StyledToggleButton = styled(ToggleButton)`
   display: block;
+  background-color: ${({ theme }) => theme.colors.bg.primary};
 `;
 
 function Toggle({ isOpen = false, popupId = '', onClick = noop }) {

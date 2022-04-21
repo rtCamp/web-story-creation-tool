@@ -19,10 +19,10 @@
  */
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { DATA_VERSION } from '@web-stories-wp/migration';
-import { useSnackbar } from '@web-stories-wp/design-system';
-import { useStory, getStoryPropsToSave } from '@web-stories-wp/story-editor';
-import { PAGE_RATIO, PAGE_WIDTH } from '@web-stories-wp/units';
+import { DATA_VERSION } from '@googleforcreators/migration';
+import { useSnackbar } from '@googleforcreators/design-system';
+import { useStory, getStoryPropsToSave } from '@googleforcreators/story-editor';
+import { PAGE_RATIO, PAGE_WIDTH } from '@googleforcreators/units';
 
 /**
  * Internal dependencies

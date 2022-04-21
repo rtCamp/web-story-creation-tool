@@ -23,7 +23,7 @@ import {
   useMemo,
   useRef,
   useState,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 /**
  * Internal dependencies
  */
@@ -36,8 +36,10 @@ export const useNumericInput = ({
   min,
   onChange,
   value,
+  ref,
 }) => {
-  const inputRef = useRef(null);
+  const _inputRef = useRef(null);
+  const inputRef = ref || _inputRef;
   const oldValue = useRef(value);
   const revertToOriginal = useRef(false);
   const [currentValue, setCurrentValue] = useState(value);
@@ -118,7 +120,7 @@ export const useNumericInput = ({
     setCurrentValue(oldValue.current);
     revertToOriginal.current = true;
     inputRef && inputRef.current?.blur();
-  }, []);
+  }, [inputRef]);
 
   useEffect(() => {
     // update internal value when `value` prop changes

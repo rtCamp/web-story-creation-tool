@@ -2,10 +2,10 @@
 /**
  * Class Image
  *
- * @package   Google\Web_Stories\Renderer\Story
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -24,15 +24,12 @@
  * limitations under the License.
  */
 
-
 namespace Google\Web_Stories\Renderer\Story;
 
 use Google\Web_Stories\Model\Story;
 
 /**
  * Class Image
- *
- * @package Google\Web_Stories\Renderer\Story
  */
 class Image {
 	/**
@@ -60,7 +57,6 @@ class Image {
 	 * @since 1.0.0
 	 *
 	 * @param array $args Array of Argument to render.
-	 *
 	 * @return string Rendered block type output.
 	 */
 	public function render( array $args = [] ): string {
@@ -74,21 +70,34 @@ class Image {
 		$align    = sprintf( 'align%s', $args['align'] );
 		$class    = $args['class'];
 
+		$url           = $this->story->get_url();
+		$title         = $this->story->get_title();
+		$poster        = $this->story->get_poster_portrait();
+		$poster_srcset = $this->story->get_poster_srcset();
+		$poster_sizes  = $this->story->get_poster_sizes();
+
 		ob_start();
 		?>
 		<div class="<?php echo esc_attr( $class ); ?> <?php echo esc_attr( $align ); ?>">
-			<a href="<?php echo esc_url( $this->story->get_url() ); ?>">
-				<?php
-				if ( ! empty( $this->story->get_poster_portrait() ) ) {
-					printf(
-						'<img src="%1$s" width="%2$d" height="%3$d" alt="%4$s" />',
-						esc_url( $this->story->get_poster_portrait() ),
-						absint( $args['width'] ),
-						absint( $args['height'] ),
-						esc_attr( $this->story->get_title() )
-					);
+			<a href="<?php echo esc_url( $url ); ?>">
+				<?php if ( ! empty( $poster ) ) { ?>
+					<img
+						src="<?php echo esc_url( $poster ); ?>"
+						width="<?php echo esc_attr( $args['width'] ); ?>"
+						height="<?php echo esc_attr( $args['height'] ); ?>"
+						alt="<?php echo esc_attr( $title ); ?>"
+						<?php if ( ! empty( $poster_srcset ) ) { ?>
+							srcset="<?php echo esc_attr( $poster_srcset ); ?>"
+						<?php } ?>
+						<?php if ( ! empty( $poster_sizes ) ) { ?>
+							sizes="<?php echo esc_attr( $poster_sizes ); ?>"
+						<?php } ?>
+						loading="lazy"
+						decoding="async"
+					/>
+					<?php
 				} else {
-					echo esc_html( $this->story->get_title() );
+					echo esc_html( $title );
 				}
 				?>
 			</a>

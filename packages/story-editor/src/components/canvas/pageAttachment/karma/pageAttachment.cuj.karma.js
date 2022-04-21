@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { createSolidFromString } from '@web-stories-wp/patterns';
+import { createSolidFromString } from '@googleforcreators/patterns';
 /**
  * Internal dependencies
  */
@@ -41,8 +41,12 @@ describe('Page Attachment', () => {
     await fixture.collapseHelpCenter();
 
     // Select Page by default.
-    safezone = fixture.querySelector('[data-testid="safezone"]');
-    await clickOnTarget(safezone);
+    // Click the background element
+    await fixture.events.mouse.clickOn(
+      fixture.editor.canvas.framesLayer.frames[0].node,
+      10,
+      10
+    );
   });
 
   afterEach(() => {
@@ -50,6 +54,7 @@ describe('Page Attachment', () => {
   });
 
   const moveElementToBottom = async () => {
+    safezone = fixture.querySelector('[data-testid="safezone"]');
     const safezoneHeight = safezone.getBoundingClientRect().height;
     const frameHeight = frame.getBoundingClientRect().height;
     await fixture.events.mouse.seq(({ moveRel, moveBy, down, up }) => [
@@ -81,6 +86,8 @@ describe('Page Attachment', () => {
   };
 
   const setPageAttachmentLink = async (link) => {
+    // Open style pane
+    await fixture.events.click(fixture.editor.sidebar.designTab);
     const input = fixture.screen.getByLabelText(
       'Type an address to add a page attachment link'
     );
@@ -122,7 +129,6 @@ describe('Page Attachment', () => {
     it('it should display warning for a link in the Page Attachment Area', async () => {
       await addElement();
       await moveElementToBottom();
-
       await clickOnTarget(safezone);
       await setPageAttachmentLink('');
       const warning = fixture.screen.getByText(
@@ -150,6 +156,9 @@ describe('Page Attachment', () => {
       await addElement(false);
       await moveElementToBottom();
 
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.linkSection
+      );
       const input = fixture.screen.getByLabelText('Element link');
       await fixture.events.click(input);
 

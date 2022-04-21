@@ -17,20 +17,14 @@
 /**
  * External dependencies
  */
-import { sprintf, __ } from '@web-stories-wp/i18n';
+import { sprintf, __ } from '@googleforcreators/i18n';
 import {
   useState,
   useCallback,
   useRef,
   useEffect,
-} from '@web-stories-wp/react';
-import { useLiveRegion } from '@web-stories-wp/design-system';
-
-/* translators: %d: new position. */
-const REORDER_MESSAGE = __(
-  'Reordering. Press Escape to abort. Release mouse to drop in position %d.',
-  'web-stories'
-);
+} from '@googleforcreators/react';
+import { useLiveRegion } from '@googleforcreators/design-system';
 
 function useReordering(onPositionChange, numChildren) {
   const [isReordering, setIsReordering] = useState(false);
@@ -108,7 +102,14 @@ function useReordering(onPositionChange, numChildren) {
   useEffect(() => {
     if (isReordering && currentSeparator) {
       const position = numChildren - currentSeparator;
-      const message = sprintf(REORDER_MESSAGE, position);
+      const message = sprintf(
+        /* translators: %d: new position. */
+        __(
+          'Reordering. Press Escape to abort. Release mouse to drop in position %d.',
+          'web-stories'
+        ),
+        position
+      );
       speak(message);
     }
   }, [isReordering, currentSeparator, numChildren, speak]);

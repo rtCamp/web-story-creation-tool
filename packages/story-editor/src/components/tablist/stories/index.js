@@ -16,18 +16,17 @@
 /**
  * External dependencies
  */
-import { action } from '@storybook/addon-actions';
 import styled from 'styled-components';
 import {
   THEME_CONSTANTS,
   Link,
-  Tooltip,
+  BaseTooltip,
   Text,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 /**
  * Internal dependencies
  */
-import { useState } from '@web-stories-wp/react';
+import { useState } from '@googleforcreators/react';
 import { Thumbnail, THUMBNAIL_TYPES } from '../../thumbnail';
 import { THUMBNAIL_BG } from '../../thumbnail/stories/demoThumbnails';
 import { CARD_TYPE } from '../../checklistCard/constants';
@@ -43,6 +42,9 @@ import { PANEL_STATES } from '../constants';
 export default {
   title: 'Stories Editor/Components/Tablist',
   component: Tablist,
+  parameters: {
+    controls: { hideNoControlsWarning: true },
+  },
 };
 
 const Container = styled.div`
@@ -85,9 +87,6 @@ export const _default = () => {
         >
           <ChecklistCard
             title="Add video captions"
-            titleProps={{
-              onClick: () => action('title clicked')(),
-            }}
             footer={
               <DefaultFooterText>
                 {
@@ -105,7 +104,6 @@ export const _default = () => {
             thumbnailCount={1}
             thumbnails={
               <Thumbnail
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
@@ -132,21 +130,18 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               />,
               <Thumbnail
                 key={2}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               />,
               <Thumbnail
                 key={3}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
@@ -184,53 +179,49 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('1 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={2}
-                onClick={() => action('2 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={3}
-                onClick={() => action('3 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={4}
-                onClick={() => action('4 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
             ]}
           />
         </TablistPanel>
         <TablistPanel
-          title={'Design'}
+          title={'Style'}
           isExpanded={openPanel === 'design'}
           onClick={handleClick('design')}
           badgeCount={1}
@@ -266,47 +257,43 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('1 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={2}
-                onClick={() => action('2 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={3}
-                onClick={() => action('3 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={4}
-                onClick={() => action('4 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
             ]}
           />
@@ -319,9 +306,6 @@ export const _default = () => {
         >
           <ChecklistCard
             title="Add video captions"
-            titleProps={{
-              onClick: () => action('title clicked')(),
-            }}
             footer={
               <DefaultFooterText>
                 {
@@ -339,7 +323,6 @@ export const _default = () => {
             thumbnailCount={1}
             thumbnails={
               <Thumbnail
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
@@ -366,21 +349,18 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               />,
               <Thumbnail
                 key={2}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               />,
               <Thumbnail
                 key={3}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
@@ -418,55 +398,48 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('1 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={2}
-                onClick={() => action('2 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={3}
-                onClick={() => action('3 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={4}
-                onClick={() => action('4 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
             ]}
           />
           <ChecklistCard
             title="Add video captions"
-            titleProps={{
-              onClick: () => action('title clicked')(),
-            }}
             footer={
               <DefaultFooterText>
                 {
@@ -484,7 +457,6 @@ export const _default = () => {
             thumbnailCount={1}
             thumbnails={
               <Thumbnail
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
@@ -511,21 +483,18 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               />,
               <Thumbnail
                 key={2}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               />,
               <Thumbnail
                 key={3}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
@@ -563,55 +532,48 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('1 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={2}
-                onClick={() => action('2 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={3}
-                onClick={() => action('3 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={4}
-                onClick={() => action('4 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
             ]}
           />
           <ChecklistCard
             title="Add video captions"
-            titleProps={{
-              onClick: () => action('title clicked')(),
-            }}
             footer={
               <DefaultFooterText>
                 {
@@ -630,7 +592,6 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
@@ -657,21 +618,18 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               />,
               <Thumbnail
                 key={2}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               />,
               <Thumbnail
                 key={3}
-                onClick={() => action('thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
@@ -709,47 +667,43 @@ export const _default = () => {
             thumbnails={[
               <Thumbnail
                 key={1}
-                onClick={() => action('1 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={2}
-                onClick={() => action('2 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={3}
-                onClick={() => action('3 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
               <Thumbnail
                 key={4}
-                onClick={() => action('4 thumbnail action found')()}
                 type={THUMBNAIL_TYPES.IMAGE}
                 displayBackground={THUMBNAIL_BG[THUMBNAIL_TYPES.IMAGE]}
                 aria-label="my helper text describing this thumbnail image"
               >
-                <Tooltip title="Optimize">
+                <BaseTooltip title="Optimize">
                   <StyledVideoOptimizationIcon />
-                </Tooltip>
+                </BaseTooltip>
               </Thumbnail>,
             ]}
           />

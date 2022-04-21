@@ -19,7 +19,7 @@
 /**
  * External dependencies
  */
-import { useEffect, useState } from '@web-stories-wp/react';
+import { useEffect, useState } from '@googleforcreators/react';
 import { createGlobalStyle } from 'styled-components';
 
 /**
@@ -55,10 +55,10 @@ const KeyboardOnlyOutline = () => {
     }
   };
 
-  document.addEventListener('keydown', handleKeydown);
-  document.addEventListener('mousedown', handleMousedown);
-
   useEffect(() => {
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('mousedown', handleMousedown);
+
     return function cleanup() {
       document.removeEventListener('keydown', handleKeydown);
       document.removeEventListener('mousedown', handleMousedown);

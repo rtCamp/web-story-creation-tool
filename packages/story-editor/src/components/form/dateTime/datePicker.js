@@ -17,7 +17,6 @@
 /**
  * External dependencies
  */
-import 'react-calendar/dist/Calendar.css';
 import {
   useRef,
   useCallback,
@@ -25,23 +24,20 @@ import {
   useEffect,
   lazy,
   Suspense,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { _x } from '@web-stories-wp/i18n';
+import { _x } from '@googleforcreators/i18n';
+import { CircularProgress } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
-import CircularProgress from '../../circularProgress';
+import CalendarWrapper from './calendarWrapper';
 
 const Calendar = lazy(() =>
   import(/* webpackChunkName: "chunk-react-calendar" */ 'react-calendar')
 );
-
-const CalendarWrapper = styled.div`
-  min-height: 236px;
-`;
 
 const FallbackCalendar = styled.div`
   height: 256px;
@@ -163,7 +159,7 @@ function DatePicker({ currentDate, onChange, onViewChange }) {
 DatePicker.propTypes = {
   onChange: PropTypes.func.isRequired,
   onViewChange: PropTypes.func,
-  currentDate: PropTypes.string,
+  currentDate: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default DatePicker;

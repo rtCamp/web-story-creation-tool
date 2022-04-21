@@ -17,7 +17,7 @@
  * External dependencies
  */
 import { act, renderHook } from '@testing-library/react-hooks';
-import { ConfigProvider } from '@web-stories-wp/dashboard';
+import { ConfigProvider } from '@googleforcreators/dashboard';
 
 /**
  * Internal dependencies
@@ -29,8 +29,8 @@ import {
 } from '../../components/editorSettings';
 
 jest.mock('../settings', () => ({
-  fetchSettings: () => Promise.reject({}), // eslint-disable-line prefer-promise-reject-errors
-  updateSettings: () => Promise.reject({}), // eslint-disable-line prefer-promise-reject-errors
+  fetchSettings: () => Promise.reject(new Error()),
+  updateSettings: () => Promise.reject(new Error()),
 }));
 
 jest.mock('../user', () => ({

@@ -17,14 +17,18 @@
  * External dependencies
  */
 import styled, { ThemeProvider } from 'styled-components';
-import { useState } from '@web-stories-wp/react';
+import { useState } from '@googleforcreators/react';
 import { TransitionGroup } from 'react-transition-group';
-import { theme as dsTheme, ThemeGlobals } from '@web-stories-wp/design-system';
+import {
+  theme as dsTheme,
+  ThemeGlobals,
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
 import { Menu as HelpCenterMenu } from '..';
+import { HelpCenterProvider } from '../../../../app/helpCenter';
 
 export default {
   title: 'Stories Editor/Components/Help Center/Menu',
@@ -50,16 +54,18 @@ export const Menu = () => {
   return (
     <ThemeProvider theme={dsTheme}>
       <ThemeGlobals.Styles />
-      <button onClick={() => setMounted((v) => !v)}>
-        {mounted ? 'unmount' : 'mount'}
-      </button>
-      <Bg>
-        <Container>
-          <TransitionGroup component={null}>
-            {mounted && <HelpCenterMenu key="someKey" readTips={{}} />}
-          </TransitionGroup>
-        </Container>
-      </Bg>
+      <HelpCenterProvider>
+        <button onClick={() => setMounted((v) => !v)}>
+          {mounted ? 'unmount' : 'mount'}
+        </button>
+        <Bg>
+          <Container>
+            <TransitionGroup component={null}>
+              {mounted && <HelpCenterMenu key="someKey" readTips={{}} />}
+            </TransitionGroup>
+          </Container>
+        </Bg>
+      </HelpCenterProvider>
     </ThemeProvider>
   );
 };

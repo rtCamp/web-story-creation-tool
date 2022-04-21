@@ -17,20 +17,25 @@
 /**
  * External dependencies
  */
-import { useMemo, useCallback, useRef, useEffect } from '@web-stories-wp/react';
-import { isPatternEqual } from '@web-stories-wp/patterns';
-import { useGlobalKeyDownEffect } from '@web-stories-wp/design-system';
+import {
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from '@googleforcreators/react';
+import { isPatternEqual } from '@googleforcreators/patterns';
+import { useGlobalKeyDownEffect } from '@googleforcreators/design-system';
+import {
+  useRichText,
+  getHTMLFormatters,
+  getHTMLInfo,
+} from '@googleforcreators/rich-text';
 
 /**
  * Internal dependencies
  */
-import useRichText from '../../../richText/useRichText';
-import {
-  getHTMLFormatters,
-  getHTMLInfo,
-} from '../../../richText/htmlManipulation';
-import { MULTIPLE_VALUE } from '../../../../constants';
 import { useCanvas } from '../../../../app';
+import { MULTIPLE_VALUE } from '../../../../constants';
 
 /**
  * Equality function for *primitives and color patterns* only.
@@ -79,10 +84,13 @@ function reduceWithMultiple(reduced, info) {
 }
 
 function useRichTextFormatting(selectedElements, pushUpdate) {
-  const {
-    state: { hasCurrentEditor, selectionInfo },
-    actions: { selectionActions },
-  } = useRichText();
+  const { hasCurrentEditor, selectionInfo, selectionActions } = useRichText(
+    ({ state, actions }) => ({
+      hasCurrentEditor: state.hasCurrentEditor,
+      selectionInfo: state.selectionInfo,
+      selectionActions: actions.selectionActions,
+    })
+  );
 
   const { clearEditing } = useCanvas(({ actions: { clearEditing } }) => ({
     clearEditing,
@@ -93,7 +101,7 @@ function useRichTextFormatting(selectedElements, pushUpdate) {
       return selectionInfo;
     }
 
-    // loop over all elements, find info for content and reduce to common value
+    // loop over all text elements, find info for content and reduce to common value
     // (setting MULTIPLE_VALUE appropriately)
     return selectedElements
       .map(({ content }) => content)

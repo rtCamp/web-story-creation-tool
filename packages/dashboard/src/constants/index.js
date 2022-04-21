@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 /**
  * Internal dependencies
  */
@@ -40,12 +40,6 @@ export const APP_ROUTES = {
   TEMPLATES_GALLERY: '/templates-gallery',
   TEMPLATE_DETAIL: 'template-detail',
 };
-
-export const NESTED_APP_ROUTES = {
-  TEMPLATES_GALLERY_DETAIL: `${APP_ROUTES.TEMPLATES_GALLERY}/${APP_ROUTES.TEMPLATE_DETAIL}`,
-};
-
-export const ADMIN_TITLE = __('Web Stories', 'web-stories');
 
 export const ROUTE_TITLES = {
   [APP_ROUTES.DASHBOARD]: __('Dashboard', 'web-stories'),

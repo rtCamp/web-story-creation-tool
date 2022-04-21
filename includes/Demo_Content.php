@@ -4,10 +4,10 @@
  *
  * Used for getting demo content.
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -34,8 +34,6 @@ namespace Google\Web_Stories;
 class Demo_Content {
 	/**
 	 * Returns the title for the demo story.
-	 *
-	 * @return string
 	 */
 	public function get_title(): string {
 		return __( 'Tips to make the most of Web Stories', 'web-stories' );
@@ -43,8 +41,6 @@ class Demo_Content {
 
 	/**
 	 * Returns the content for the demo story.
-	 *
-	 * @return string
 	 */
 	public function get_content(): string {
 		$content = $this->load_demo_content_from_file();
@@ -63,7 +59,6 @@ class Demo_Content {
 	 * Updates URLs to media assets in demo content.
 	 *
 	 * @param string $content Original content.
-	 *
 	 * @return string Modified content.
 	 */
 	private function update_assets_urls( string $content ): string {
@@ -80,7 +75,6 @@ class Demo_Content {
 	 * Localizes demo content.
 	 *
 	 * @param string $content Original content.
-	 *
 	 * @return string Localized text.
 	 */
 	private function localize_texts( string $content ): string {
@@ -166,8 +160,6 @@ class Demo_Content {
 
 	/**
 	 * Loads demo content from JSON file.
-	 *
-	 * @return string
 	 */
 	private function load_demo_content_from_file(): string {
 		$file = WEBSTORIES_PLUGIN_DIR_PATH . 'includes/data/stories/demo.json';

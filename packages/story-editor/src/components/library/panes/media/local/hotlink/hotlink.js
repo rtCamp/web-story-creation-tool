@@ -17,36 +17,31 @@
 /**
  * External dependencies
  */
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 import {
   Button as DefaultButton,
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
   Icons,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 import styled from 'styled-components';
-import { useState } from '@web-stories-wp/react';
-import { useFeature } from 'flagged';
+import { useState } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
  */
-import { focusStyle } from '../../../../../panels/shared';
+import { focusStyle } from '../../../../../panels/shared/styles';
 import Tooltip from '../../../../../tooltip';
 import HotlinkModal from './hotlinkModal';
 
 const Button = styled(DefaultButton)`
   ${focusStyle};
-  margin: 0 10px;
+  margin: 0 10px 0 0;
 `;
 
 function Hotlink() {
   const [isOpen, setIsOpen] = useState(false);
-  const enableHotlinking = useFeature('enableHotlinking');
-  if (!enableHotlinking) {
-    return null;
-  }
   const label = __('Insert by link', 'web-stories');
   return (
     <>

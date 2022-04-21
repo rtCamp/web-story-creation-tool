@@ -16,14 +16,14 @@
 /**
  * External dependencies
  */
-import { useCallback, useState, useEffect } from '@web-stories-wp/react';
-import { enableTracking, disableTracking } from '@web-stories-wp/tracking';
-import { useSnackbar, localStore } from '@web-stories-wp/design-system';
-import { useRouteHistory } from '@web-stories-wp/dashboard';
+import { useCallback, useState, useEffect } from '@googleforcreators/react';
+import { enableTracking, disableTracking } from '@googleforcreators/tracking';
+import { useSnackbar, localStore } from '@googleforcreators/design-system';
+import { useRouteHistory } from '@googleforcreators/dashboard';
 /**
  * Internal dependencies
  */
-import { useEditorSettings } from '../components/editorSettings';
+import useEditorSettings from '../components/editorSettings/useEditorSettings';
 
 /**
  * Internal dependencies

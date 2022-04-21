@@ -18,8 +18,8 @@
  */
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { __, _n, sprintf } from '@web-stories-wp/i18n';
-import { Icons } from '@web-stories-wp/design-system';
+import { __, _n, sprintf } from '@googleforcreators/i18n';
+import { Icons } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -35,6 +35,7 @@ const StyledToggleButton = styled(ToggleButton)`
   padding-left: 3px;
   padding-right: 3px;
   display: block;
+  background-color: ${({ theme }) => theme.colors.bg.primary};
 `;
 
 function Toggle({

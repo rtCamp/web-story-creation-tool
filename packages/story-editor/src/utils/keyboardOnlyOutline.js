@@ -19,7 +19,7 @@
 /**
  * External dependencies
  */
-import { useEffect, useState } from '@web-stories-wp/react';
+import { useEffect, useState } from '@googleforcreators/react';
 import { createGlobalStyle } from 'styled-components';
 
 const KEYBOARD_USER_CLASS = `useskeyboard`;
@@ -56,10 +56,10 @@ const KeyboardOnlyOutline = () => {
     }
   };
 
-  document.addEventListener('keydown', handleKeydown, true);
-  document.addEventListener('mousedown', handleMousedown, true);
-
   useEffect(() => {
+    document.addEventListener('keydown', handleKeydown, true);
+    document.addEventListener('mousedown', handleMousedown, true);
+
     return function cleanup() {
       document.removeEventListener('keydown', handleKeydown, true);
       document.removeEventListener('mousedown', handleMousedown, true);

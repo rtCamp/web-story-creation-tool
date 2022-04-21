@@ -17,17 +17,17 @@
 /**
  * External dependencies
  */
-import { forwardRef, useCallback, useMemo } from '@web-stories-wp/react';
+import { forwardRef, useCallback, useMemo } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
-import { __, _x } from '@web-stories-wp/i18n';
+import { __, _x } from '@googleforcreators/i18n';
 import { useFeatures } from 'flagged';
 import { css } from 'styled-components';
-import { DropDown, PLACEMENT } from '@web-stories-wp/design-system';
+import { DropDown, PLACEMENT } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
-import { focusStyle } from '../../../shared';
+import { focusStyle } from '../../../shared/styles';
 import {
   backgroundEffectOptions,
   NO_ANIMATION,

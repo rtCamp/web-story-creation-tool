@@ -17,8 +17,8 @@
 /**
  * External dependencies
  */
-import { getTimeTracker } from '@web-stories-wp/tracking';
-import { DATA_VERSION, migrate } from '@web-stories-wp/migration';
+import { getTimeTracker } from '@googleforcreators/tracking';
+import { DATA_VERSION, migrate } from '@googleforcreators/migration';
 
 /**
  * Internal dependencies
@@ -27,7 +27,7 @@ import { TEMPLATE_NAMES } from './constants';
 
 async function loadTemplate(title, imageBaseUrl) {
   const data = await import(
-    /* webpackChunkName: "chunk-web-stories-template-[index]" */ `./raw/${title}`
+    /* webpackChunkName: "chunk-web-stories-template-[index]" */ `./raw/${title}/index.js`
   );
 
   const template = {

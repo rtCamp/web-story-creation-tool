@@ -17,7 +17,11 @@
 /**
  * External dependencies
  */
-import { useCallback, createContext, useContext } from '@web-stories-wp/react';
+import {
+  useCallback,
+  createContext,
+  useContext,
+} from '@googleforcreators/react';
 
 const PreventUnloadContext = createContext({ listeners: new Map() });
 
@@ -53,5 +57,7 @@ function usePreventWindowUnload() {
   return setPreventUnload;
 }
 
-const shouldDisablePrevent = process.env.DISABLE_PREVENT === 'true';
+const shouldDisablePrevent =
+  typeof WEB_STORIES_DISABLE_PREVENT !== 'undefined' &&
+  WEB_STORIES_DISABLE_PREVENT === 'true';
 export default shouldDisablePrevent ? () => () => {} : usePreventWindowUnload;

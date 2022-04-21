@@ -22,17 +22,20 @@ import {
   useState,
   useEffect,
   useDebouncedCallback,
-} from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import {
+  isValidUrl,
+  toAbsoluteUrl,
+  withProtocol,
+} from '@googleforcreators/url';
 import {
   Checkbox,
   Input,
-  isValidUrl,
-  withProtocol,
   Text,
   THEME_CONSTANTS,
   ThemeGlobals,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 
@@ -40,7 +43,6 @@ import styled from 'styled-components';
  * Internal dependencies
  */
 import { useStory, useCanvas, useAPI } from '../../../../app';
-import { toAbsoluteUrl } from '../../../../utils/url';
 import useElementsWithLinks from '../../../../utils/useElementsWithLinks';
 import { LinkIcon, LinkInput, Row } from '../../../form';
 import { SimplePanel } from '../../panel';
@@ -68,11 +70,22 @@ const Space = styled.div`
   width: 20px;
 `;
 
+const HelperText = styled(Text).attrs({
+  size: THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL,
+})`
+  color: ${({ theme }) => theme.colors.fg.secondary};
+`;
+
 function PageAttachmentPanel() {
-  const { currentPage, updateCurrentPageProperties } = useStory((state) => ({
-    updateCurrentPageProperties: state.actions.updateCurrentPageProperties,
-    currentPage: state.state.currentPage,
-  }));
+  const { currentPage, updateCurrentPageProperties, hasProducts } = useStory(
+    ({ state, actions }) => ({
+      updateCurrentPageProperties: actions.updateCurrentPageProperties,
+      currentPage: state.currentPage,
+      hasProducts: state.currentPage.elements?.some(
+        ({ type, product }) => type === 'product' && product?.productId
+      ),
+    })
+  );
   const { setDisplayLinkGuidelines } = useCanvas((state) => ({
     setDisplayLinkGuidelines: state.actions.setDisplayLinkGuidelines,
   }));
@@ -88,9 +101,7 @@ function PageAttachmentPanel() {
   const [displayWarning, setDisplayWarning] = useState(false);
   const [fetchingMetadata, setFetchingMetadata] = useState(false);
 
-  const { getLinksInAttachmentArea } = useElementsWithLinks();
-  const linksInAttachmentArea = getLinksInAttachmentArea();
-  const hasLinksInAttachmentArea = linksInAttachmentArea.length > 0;
+  const { hasLinksInAttachmentArea } = useElementsWithLinks();
 
   // Stop displaying guidelines when unmounting.
   useEffect(() => {
@@ -130,26 +141,39 @@ function PageAttachmentPanel() {
   const debouncedUpdate = useDebouncedCallback(updatePageAttachment, 300);
   const { getProxiedUrl, checkResourceAccess } = useCORSProxy();
 
-  const populateUrlData = useDebouncedCallback(async (value) => {
-    setFetchingMetadata(true);
-    try {
-      const { image } = getLinkMetadata ? await getLinkMetadata(value) : {};
-      const iconUrl = image ? toAbsoluteUrl(value, image) : '';
-      const needsProxy = iconUrl ? await checkResourceAccess(iconUrl) : false;
+  const populateUrlData = useDebouncedCallback(
+    useCallback(
+      async (value) => {
+        // Nothing to fetch for tel: or mailto: links.
+        if (!value.startsWith('http://') && !value.startsWith('https://')) {
+          return;
+        }
 
-      updatePageAttachment({
-        url: value,
-        icon: iconUrl,
-        needsProxy,
-      });
-    } catch (e) {
-      // We're allowing to save invalid URLs, however, remove icon in this case.
-      updatePageAttachment({ url: value, icon: '', needsProxy: false });
-      setIsInvalidUrl(true);
-    } finally {
-      setFetchingMetadata(false);
-    }
-  }, 1200);
+        setFetchingMetadata(true);
+        try {
+          const { image } = getLinkMetadata ? await getLinkMetadata(value) : {};
+          const iconUrl = image ? toAbsoluteUrl(value, image) : '';
+          const needsProxy = iconUrl
+            ? await checkResourceAccess(iconUrl)
+            : false;
+
+          updatePageAttachment({
+            url: value,
+            icon: iconUrl,
+            needsProxy,
+          });
+        } catch (e) {
+          // We're allowing to save invalid URLs, however, remove icon in this case.
+          updatePageAttachment({ url: value, icon: '', needsProxy: false });
+          setIsInvalidUrl(true);
+        } finally {
+          setFetchingMetadata(false);
+        }
+      },
+      [checkResourceAccess, getLinkMetadata, updatePageAttachment]
+    ),
+    1200
+  );
 
   const [isInvalidUrl, setIsInvalidUrl] = useState(
     url && !isValidUrl(withProtocol(url).trim())
@@ -160,6 +184,8 @@ function PageAttachmentPanel() {
 
   const handleChangeUrl = useCallback(
     (value) => {
+      populateUrlData.cancel();
+
       _setUrl(value);
       setIsInvalidUrl(false);
       const urlWithProtocol = withProtocol(value.trim());
@@ -185,7 +211,7 @@ function PageAttachmentPanel() {
     /**
      * Handle page attachment icon change.
      *
-     * @param {import('@web-stories-wp/media').Resource} resource The new image.
+     * @param {import('@googleforcreators/media').Resource} resource The new image.
      */
     (resource) => {
       updatePageAttachment({ icon: resource?.src }, true);
@@ -215,6 +241,47 @@ function PageAttachmentPanel() {
 
   const checkboxId = `cb-${uuidv4()}`;
 
+  if (hasProducts) {
+    return (
+      <SimplePanel
+        name="pageAttachment"
+        title={__('Call to Action', 'web-stories')}
+        collapsedByDefault={false}
+      >
+        <Row>
+          <HelperText>
+            {__(
+              'Since there are products on this page, you cannot add a regular page attachment, but only customize the appearance of the shopping call to action.',
+              'web-stories'
+            )}
+          </HelperText>
+        </Row>
+        <StyledRow>
+          {/* The default is light theme, only if checked, use dark theme */}
+          <StyledCheckbox
+            id={checkboxId}
+            checked={theme === OUTLINK_THEME.DARK}
+            onChange={(evt) =>
+              updatePageAttachment({
+                theme: evt.target.checked
+                  ? OUTLINK_THEME.DARK
+                  : OUTLINK_THEME.LIGHT,
+              })
+            }
+          />
+          <Label htmlFor={checkboxId}>
+            <Text
+              as="span"
+              size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}
+            >
+              {__('Use dark theme', 'web-stories')}
+            </Text>
+          </Label>
+        </StyledRow>
+      </SimplePanel>
+    );
+  }
+
   const iconUrl = icon ? getProxiedUrl(pageAttachment, icon) : null;
 
   let hint;
@@ -227,10 +294,11 @@ function PageAttachmentPanel() {
         )
       : __('Invalid link', 'web-stories');
   }
+
   return (
     <SimplePanel
       name="pageAttachment"
-      title={__('Page Attachment', 'web-stories')}
+      title={__('Call to Action', 'web-stories')}
       collapsedByDefault={false}
     >
       <LinkInput

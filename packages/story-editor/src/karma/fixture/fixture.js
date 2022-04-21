@@ -17,9 +17,6 @@
 /**
  * External dependencies
  */
-import * as React from 'react';
-const { useCallback, useState, useMemo, forwardRef } = React;
-
 import {
   configure,
   render,
@@ -27,9 +24,15 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { setAppElement } from '@web-stories-wp/design-system';
-import { FixtureEvents } from '@web-stories-wp/karma-fixture';
-import { DATA_VERSION } from '@web-stories-wp/migration';
+import { setAppElement } from '@googleforcreators/design-system';
+import { FixtureEvents } from '@googleforcreators/karma-fixture';
+import { DATA_VERSION } from '@googleforcreators/migration';
+import {
+  createPage,
+  TEXT_ELEMENT_DEFAULT_FONT,
+  registerElementType,
+} from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
 
 /**
  * Internal dependencies
@@ -38,8 +41,6 @@ import StoryEditor from '../../storyEditor';
 import APIProvider from '../../app/api/apiProvider';
 import APIContext from '../../app/api/context';
 import Layout from '../../components/layout';
-import { createPage } from '../../elements';
-import { TEXT_ELEMENT_DEFAULT_FONT } from '../../app/font/defaultFonts';
 import formattedTemplatesArray from '../../dataUtils/formattedTemplatesArray';
 import { PRESET_TYPES } from '../../constants';
 import getMediaResponse from './db/getMediaResponse';
@@ -48,10 +49,15 @@ import taxonomiesResponse from './db/getTaxonomiesResponse';
 import singleSavedTemplate from './db/singleSavedTemplate';
 import HeaderLayout from './components/header';
 import storyResponse from './db/storyResponse';
-import DocumentPane from './components/documentPane';
+import DocumentPane, {
+  PublishModalDocumentPane,
+} from './components/documentPane';
 import { Accessibility, Design, Priority } from './components/checklist';
 
-if ('true' === process.env.CI) {
+const React = require('react');
+const { useCallback, useState, useMemo, forwardRef } = React;
+
+if ('true' === WEB_STORIES_CI) {
   configure({
     getElementError: (message) => {
       const error = new Error(message);
@@ -70,6 +76,15 @@ function MediaUpload({ render: _render, onSelect }) {
     const image = {
       type: 'image',
       src: 'http://localhost:9876/__static__/saturn.jpg',
+      baseColor: '#734727',
+      id: 4,
+      guid: {
+        rendered: 'http://localhost:9876/__static__/saturn.jpg',
+      },
+      alt: 'saturn',
+      mimeType: 'image/jpeg',
+      width: 634,
+      height: 640,
     };
     onSelect(image);
   };
@@ -77,48 +92,24 @@ function MediaUpload({ render: _render, onSelect }) {
   return _render(open);
 }
 
-const DEFAULT_CONFIG = {
+export const FIXTURE_DEFAULT_CONFIG = {
   storyId: 1,
   api: {},
   allowedMimeTypes: {
+    audio: ['audio/mpeg', 'audio/aac', 'audio/wav', 'audio/ogg'],
     image: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
+    caption: ['text/vtt'],
+    vector: ['image/svg+xml'],
     video: ['video/mp4', 'video/webm'],
   },
-  allowedFileTypes: ['png', 'jpeg', 'jpg', 'gif', 'mp4', 'webp', 'webm'],
-  allowedImageFileTypes: ['gif', 'jpe', 'jpeg', 'jpg', 'png'],
-  allowedImageMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
-  allowedAudioFileTypes: ['mp3', 'aac', 'wav', 'ogg'],
-  allowedAudioMimeTypes: ['audio/mpeg', 'audio/aac', 'audio/wav', 'audio/ogg'],
-  allowedTranscodableMimeTypes: [
-    'video/3gpp',
-    'video/3gpp2',
-    'video/MP2T',
-    'video/mp4',
-    'video/mpeg',
-    'video/ogg',
-    'video/quicktime',
-    'video/webm',
-    'video/x-flv',
-    'video/x-h261',
-    'video/x-h263',
-    'video/x-m4v',
-    'video/x-matroska',
-    'video/x-mjpeg',
-    'video/x-ms-asf',
-    'video/x-msvideo',
-    'video/x-nut',
-  ],
   capabilities: {
     hasUploadMediaAction: true,
-  },
-  postLock: {
-    interval: 150,
-    showLockedDialog: true,
   },
   nonce: '123456789',
   version: '1.0.0-alpha.9',
   isRTL: false,
   showMedia3p: true,
+  canViewDefaultTemplates: true,
   locale: {
     dateFormat: 'F j, Y',
     timeFormat: 'g:i a',
@@ -160,7 +151,7 @@ export class Fixture {
    * @param {Object} config.mocks An object containing functions to be used as stubs for the api.
    */
   constructor({ mocks } = {}) {
-    this._config = { ...DEFAULT_CONFIG };
+    this._config = { ...FIXTURE_DEFAULT_CONFIG };
 
     this._componentStubs = new Map();
     const origCreateElement = React.createElement;
@@ -228,6 +219,8 @@ export class Fixture {
         JSON.stringify({ isCollapsed: false })
       );
     });
+
+    elementTypes.forEach(registerElementType);
   }
 
   restore() {
@@ -342,10 +335,13 @@ export class Fixture {
               },
             },
           }}
-          inspectorTabs={{
+          sidebarTabs={{
             document: {
               title: 'Document',
               Pane: DocumentPane,
+            },
+            publishModal: {
+              DocumentPane: PublishModalDocumentPane,
             },
           }}
         />
@@ -397,9 +393,6 @@ export class Fixture {
         }
       });
     });
-
-    // @todo: find a stable way to wait for the story to fully render. Can be
-    // implemented via `waitFor`.
   }
 
   /**
@@ -627,7 +620,7 @@ class APIProviderFixture {
         () =>
           asyncResponse({
             ...storyResponse,
-            story_data: {
+            storyData: {
               version: DATA_VERSION,
               pages: this._pages,
             },
@@ -646,7 +639,7 @@ class APIProviderFixture {
 
       const getMedia = useCallback(({ mediaType, searchTerm, pagingNum }) => {
         const filterByMediaType = mediaType
-          ? ({ mime_type }) => mime_type.startsWith(mediaType)
+          ? ({ mimeType }) => mimeType.startsWith(mediaType)
           : () => true;
         const filterBySearchTerm = searchTerm
           ? ({ alt_text }) => alt_text.includes(searchTerm)
@@ -690,9 +683,9 @@ class APIProviderFixture {
         () =>
           asyncResponse({
             ext: 'jpg',
-            mime_type: 'image/jpeg',
+            mimeType: 'image/jpeg',
             type: 'image',
-            file_name: 'example.jpg',
+            fileName: 'example.jpg',
           }),
         []
       );
@@ -721,11 +714,9 @@ class APIProviderFixture {
         () =>
           asyncResponse({
             id: 1,
-            meta: {
-              web_stories_tracking_optin: false,
-              web_stories_onboarding: {},
-              web_stories_media_optimization: true,
-            },
+            trackingOptin: false,
+            onboarding: {},
+            mediaOptimization: true,
           }),
         []
       );
@@ -734,11 +725,9 @@ class APIProviderFixture {
         () =>
           asyncResponse({
             id: 1,
-            meta: {
-              web_stories_tracking_optin: false,
-              web_stories_onboarding: {},
-              web_stories_media_optimization: true,
-            },
+            trackingOptin: false,
+            onboarding: {},
+            mediaOptimization: true,
           }),
         []
       );

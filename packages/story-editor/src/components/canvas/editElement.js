@@ -17,80 +17,98 @@
 /**
  * External dependencies
  */
+import { memo, useState, forwardRef } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { useUnits } from '@web-stories-wp/units';
-
-/**
- * Internal dependencies
- */
-import { useState, useRef } from '@web-stories-wp/react';
-import { getDefinitionForType } from '../../elements';
+import { useUnits } from '@googleforcreators/units';
+import { getDefinitionForType } from '@googleforcreators/elements';
 import {
   elementWithPosition,
   elementWithSize,
   elementWithRotation,
-} from '../../elements/shared';
-import SingleSelectionMoveable from './singleSelectionMoveable';
+} from '@googleforcreators/element-library';
+
+/**
+ * Internal dependencies
+ */
+import useCORSProxy from '../../utils/useCORSProxy';
+import { useConfig, useStory, useFont } from '../../app';
+import useVideoTrim from '../videoTrim/useVideoTrim';
+
+const Z_INDEX_CANVAS = {
+  FLOAT_PANEL: 11,
+};
 
 const Wrapper = styled.div`
   ${elementWithPosition}
   ${elementWithSize}
-	${elementWithRotation}
-	pointer-events: initial;
+  ${elementWithRotation}
+  pointer-events: initial;
 `;
 
-function EditElement({ element }) {
-  const { id, type } = element;
-  const { getBox } = useUnits((state) => ({
-    getBox: state.actions.getBox,
-  }));
+const EditElement = memo(
+  forwardRef(function EditElement({ element, editWrapper, onResize }, ref) {
+    const { id, type } = element;
+    const { getBox } = useUnits((state) => ({
+      getBox: state.actions.getBox,
+    }));
+    const { getProxiedUrl } = useCORSProxy();
+    const { isRTL, styleConstants: { topOffset } = {} } = useConfig();
+    const {
+      actions: { maybeEnqueueFontStyle },
+    } = useFont();
 
-  const [editWrapper, setEditWrapper] = useState(null);
-  // Needed for elements that can scale in edit mode.
-  const [localProperties, setLocalProperties] = useState(null);
+    // Update the true global properties of the current element
+    // This now only happens on unmount
+    const { updateElementById, deleteSelectedElements } = useStory((state) => ({
+      updateElementById: state.actions.updateElementById,
+      deleteSelectedElements: state.actions.deleteSelectedElements,
+    }));
+    const { isTrimMode, resource, setVideoNode } = useVideoTrim(
+      ({ state: { isTrimMode, videoData }, actions: { setVideoNode } }) => ({
+        isTrimMode,
+        setVideoNode,
+        resource: videoData?.resource,
+      })
+    );
 
-  const { Edit, hasEditModeMoveable } = getDefinitionForType(type);
-  const box = getBox(
-    localProperties ? { ...element, ...localProperties } : element
-  );
+    // Needed for elements that can scale in edit mode.
+    const [localProperties, setLocalProperties] = useState(null);
 
-  const moveable = useRef(null);
+    const { Edit } = getDefinitionForType(type);
+    const elementWithLocal = localProperties
+      ? { ...element, ...localProperties }
+      : element;
+    const box = getBox(elementWithLocal);
 
-  const onResize = () => {
-    // Update moveable when resizing.
-    if (moveable.current) {
-      moveable.current.updateRect();
-    }
-  };
-
-  return (
-    <>
-      <Wrapper aria-labelledby={`layer-${id}`} {...box} ref={setEditWrapper}>
+    return (
+      <Wrapper aria-labelledby={`layer-${id}`} {...box} ref={ref}>
         <Edit
-          element={
-            localProperties ? { ...element, ...localProperties } : element
-          }
+          element={elementWithLocal}
           box={box}
-          editWrapper={hasEditModeMoveable && editWrapper}
+          editWrapper={editWrapper}
           onResize={onResize}
           setLocalProperties={setLocalProperties}
+          getProxiedUrl={getProxiedUrl}
+          isRTL={isRTL}
+          topOffset={topOffset}
+          isTrimMode={isTrimMode}
+          resource={resource}
+          setVideoNode={setVideoNode}
+          updateElementById={updateElementById}
+          deleteSelectedElements={deleteSelectedElements}
+          maybeEnqueueFontStyle={maybeEnqueueFontStyle}
+          zIndexCanvas={Z_INDEX_CANVAS}
         />
       </Wrapper>
-      {hasEditModeMoveable && editWrapper && (
-        <SingleSelectionMoveable
-          selectedElement={element}
-          targetEl={editWrapper}
-          isEditMode
-          editMoveableRef={moveable}
-        />
-      )}
-    </>
-  );
-}
+    );
+  })
+);
 
 EditElement.propTypes = {
   element: PropTypes.object.isRequired,
+  editWrapper: PropTypes.object,
+  onResize: PropTypes.func,
 };
 
 export default EditElement;

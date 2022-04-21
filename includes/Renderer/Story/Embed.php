@@ -2,10 +2,10 @@
 /**
  * Class Embed
  *
- * @package   Google\Web_Stories\Renderer\Story
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -26,16 +26,14 @@
 
 namespace Google\Web_Stories\Renderer\Story;
 
+use Google\Web_Stories\AMP_Story_Player_Assets;
 use Google\Web_Stories\Assets;
 use Google\Web_Stories\Context;
 use Google\Web_Stories\Embed_Base;
 use Google\Web_Stories\Model\Story;
-use Google\Web_Stories\AMP_Story_Player_Assets;
 
 /**
  * Class Embed
- *
- * @package Google\Web_Stories\Renderer\Story
  */
 class Embed {
 	/**
@@ -77,10 +75,11 @@ class Embed {
 	/**
 	 * Renders the block output in default context.
 	 *
+	 * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param array $args Array of Argument to render.
-	 *
 	 * @return string Rendered block type output.
 	 */
 	public function render( array $args = [] ): string {
@@ -91,12 +90,14 @@ class Embed {
 			'width'  => 360,
 		];
 
-		$args   = wp_parse_args( $args, $defaults );
-		$align  = sprintf( 'align%s', $args['align'] );
-		$class  = $args['class'];
-		$url    = $this->story->get_url();
-		$title  = $this->story->get_title();
-		$poster = ! empty( $this->story->get_poster_portrait() ) ? $this->story->get_poster_portrait() : '';
+		$args          = wp_parse_args( $args, $defaults );
+		$align         = sprintf( 'align%s', $args['align'] );
+		$class         = $args['class'];
+		$url           = $this->story->get_url();
+		$title         = $this->story->get_title();
+		$poster        = $this->story->get_poster_portrait();
+		$poster_srcset = $this->story->get_poster_srcset();
+		$poster_sizes  = $this->story->get_poster_sizes();
 
 		$wrapper_style = sprintf(
 			'--aspect-ratio: %F; --width: %dpx; --height: %dpx',
@@ -124,7 +125,14 @@ class Embed {
 									width="<?php echo esc_attr( $args['width'] ); ?>"
 									height="<?php echo esc_attr( $args['height'] ); ?>"
 									alt="<?php echo esc_attr( $title ); ?>"
+									<?php if ( ! empty( $poster_srcset ) ) { ?>
+										srcset="<?php echo esc_attr( $poster_srcset ); ?>"
+									<?php } ?>
+									<?php if ( ! empty( $poster_sizes ) ) { ?>
+										sizes="<?php echo esc_attr( $poster_sizes ); ?>"
+									<?php } ?>
 									loading="lazy"
+									decoding="async"
 									data-amp-story-player-poster-img
 								/>
 								<?php
@@ -155,7 +163,14 @@ class Embed {
 								width="<?php echo esc_attr( $args['width'] ); ?>"
 								height="<?php echo esc_attr( $args['height'] ); ?>"
 								alt="<?php echo esc_attr( $title ); ?>"
+								<?php if ( ! empty( $poster_srcset ) ) { ?>
+									srcset="<?php echo esc_attr( $poster_srcset ); ?>"
+								<?php } ?>
+								<?php if ( ! empty( $poster_sizes ) ) { ?>
+									sizes="<?php echo esc_attr( $poster_sizes ); ?>"
+								<?php } ?>
 								loading="lazy"
+								decoding="async"
 								data-amp-story-player-poster-img
 							/>
 							<?php

@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo } from '@web-stories-wp/react';
+import { useCallback, useMemo } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
@@ -28,7 +28,7 @@ import { ACCESSIBILITY_COPY } from '../constants';
 import { filterStoryElements } from '../utils';
 import { useRegisterCheck } from '../countContext';
 import { useIsChecklistMounted } from '../popupMountedContext';
-import { VideoChecklistCard } from './shared';
+import VideoChecklistCard from './shared/videoChecklistCard';
 
 export function videoElementMissingDescription(element) {
   return (

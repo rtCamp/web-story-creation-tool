@@ -18,13 +18,13 @@
  * External dependencies
  */
 import { screen } from '@testing-library/react';
-import { UnitsProvider, PAGE_RATIO } from '@web-stories-wp/units';
+import { UnitsProvider, PAGE_RATIO } from '@googleforcreators/units';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import ShapePreview from '../../panes/shapes/shapePreview';
-import { renderWithTheme } from '../../../../testUtils';
 import useLibrary from '../../useLibrary';
 import { TEXT_SET_SIZE } from '../../../../constants';
 import CanvasContext from '../../../../app/canvas/context';

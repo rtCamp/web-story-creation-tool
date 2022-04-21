@@ -18,30 +18,35 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { memo, useRef, useState } from '@web-stories-wp/react';
+import { memo, useRef, useState } from '@googleforcreators/react';
 import styled, { css } from 'styled-components';
-import { generatePatternStyles } from '@web-stories-wp/patterns';
-import { useUnits } from '@web-stories-wp/units';
-import { StoryAnimation } from '@web-stories-wp/animation';
-
-/**
- * Internal dependencies
- */
-import { getDefinitionForType } from '../../elements';
+import { generatePatternStyles } from '@googleforcreators/patterns';
+import { useUnits } from '@googleforcreators/units';
+import { StoryAnimation } from '@googleforcreators/animation';
+import { useTransformHandler } from '@googleforcreators/transform';
+import {
+  getDefinitionForType,
+  ELEMENT_TYPES,
+} from '@googleforcreators/elements';
 import {
   elementWithPosition,
   elementWithRotation,
   elementWithSize,
-} from '../../elements/shared';
-import WithMask from '../../masks/display';
-import StoryPropTypes from '../../types';
-import { useTransformHandler } from '../transform';
-import useColorTransformHandler from '../../elements/shared/useColorTransformHandler';
+  useColorTransformHandler,
+} from '@googleforcreators/element-library';
 import {
+  DisplayWithMask as WithMask,
   getBorderPositionCSS,
   getResponsiveBorder,
   shouldDisplayBorder,
-} from '../../utils/elementBorder';
+} from '@googleforcreators/masks';
+
+/**
+ * Internal dependencies
+ */
+import StoryPropTypes from '../../types';
+import useCORSProxy from '../../utils/useCORSProxy';
+import { useLocalMedia, useFont } from '../../app';
 
 // Using attributes to avoid creation of hundreds of classes by styled components for previewMode.
 const Wrapper = styled.div.attrs(
@@ -63,7 +68,6 @@ const Wrapper = styled.div.attrs(
   ${({ previewMode }) => !previewMode && elementWithRotation}
   contain: layout;
   transition: opacity 0.15s cubic-bezier(0, 0, 0.54, 1);
-
   ${({ isBackground, theme }) =>
     isBackground &&
     css`
@@ -107,6 +111,10 @@ function DisplayElement({ element, previewMode, isAnimatable = false }) {
     getBox: state.actions.getBox,
     dataToEditorX: state.actions.dataToEditorX,
   }));
+  const { getProxiedUrl } = useCORSProxy();
+  const {
+    actions: { maybeEnqueueFontStyle },
+  } = useFont();
 
   const [replacement, setReplacement] = useState(null);
 
@@ -121,6 +129,16 @@ function DisplayElement({ element, previewMode, isAnimatable = false }) {
     border = {},
     flip,
   } = element;
+
+  const { isCurrentResourceProcessing, isCurrentResourceUploading } =
+    useLocalMedia(({ state }) => {
+      return ELEMENT_TYPES.IMAGE === type
+        ? {
+            isCurrentResourceProcessing: state.isCurrentResourceProcessing,
+            isCurrentResourceUploading: state.isCurrentResourceUploading,
+          }
+        : {};
+    });
 
   const replacementElement = hasReplacement
     ? {
@@ -177,6 +195,12 @@ function DisplayElement({ element, previewMode, isAnimatable = false }) {
     resetOnNullTransform: false,
   });
 
+  const responsiveBorder = getResponsiveBorder(
+    border,
+    previewMode,
+    dataToEditorX
+  );
+
   return (
     <Wrapper
       ref={wrapperRef}
@@ -194,15 +218,24 @@ function DisplayElement({ element, previewMode, isAnimatable = false }) {
             opacity: typeof opacity !== 'undefined' ? opacity / 100 : null,
             ...(shouldDisplayBorder(element)
               ? getBorderPositionCSS({
-                  ...getResponsiveBorder(border, previewMode, dataToEditorX),
+                  ...responsiveBorder,
                   width: `${box.width}px`,
                   height: `${box.height}px`,
                 })
               : null),
           }}
           previewMode={previewMode}
+          responsiveBorder={responsiveBorder}
         >
-          <Display element={element} previewMode={previewMode} box={box} />
+          <Display
+            element={element}
+            previewMode={previewMode}
+            box={box}
+            getProxiedUrl={getProxiedUrl}
+            isCurrentResourceProcessing={isCurrentResourceProcessing}
+            isCurrentResourceUploading={isCurrentResourceUploading}
+            maybeEnqueueFontStyle={maybeEnqueueFontStyle}
+          />
         </WithMask>
         {!previewMode && (
           <ReplacementContainer hasReplacement={hasReplacement}>
@@ -216,7 +249,14 @@ function DisplayElement({ element, previewMode, isAnimatable = false }) {
                 }}
                 previewMode={previewMode}
               >
-                <Replacement element={replacementElement} box={box} />
+                <Replacement
+                  element={replacementElement}
+                  box={box}
+                  getProxiedUrl={getProxiedUrl}
+                  isCurrentResourceProcessing={isCurrentResourceProcessing}
+                  isCurrentResourceUploading={isCurrentResourceUploading}
+                  maybeEnqueueFontStyle={maybeEnqueueFontStyle}
+                />
               </WithMask>
             )}
           </ReplacementContainer>

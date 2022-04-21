@@ -19,15 +19,15 @@
  */
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { __ } from '@web-stories-wp/i18n';
-import { ColorStopPropType } from '@web-stories-wp/patterns';
+import { __ } from '@googleforcreators/i18n';
+import { ColorStopPropType } from '@googleforcreators/patterns';
 import {
   Button,
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
   Icons,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -38,8 +38,8 @@ import GradientLine from './gradientLine';
 const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 16px 16px;
+  align-items: center;
+  padding: 16px 16px 0;
   height: 60px;
 `;
 
@@ -52,7 +52,6 @@ const SmallButton = styled(Button)`
   width: 24px;
   height: 24px;
   padding: 0;
-  margin-bottom: -3px;
   svg {
     width: 24px;
     height: 24px;
@@ -94,7 +93,7 @@ function GradientPicker({
             size={BUTTON_SIZES.SMALL}
             variant={BUTTON_VARIANTS.SQUARE}
           >
-            <Icons.ArrowsLeftright />
+            <Icons.ArrowsLeftRight />
           </SmallButton>
         </Tooltip>
         {canRotate && (

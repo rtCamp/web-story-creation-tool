@@ -24,7 +24,7 @@ import {
   createContext,
   useContextSelector,
   identity,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 
 export const NavContext = createContext({ actions: {}, state: {} });
@@ -35,22 +35,17 @@ export function useNavContext(selector = identity) {
 
 export default function NavProvider({ children }) {
   const [sideBarVisible, setSideBarVisible] = useState(false);
-  const [numNewTemplates, setNumNewTemplates] = useState(0);
 
   const toggleSideBar = useCallback(() => {
     setSideBarVisible(!sideBarVisible);
   }, [sideBarVisible]);
 
-  const updateNumNewTemplates = useCallback((newNum) => {
-    setNumNewTemplates(newNum);
-  }, []);
-
   const value = useMemo(
     () => ({
-      actions: { toggleSideBar, updateNumNewTemplates },
-      state: { sideBarVisible, numNewTemplates },
+      actions: { toggleSideBar },
+      state: { sideBarVisible },
     }),
-    [numNewTemplates, sideBarVisible, toggleSideBar, updateNumNewTemplates]
+    [sideBarVisible, toggleSideBar]
   );
 
   return <NavContext.Provider value={value}>{children}</NavContext.Provider>;

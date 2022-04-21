@@ -16,15 +16,15 @@
 /**
  * External dependencies
  */
-import { waitFor } from '@testing-library/react';
-import { createSolidFromString } from '@web-stories-wp/patterns';
+import { waitFor, within } from '@testing-library/react';
+import { createSolidFromString } from '@googleforcreators/patterns';
+import { TEXT_ELEMENT_DEFAULT_FONT } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
 import { Fixture } from '../../../../../karma';
 import useInsertElement from '../../../../canvas/useInsertElement';
-import { TEXT_ELEMENT_DEFAULT_FONT } from '../../../../../app/font/defaultFonts';
 
 describe('Link Panel', () => {
   let fixture;
@@ -42,8 +42,9 @@ describe('Link Panel', () => {
   });
 
   const moveElementToBottom = async (frame, frameY = 0) => {
-    const safezoneHeight = safezone.getBoundingClientRect().height;
-    const frameHeight = frame.getBoundingClientRect().height;
+    safezone = fixture.querySelector('[data-testid="safezone"]');
+    const safezoneHeight = safezone?.getBoundingClientRect()?.height;
+    const frameHeight = frame?.getBoundingClientRect()?.height;
     await fixture.events.mouse.seq(({ moveRel, moveBy, down, up }) => [
       moveRel(frame, 10, 10),
       down(),
@@ -81,8 +82,16 @@ describe('Link Panel', () => {
     beforeEach(async () => {
       await fixture.editor.library.textTab.click();
       await fixture.events.click(fixture.editor.library.text.preset('Title 1'));
-      await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
-      linkPanel = fixture.editor.inspector.designPanel.link;
+      await waitFor(() => {
+        if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+          throw new Error('node not ready');
+        }
+      });
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.linkSection
+      );
+      linkPanel = fixture.editor.sidebar.designPanel.link;
     });
 
     it('should correctly show focus border both when using keyboard and mouse', async () => {
@@ -125,7 +134,11 @@ describe('Link Panel', () => {
     it('should display the link tooltip correctly', async () => {
       const linkDescription = 'Example description';
       // make sure address input exists
-      await waitFor(() => linkPanel.address);
+      await waitFor(() => {
+        if (!linkPanel.address) {
+          throw new Error('address input not ready');
+        }
+      });
 
       await fixture.events.click(linkPanel.address);
       await fixture.events.keyboard.type('example.com');
@@ -133,36 +146,59 @@ describe('Link Panel', () => {
       // Debounce time for populating meta-data.
       await fixture.events.keyboard.press('tab');
       // make sure description input exists
-      await waitFor(() => linkPanel.description, { timeout: 1500 });
+      await waitFor(() => {
+        if (!linkPanel.description) {
+          throw new Error('description input not ready');
+        }
+      });
       await fixture.events.click(linkPanel.description, { clickCount: 3 });
+      // needed to ensure all text gets entered otherwise the click event can
+      // overlap the text input and we end up not typing all letters.
+      await fixture.events.sleep(500);
       await fixture.events.keyboard.type(linkDescription);
       await fixture.events.keyboard.press('tab');
+      const container = fixture.container;
       // Unselect element.
-      const fullbleed = fixture.container.querySelector(
-        '[data-testid="fullbleed"]'
+      const fullbleedElements = await within(container).findAllByTestId(
+        'fullbleed',
+        {
+          timeout: 2000,
+        }
       );
-      const { left, top } = fullbleed.getBoundingClientRect();
+      // There are three fullbleed elements; [0](Display layer), [1](Frames layer), and [2](Edit layer),
+      const { left, top } = fullbleedElements[1].getBoundingClientRect();
       await fixture.events.mouse.click(left - 5, top - 5);
 
       // Move mouse to hover over the element.
-      const frame = fixture.editor.canvas.framesLayer.frames[1].node;
-      await fixture.events.mouse.moveRel(frame, 10, 10);
-
-      await waitFor(() => {
-        const tooltip = fixture.screen.getByText(linkDescription);
-        expect(tooltip.textContent).toBe(linkDescription);
+      const frame = await waitFor(() => {
+        const frameNode = fixture.editor.canvas.framesLayer.frames[1].node;
+        if (!frameNode) {
+          throw new Error('node not ready');
+        }
+        expect(frameNode).toBeTruthy();
+        return frameNode;
       });
+
+      await fixture.events.mouse.moveRel(frame, 10, 10);
+      const tooltip = await fixture.screen.findByText(linkDescription);
+      expect(tooltip).toHaveTextContent(linkDescription);
       await fixture.snapshot(
         'Element is hovered on. The link tooltip is visible'
       );
 
       // Select the element again.
       await fixture.events.click(frame);
-      await waitFor(() => fixture.editor.inspector.designPanel.link.address);
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await waitFor(() => {
+        if (!fixture.editor.sidebar.designPanel.link.address) {
+          throw new Error('address element not ready');
+        }
+      });
       await fixture.events.click(
-        fixture.editor.inspector.designPanel.link.address,
+        fixture.editor.sidebar.designPanel.link.address,
         { clickCount: 3 }
       );
+      await fixture.events.sleep(500);
       await fixture.events.keyboard.press('del');
 
       // Verify that the description is not displayed when hovering without url.
@@ -175,44 +211,43 @@ describe('Link Panel', () => {
       );
     });
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should invoke API when looking up link');
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should display error when API errors');
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should display link details when API succeeds');
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should be able to apply a link to a shape element');
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should be able to apply a link to a image element');
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should be able to apply a link to a video element');
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should not be able to apply a link to a background shape element');
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should not be able to apply a link to a background media element');
   });
 
   describe('CUJ: Creator Can Add A Link: Link with Page Attachment', () => {
     beforeEach(async () => {
+      // Open Style Pane
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+
       // Select Page.
-      safezone = fixture.querySelector('[data-testid="safezone"]');
-      await clickOnTarget(safezone);
+      // Click the background element
+      await fixture.events.mouse.clickOn(
+        fixture.editor.canvas.framesLayer.frames[0].node,
+        10,
+        10
+      );
 
       // Add Page Attachment
       await setPageAttachmentLink('http://pageattachment.com');
@@ -233,11 +268,15 @@ describe('Link Panel', () => {
       const frame = fixture.editor.canvas.framesLayer.frame(element.id).node;
       await moveElementToBottom(frame, 0);
 
+      await fixture.events.click(fixture.editor.sidebar.designTab);
       await closePanel('Selection');
       await closePanel('Color');
       await closePanel('Border');
 
-      linkPanel = fixture.editor.inspector.designPanel.link;
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.linkSection
+      );
+      linkPanel = fixture.editor.sidebar.designPanel.link;
       await fixture.events.click(linkPanel.address);
 
       await fixture.snapshot('Page Attachment warning & dashed line visible');
@@ -277,7 +316,11 @@ describe('Link Panel', () => {
 
       await moveElementToBottom(frame);
 
-      linkPanel = fixture.editor.inspector.designPanel.link;
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.linkSection
+      );
+      linkPanel = fixture.editor.sidebar.designPanel.link;
       await fixture.events.click(linkPanel.address);
 
       await fixture.snapshot(
@@ -329,7 +372,11 @@ describe('Link Panel', () => {
     });
 
     it('should allow changing link for two elements at the same time', async () => {
-      linkPanel = fixture.editor.inspector.designPanel.link;
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.linkSection
+      );
+      linkPanel = fixture.editor.sidebar.designPanel.link;
       await fixture.events.click(linkPanel.address);
 
       expect(linkPanel.address.value).toBe('');
@@ -349,28 +396,36 @@ describe('Link Panel', () => {
 
   describe('CUJ: Creator Can Add A Link: Remove applied link', () => {
     beforeEach(async () => {
-      await fixture.events.click(fixture.editor.library.textAdd);
-      await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
-      linkPanel = fixture.editor.inspector.designPanel.link;
+      await fixture.editor.library.textTab.click();
+      await fixture.events.click(
+        fixture.editor.library.text.preset('Paragraph')
+      );
+      await waitFor(() => {
+        if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+          throw new Error('node not ready');
+        }
+      });
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.linkSection
+      );
+      linkPanel = fixture.editor.sidebar.designPanel.link;
       await fixture.events.click(linkPanel.address);
       await fixture.events.keyboard.type('http://google.com');
     });
 
-    // Disable reason: tests not implemented yet
-    // eslint-disable-next-line jasmine/no-disabled-tests
+    // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
     xit('should be able to removed an applied a link');
   });
 
-  // Disable reason: tests not implemented yet
-  // eslint-disable-next-line jasmine/no-disabled-tests
+  // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
   xdescribe('CUJ: Creator Can Add A Link: Edit brand icon', () => {
     it('should be able to edit brand icon');
 
     it('should be able to remove brand icon');
   });
 
-  // Disable reason: tests not implemented yet
-  // eslint-disable-next-line jasmine/no-disabled-tests
+  // eslint-disable-next-line jasmine/no-disabled-tests -- tests not implemented yet
   xdescribe('CUJ: Creator Can Add A Link: Edit description', () => {
     it('should be able to edit description');
   });

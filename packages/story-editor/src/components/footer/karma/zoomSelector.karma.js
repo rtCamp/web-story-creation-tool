@@ -28,7 +28,11 @@ describe('Zoom selector', () => {
     await fixture.collapseHelpCenter();
 
     // Add an image to the canvas to make it more visual when things move
-    await fixture.events.click(fixture.editor.library.media.item(0));
+    await fixture.events.mouse.clickOn(
+      fixture.editor.library.media.item(0),
+      20,
+      20
+    );
 
     // Add some matchers not generally useful, but applicable in this file
     jasmine.addMatchers({
@@ -63,9 +67,10 @@ describe('Zoom selector', () => {
       toHaveSize: () => ({
         compare: function (actual, width, height) {
           const { clientWidth, clientHeight } = actual;
+          // 1px differences due to rounding are OK.
           const pass =
-            Math.round(clientWidth) === Math.round(width) &&
-            Math.round(clientHeight) === Math.round(height);
+            Math.abs(clientWidth - width) <= 1 &&
+            Math.abs(clientHeight - height) <= 1;
           return {
             pass,
             message: pass

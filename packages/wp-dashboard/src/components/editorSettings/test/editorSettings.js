@@ -18,7 +18,7 @@
  * External dependencies
  */
 import { fireEvent, within, screen } from '@testing-library/react';
-import { setAppElement } from '@web-stories-wp/design-system';
+import { setAppElement } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -57,7 +57,6 @@ jest.mock('../../../api/publisherLogo', () => ({
 
 jest.mock('../../../api/fonts', () => ({
   addCustomFont: () => mockedPromise,
-  fetchCustomFonts: () => mockedPromise,
   deleteCustomFont: () => mockedPromise,
 }));
 
@@ -92,7 +91,6 @@ const mockAddPublisherLogo = jest.fn();
 const mockRemovePublisherLogo = jest.fn();
 const mockSetPublisherLogoAsDefault = jest.fn();
 const mockAddCustomFont = jest.fn();
-const mockFetchCustomFonts = jest.fn();
 const mockDeleteCustomFont = jest.fn();
 
 function createProviderValues({
@@ -115,7 +113,8 @@ function createProviderValues({
       },
       maxUpload: 104857600,
       maxUploadFormatted: '100 MB',
-      archiveURL: 'https://example.com/archive',
+      archiveURL: 'https://example.com/custom-archive/',
+      defaultArchiveURL: 'https://example.com/web-stories/',
       api: {
         currentUser: '/web-stories/v1/users/me/',
         fonts: 'web-stories/v1/fonts',
@@ -178,7 +177,6 @@ function createProviderValues({
         },
         fontsApi: {
           addCustomFont: mockAddCustomFont,
-          fetchCustomFonts: mockFetchCustomFonts,
           deleteCustomFont: mockDeleteCustomFont,
         },
       },
@@ -197,6 +195,11 @@ const renderEditorSettings = (values) => {
 };
 
 describe('Editor Settings: <Editor Settings />', function () {
+  afterEach(() => {
+    mockFetchSettings.mockReset();
+    mockRemovePublisherLogo.mockReset();
+  });
+
   it('should render settings page with google analytics and publisher logo sections', function () {
     const { container } = renderEditorSettings({
       googleAnalyticsId: 'UA-098909-05',

@@ -30,16 +30,14 @@ import { PRIMARY_PATHS } from '../../../constants';
 describe('<LeftRail />', () => {
   const toggleSideBarFn = jest.fn();
 
-  // eslint-disable-next-line react/prop-types
   const MockedNavProvider = ({ children }) => {
     return (
       <NavContext.Provider
         value={{
           actions: {
             toggleSideBar: toggleSideBarFn,
-            updateNumNewTemplates: () => {},
           },
-          state: { sideBarVisible: false, numNewTemplates: 0 },
+          state: { sideBarVisible: false },
         }}
       >
         {children}

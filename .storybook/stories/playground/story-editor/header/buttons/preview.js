@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * External dependencies
  */
-import { Tooltip, useStory } from '@web-stories-wp/story-editor';
+import { hrefTo } from '@storybook/addon-links';
+import { Tooltip, useStory } from '@googleforcreators/story-editor';
 import {
   Button,
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
   Icons,
-} from '@web-stories-wp/design-system';
-import { hrefTo } from '@storybook/addon-links';
+} from '@googleforcreators/design-system';
 
 function PreviewButton() {
   const { isSaving, saveStory } = useStory(
@@ -47,7 +48,7 @@ function PreviewButton() {
     // Start a about:blank popup with waiting message until we complete
     // the saving operation. That way we will not bust the popup timeout.
     try {
-      const popup = global.open('about:blank', 'story-preview');
+      const popup = window.open('about:blank', 'story-preview');
 
       if (popup) {
         popup.document.write('<!DOCTYPE html><html><head>');

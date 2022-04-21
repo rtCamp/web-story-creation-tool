@@ -2,10 +2,10 @@
 /**
  * Class HTML
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -26,9 +26,8 @@
 
 namespace Google\Web_Stories\Renderer\Story;
 
-use Google\Web_Stories\KSES;
-use Google\Web_Stories_Dependencies\AmpProject\Dom\Document;
 use Google\Web_Stories\Model\Story;
+use Google\Web_Stories_Dependencies\AmpProject\Dom\Document;
 
 /**
  * Class HTML
@@ -175,7 +174,6 @@ class HTML {
 	 * @since 1.0.0
 	 *
 	 * @param string $content Story markup.
-	 *
 	 * @return string Filtered content.
 	 */
 	protected function replace_html_head( string $content ): string {
@@ -183,14 +181,14 @@ class HTML {
 		$end_tag   = '<meta name="web-stories-replace-head-end"/>';
 
 		// Replace malformed meta tags with correct tags.
-		$content = (string) preg_replace( '/<meta name="web-stories-replace-head-start\s?"\s?\/>/i', $start_tag, $content );
-		$content = (string) preg_replace( '/<meta name="web-stories-replace-head-end\s?"\s?\/>/i', $end_tag, $content );
+		$content = (string) preg_replace( '/<meta name="web-stories-replace-head-start\s?"\s?\/?>/i', $start_tag, $content );
+		$content = (string) preg_replace( '/<meta name="web-stories-replace-head-end\s?"\s?\/?>/i', $end_tag, $content );
 
 		$start_tag_pos = strpos( $content, $start_tag );
 		$end_tag_pos   = strpos( $content, $end_tag );
 
 		if ( false !== $start_tag_pos && false !== $end_tag_pos ) {
-			$end_tag_pos += strlen( $end_tag );
+			$end_tag_pos += \strlen( $end_tag );
 			$content      = substr_replace( $content, $this->get_html_head_markup(), $start_tag_pos, $end_tag_pos - $start_tag_pos );
 		}
 
@@ -203,8 +201,6 @@ class HTML {
 	 * @since 1.1.0
 	 *
 	 * @param string $content String to replace.
-	 *
-	 * @return string
 	 */
 	protected function replace_url_scheme( string $content ): string {
 		if ( is_ssl() ) {
@@ -223,8 +219,6 @@ class HTML {
 	 * @since 1.2.0
 	 *
 	 * @param string $content String to replace.
-	 *
-	 * @return string
 	 */
 	protected function print_analytics( string $content ): string {
 		ob_start();
@@ -249,8 +243,6 @@ class HTML {
 	 * @since 1.6.0
 	 *
 	 * @param string $content String to replace.
-	 *
-	 * @return string
 	 */
 	protected function print_social_share( string $content ): string {
 		$share_providers = [

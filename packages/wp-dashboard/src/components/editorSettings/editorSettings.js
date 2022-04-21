@@ -17,15 +17,15 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useState } from '@web-stories-wp/react';
-import { __, sprintf } from '@web-stories-wp/i18n';
+import { useCallback, useEffect, useState } from '@googleforcreators/react';
+import { __, sprintf } from '@googleforcreators/i18n';
 import {
   PageHeading,
   Layout,
   MIN_IMG_WIDTH,
   MIN_IMG_HEIGHT,
   useConfig,
-} from '@web-stories-wp/dashboard';
+} from '@googleforcreators/dashboard';
 import { useFeature } from 'flagged';
 
 /**
@@ -43,6 +43,7 @@ import GoogleAnalyticsSettings from './googleAnalytics';
 import { Wrapper, Main } from './components';
 import useEditorSettings from './useEditorSettings';
 import CustomFontsSettings from './customFonts';
+import Shopping from './shopping';
 
 function EditorSettings() {
   const {
@@ -64,17 +65,18 @@ function EditorSettings() {
     getPageById,
     customFonts,
     addCustomFont,
-    fetchCustomFonts,
     deleteCustomFont,
     publisherLogos,
     addPublisherLogo,
     fetchPublisherLogos,
     removePublisherLogo,
     setPublisherLogoAsDefault,
+    shopifyHost,
+    shopifyAccessToken,
   } = useEditorSettings(
     ({
       actions: {
-        fontsApi: { addCustomFont, fetchCustomFonts, deleteCustomFont },
+        fontsApi: { addCustomFont, deleteCustomFont },
         settingsApi: { fetchSettings, updateSettings },
         pagesApi: { searchPages, getPageById },
         mediaApi: { uploadMedia },
@@ -96,6 +98,8 @@ function EditorSettings() {
           videoCache,
           archive,
           archivePageId,
+          shopifyHost,
+          shopifyAccessToken,
         },
         media: { isLoading: isMediaLoading, newlyCreatedMediaIds },
         publisherLogos: { publisherLogos },
@@ -120,17 +124,18 @@ function EditorSettings() {
       getPageById,
       customFonts,
       addCustomFont,
-      fetchCustomFonts,
       deleteCustomFont,
       fetchPublisherLogos,
       addPublisherLogo,
       removePublisherLogo,
       setPublisherLogoAsDefault,
       publisherLogos,
+      shopifyHost,
+      shopifyAccessToken,
     })
   );
 
-  const isCustomFontsEnabled = useFeature('customFonts');
+  const isShoppingEnabled = useFeature('shoppingIntegration');
 
   const {
     capabilities: { canUploadFiles, canManageSettings } = {},
@@ -139,6 +144,7 @@ function EditorSettings() {
     maxUploadFormatted,
     allowedImageMimeTypes,
     archiveURL,
+    defaultArchiveURL,
   } = useConfig();
 
   const {
@@ -335,14 +341,11 @@ function EditorSettings() {
                 />
               </>
             )}
-            {isCustomFontsEnabled && (
-              <CustomFontsSettings
-                customFonts={customFonts}
-                addCustomFont={addCustomFont}
-                fetchCustomFonts={fetchCustomFonts}
-                deleteCustomFont={deleteCustomFont}
-              />
-            )}
+            <CustomFontsSettings
+              customFonts={customFonts}
+              addCustomFont={addCustomFont}
+              deleteCustomFont={deleteCustomFont}
+            />
             <TelemetrySettings
               disabled={disableOptedIn}
               onCheckboxSelected={toggleWebStoriesTrackingOptIn}
@@ -364,6 +367,7 @@ function EditorSettings() {
                 <ArchiveSettings
                   archive={archive}
                   archiveURL={archiveURL}
+                  defaultArchiveURL={defaultArchiveURL}
                   updateSettings={updateSettings}
                   searchPages={searchPages}
                   archivePageId={archivePageId}
@@ -377,6 +381,13 @@ function EditorSettings() {
                   adManagerSlotId={adManagerSlotId}
                   siteKitStatus={siteKitStatus}
                 />
+                {isShoppingEnabled && (
+                  <Shopping
+                    updateSettings={updateSettings}
+                    shopifyHost={shopifyHost}
+                    shopifyAccessToken={shopifyAccessToken}
+                  />
+                )}
               </>
             )}
           </Main>

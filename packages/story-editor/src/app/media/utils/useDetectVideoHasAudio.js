@@ -17,12 +17,12 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
+import { useCallback } from '@googleforcreators/react';
 import {
   hasVideoGotAudio,
   preloadVideo,
   seekVideo,
-} from '@web-stories-wp/media';
+} from '@googleforcreators/media';
 
 /**
  * Internal dependencies
@@ -73,7 +73,7 @@ function useDetectVideoHasAudio({ updateMediaElement }) {
         });
 
         await updateMedia(id, {
-          web_stories_is_muted: !hasAudio,
+          isMuted: !hasAudio,
         });
       } catch (error) {
         // Do nothing for now.

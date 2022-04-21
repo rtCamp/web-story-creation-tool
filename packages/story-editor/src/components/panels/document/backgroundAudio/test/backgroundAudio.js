@@ -18,13 +18,13 @@
  * External dependencies
  */
 import { screen } from '@testing-library/react';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import ConfigContext from '../../../../../app/config/context';
 import StoryContext from '../../../../../app/story/context';
-import { renderWithTheme } from '../../../../../testUtils';
 import BackgroundAudioPanel from '../backgroundAudio';
 
 function MediaUpload({ render }) {
@@ -39,13 +39,19 @@ function arrange({ backgroundAudio, hasUploadMediaAction = true } = {}) {
     capabilities: {
       hasUploadMediaAction,
     },
-    allowedAudioMimeTypes: [
-      'audio/mpeg',
-      'audio/aac',
-      'audio/wav',
-      'audio/ogg',
-    ],
-    allowedAudioFileTypes: ['mp3', 'aac', 'wav', 'ogg'],
+    allowedMimeTypes: {
+      audio: ['audio/mpeg', 'audio/aac', 'audio/wav', 'audio/ogg'],
+      image: [
+        'image/png',
+        'image/jpeg',
+        'image/jpg',
+        'image/gif',
+        'image/webp',
+      ],
+      caption: ['text/vtt'],
+      vector: [],
+      video: ['video/mp4', 'video/webm'],
+    },
     MediaUpload,
   };
 
@@ -100,9 +106,11 @@ describe('BackgroundAudioPanel', () => {
   it('should render button to play and delete audio', () => {
     arrange({
       backgroundAudio: {
-        src: 'https://example.com/audio.mp3',
-        id: 123,
-        mimeType: 'audio/mpeg',
+        resource: {
+          src: 'https://example.com/audio.mp3',
+          id: 123,
+          mimeType: 'audio/mpeg',
+        },
       },
     });
     expect(

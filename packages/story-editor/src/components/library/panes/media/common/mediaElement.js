@@ -25,21 +25,21 @@ import {
   memo,
   useState,
   useRef,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import { rgba } from 'polished';
-import { __ } from '@web-stories-wp/i18n';
-import { LoadingBar, useKeyDownEffect } from '@web-stories-wp/design-system';
+import { __ } from '@googleforcreators/i18n';
+import { LoadingBar } from '@googleforcreators/design-system';
 import { Blurhash } from 'react-blurhash';
+
 /**
  * Internal dependencies
  */
 import DropDownMenu from '../local/dropDownMenu';
-import { KEYBOARD_USER_SELECTOR } from '../../../../../utils/keyboardOnlyOutline';
-import useRovingTabIndex from '../../../../../utils/useRovingTabIndex';
 import { ContentType, useLocalMedia } from '../../../../../app/media';
 import Tooltip from '../../../../tooltip';
 import Attribution from './attribution';
 import InnerElement from './innerElement';
+import InsertionMenu from './insertionMenu';
 
 const AUTOPLAY_PREVIEW_VIDEO_DELAY_MS = 600;
 
@@ -61,9 +61,6 @@ const InnerContainer = styled.div`
   margin-bottom: 10px;
   background-color: ${({ theme, $baseColor }) =>
     $baseColor ? $baseColor : rgba(theme.colors.standard.black, 0.3)};
-  body${KEYBOARD_USER_SELECTOR} .mediaElement:focus > & {
-    outline: solid 2px #fff;
-  }
 `;
 
 const BlurhashContainer = styled(Blurhash)`
@@ -177,29 +174,9 @@ function Element({
 
   const ref = useRef();
 
-  useRovingTabIndex({ ref });
-
   const onLoad = useCallback(() => setLoaded(true), []);
 
-  const handleKeyDown = useCallback(
-    ({ key }) => {
-      if (key === 'Enter') {
-        onInsert(resource, width, height);
-      } else if (key === ' ') {
-        setIsMenuOpen(true);
-      }
-    },
-    [onInsert, setIsMenuOpen, resource, width, height]
-  );
-
-  useKeyDownEffect(
-    ref,
-    {
-      key: ['enter', 'space'],
-    },
-    handleKeyDown,
-    [handleKeyDown]
-  );
+  const isPlaceholder = !isLoaded && !active;
 
   return (
     <Container
@@ -214,9 +191,9 @@ function Element({
       onFocus={makeActive}
       onPointerLeave={makeInactive}
       onBlur={makeInactive}
-      tabIndex={index === 0 ? 0 : -1}
+      tabIndex="-1"
     >
-      <InnerContainer $baseColor={!isLoaded && baseColor}>
+      <InnerContainer $baseColor={isPlaceholder && baseColor}>
         <InnerElement
           type={type}
           src={src}
@@ -232,7 +209,7 @@ function Element({
           active={active}
         />
         {attribution}
-        {!isLoaded && blurHash && (
+        {isPlaceholder && blurHash && (
           <BlurhashContainer
             hash={blurHash}
             width={width}
@@ -243,8 +220,18 @@ function Element({
         {(!src ||
           isCurrentResourceProcessing(resourceId) ||
           isCurrentResourceUploading(resourceId)) && (
-          <LoadingBar loadingMessage={__('Uploading media', 'web-stories')} />
+          <LoadingBar loadingMessage={__('Uploading media…', 'web-stories')} />
         )}
+        <InsertionMenu
+          resource={resource}
+          display={active}
+          onInsert={onInsert}
+          width={width}
+          index={index}
+          isLocal={providerType === 'local'}
+          setParentActive={makeActive}
+          setParentInactive={makeInactive}
+        />
         {providerType === 'local' && canEditMedia && (
           <DropDownMenu
             resource={resource}
@@ -253,6 +240,7 @@ function Element({
             onMenuOpen={onMenuOpen}
             onMenuCancelled={onMenuCancelled}
             onMenuSelected={onMenuSelected}
+            setParentActive={makeActive}
           />
         )}
       </InnerContainer>
@@ -285,32 +273,20 @@ Element.propTypes = {
  * @return {null|*} Element or null if does not map to video/image.
  */
 function MediaElement(props) {
-  const {
-    isCurrentResourceTrimming,
-    isCurrentResourceMuting,
-    isCurrentResourceTranscoding,
-  } = useLocalMedia(
-    ({
-      state: {
-        isCurrentResourceMuting,
-        isCurrentResourceTrimming,
-        isCurrentResourceTranscoding,
-      },
-    }) => ({
-      isCurrentResourceMuting,
-      isCurrentResourceTrimming,
-      isCurrentResourceTranscoding,
-    })
-  );
-  const { id } = props.resource;
+  const { isCurrentResourceProcessing, isCurrentResourceUploading } =
+    useLocalMedia(({ state }) => ({
+      isCurrentResourceProcessing: state.isCurrentResourceProcessing,
+      isCurrentResourceUploading: state.isCurrentResourceUploading,
+    }));
+
+  const { id: resourceId } = props.resource;
 
   if (
-    isCurrentResourceTrimming(id) ||
-    isCurrentResourceMuting(id) ||
-    isCurrentResourceTranscoding(id)
+    isCurrentResourceProcessing(resourceId) ||
+    isCurrentResourceUploading(resourceId)
   ) {
     return (
-      <Tooltip title={__('Video is being processed', 'web-stories')}>
+      <Tooltip title={__('Uploading media…', 'web-stories')}>
         <Element {...props} />
       </Tooltip>
     );

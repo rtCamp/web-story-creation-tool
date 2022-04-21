@@ -18,14 +18,14 @@
  * External dependencies
  */
 import { screen } from '@testing-library/react';
-import { UnitsProvider, PAGE_RATIO } from '@web-stories-wp/units';
-import STICKERS from '@web-stories-wp/stickers';
+import { UnitsProvider, PAGE_RATIO } from '@googleforcreators/units';
+import STICKERS from '@googleforcreators/stickers';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import StickerPreview from '../../panes/shapes/stickerPreview';
-import { renderWithTheme } from '../../../../testUtils';
 import useLibrary from '../../useLibrary';
 import { TEXT_SET_SIZE } from '../../../../constants';
 import CanvasContext from '../../../../app/canvas/context';

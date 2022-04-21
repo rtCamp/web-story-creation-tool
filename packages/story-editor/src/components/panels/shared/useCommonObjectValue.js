@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { useMemo } from '@web-stories-wp/react';
+import { useMemo } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
@@ -37,7 +37,7 @@ function useCommonObjectValue(list, property, defaultValue) {
   const parts = Object.keys(defaultValue).map((prop) => commonValue[prop]);
   return useMemo(
     () => commonValue,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- We don't want commonValue as a dep.
     parts
   );
 }

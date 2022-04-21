@@ -46,7 +46,7 @@ function useWhyDidYouUpdate(name, props) {
       });
 
       if (Object.keys(changesObj).length) {
-        // eslint-disable-next-line no-console
+        // eslint-disable-next-line no-console -- Needed for debugging.
         console.log('[why-did-you-update]', name, changesObj);
       }
     }
@@ -55,6 +55,7 @@ function useWhyDidYouUpdate(name, props) {
   });
 }
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment =
+  typeof WEB_STORIES_ENV !== 'undefined' && WEB_STORIES_ENV === 'development';
 
 export default isDevelopment ? useWhyDidYouUpdate : () => {};

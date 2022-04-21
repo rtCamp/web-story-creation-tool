@@ -18,13 +18,13 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { Fragment, useCallback } from '@web-stories-wp/react';
-import { __, sprintf } from '@web-stories-wp/i18n';
+import { Fragment, useCallback } from '@googleforcreators/react';
+import { __, sprintf } from '@googleforcreators/i18n';
 import {
   Icons,
   ContextMenu,
   ContextMenuComponents,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -82,8 +82,7 @@ function PopoverLogoContextMenu({
         onDismiss={handleDismiss}
       >
         {items.map(({ label, separator, ...props }) => {
-          // Disable reason: map is not picking up definition from StoryMenu proptypes.
-          // eslint-disable-next-line react/prop-types
+          // eslint-disable-next-line react/prop-types -- map is not picking up definition from StoryMenu proptypes.
           const MenuItem = props.href
             ? ContextMenuComponents.MenuLink
             : ContextMenuComponents.MenuButton;

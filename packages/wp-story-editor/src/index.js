@@ -30,11 +30,19 @@ import './setLocaleData';
 /**
  * External dependencies
  */
-import StoryEditor from '@web-stories-wp/story-editor';
-import { setAppElement, domReady } from '@web-stories-wp/design-system';
-import { StrictMode, render } from '@web-stories-wp/react';
-import { updateSettings } from '@web-stories-wp/date';
-import { initializeTracking } from '@web-stories-wp/tracking';
+import { StoryEditor } from '@googleforcreators/story-editor';
+import { setAppElement } from '@googleforcreators/design-system';
+import { StrictMode, render } from '@googleforcreators/react';
+import { updateSettings } from '@googleforcreators/date';
+import { initializeTracking } from '@googleforcreators/tracking';
+import { bindToCallbacks } from '@web-stories-wp/wp-utils';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
+
+/**
+ * WordPress dependencies
+ */
+import '@wordpress/dom-ready'; // Just imported here so it's part of the bundle. Usage is in inline scripts.
 
 /**
  * Internal dependencies
@@ -43,15 +51,17 @@ import {
   Layout,
   PostPublishDialog,
   StatusCheck,
+  CorsCheck,
+  FontCheck,
   PostLock,
   MediaUpload,
 } from './components';
-import getApiCallbacks from './api/utils/getApiCallbacks';
-import { transformGetStoryResponse } from './api/utils';
-import { TIPS } from './constants';
+import * as apiCallbacks from './api';
+import { transformStoryResponse } from './api/utils';
+import { TIPS, TOOLBAR_HEIGHT, MENU_FOLDED_WIDTH } from './constants';
+import { GlobalStyle } from './theme.js';
 
 window.webStories = window.webStories || {};
-window.webStories.domReady = domReady;
 
 /**
  * Initializes the web stories editor.
@@ -70,23 +80,32 @@ window.webStories.initializeStoryEditor = (id, config, initialEdits) => {
 
   initializeTracking('Editor');
 
+  elementTypes.forEach(registerElementType);
+
   initialEdits.story = initialEdits.story
-    ? transformGetStoryResponse(initialEdits.story)
+    ? transformStoryResponse(initialEdits.story)
     : null;
 
   const editorConfig = {
     ...config,
-    apiCallbacks: getApiCallbacks(config),
+    apiCallbacks: bindToCallbacks(apiCallbacks, config),
     additionalTips: TIPS,
     MediaUpload,
+    styleConstants: {
+      topOffset: TOOLBAR_HEIGHT,
+      leftOffset: MENU_FOLDED_WIDTH,
+    },
   };
 
   render(
     <StrictMode>
       <StoryEditor config={editorConfig} initialEdits={initialEdits}>
+        <GlobalStyle />
         <Layout />
         <PostPublishDialog />
         <StatusCheck />
+        <CorsCheck />
+        <FontCheck />
         <PostLock />
       </StoryEditor>
     </StrictMode>,

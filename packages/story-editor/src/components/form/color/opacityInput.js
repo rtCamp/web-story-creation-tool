@@ -17,17 +17,23 @@
 /**
  * External dependencies
  */
-import { useState, useCallback, useEffect } from '@web-stories-wp/react';
-import styled from 'styled-components';
+import {
+  useState,
+  useCallback,
+  useEffect,
+  forwardRef,
+} from '@googleforcreators/react';
+import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
-import { _x, __ } from '@web-stories-wp/i18n';
-import { PatternPropType } from '@web-stories-wp/patterns';
-import { NumericInput, Icons } from '@web-stories-wp/design-system';
+import { _x, __ } from '@googleforcreators/i18n';
+import { PatternPropType } from '@googleforcreators/patterns';
+import { NumericInput, Icons } from '@googleforcreators/design-system';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Internal dependencies
  */
-import { inputContainerStyleOverride } from '../../panels/shared';
+import { inputContainerStyleOverride } from '../../panels/shared/styles';
 import getPreviewOpacity from './getPreviewOpacity';
 
 const Input = styled(NumericInput)`
@@ -37,7 +43,16 @@ const Input = styled(NumericInput)`
   }
 `;
 
-function OpacityInput({ value, onChange }) {
+const minimalInputContainerStyleOverride = css`
+  ${inputContainerStyleOverride};
+  width: 76px;
+  padding-right: 6px;
+`;
+
+const OpacityInput = forwardRef(function OpacityInput(
+  { value, onChange, isInDesignMenu, ...props },
+  ref
+) {
   const [inputValue, setInputValue] = useState('');
 
   // Allow any input, but only persist non-NaN values up-chain
@@ -58,8 +73,13 @@ function OpacityInput({ value, onChange }) {
 
   useEffect(() => updateFromValue(), [updateFromValue, value]);
 
+  const containerStyle = isInDesignMenu
+    ? minimalInputContainerStyleOverride
+    : inputContainerStyleOverride;
+
   return (
     <Input
+      ref={ref}
       aria-label={__('Opacity', 'web-stories')}
       onChange={handleChange}
       value={inputValue}
@@ -69,14 +89,17 @@ function OpacityInput({ value, onChange }) {
       max={100}
       allowEmpty={false}
       isFloat={false}
-      containerStyleOverride={inputContainerStyleOverride}
+      containerStyleOverride={containerStyle}
+      id={uuidv4()}
+      {...props}
     />
   );
-}
+});
 
 OpacityInput.propTypes = {
   value: PropTypes.oneOfType([PatternPropType, PropTypes.string]),
   onChange: PropTypes.func.isRequired,
+  isInDesignMenu: PropTypes.bool,
 };
 
 export default OpacityInput;

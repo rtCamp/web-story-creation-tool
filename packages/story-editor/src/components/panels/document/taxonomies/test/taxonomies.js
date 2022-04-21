@@ -18,12 +18,12 @@
  * External dependencies
  */
 import { screen } from '@testing-library/react';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import TaxonomyContext from '../../../../../app/taxonomy/context';
-import { renderWithTheme } from '../../../../../testUtils';
 import TaxonomiesPanel from '../taxonomies';
 import { StoryContext } from '../../../../../app/story';
 
@@ -92,7 +92,7 @@ describe('TaxonomiesPanel', () => {
           slug: 'web_story_category',
           restBase: 'web_story_category',
           name: 'Categories',
-          labels: { not_found: '' },
+          labels: { notFound: '' },
           hierarchical: false,
         },
       ],
@@ -122,9 +122,9 @@ describe('TaxonomiesPanel', () => {
           restBase: 'web_story_category',
           name: 'Categories',
           labels: {
-            search_items: 'Story Categories',
-            add_new_item: 'Add New',
-            not_found: '',
+            searchItems: 'Story Categories',
+            addNewItem: 'Add New',
+            notFound: '',
           },
           hierarchical: true,
           visibility: {

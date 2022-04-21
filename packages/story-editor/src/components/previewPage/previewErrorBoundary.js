@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { Component } from '@web-stories-wp/react';
+import { Component } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 
 export default class PreviewErrorBoundary extends Component {
@@ -34,7 +34,7 @@ export default class PreviewErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // eslint-disable-next-line no-console
+    // eslint-disable-next-line no-console -- We want to surface this error.
     console.error(error, errorInfo);
   }
 

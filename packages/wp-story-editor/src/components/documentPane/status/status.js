@@ -17,26 +17,72 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo, useState } from '@web-stories-wp/react';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, forwardRef } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import styled from 'styled-components';
-import { __ } from '@web-stories-wp/i18n';
-import { Input } from '@web-stories-wp/design-system';
-import { trackEvent } from '@web-stories-wp/tracking';
+import {
+  Input,
+  DropDown,
+  themeHelpers,
+  theme,
+} from '@googleforcreators/design-system';
+import { trackEvent } from '@googleforcreators/tracking';
 import {
   Row,
-  RadioGroup,
   SimplePanel,
-  ReviewChecklistDialog,
   useStory,
-  useCheckpoint,
   useRefreshPostEditURL,
-} from '@web-stories-wp/story-editor';
+  useIsUploadingToStory,
+} from '@googleforcreators/story-editor';
 
-const InputRow = styled(Row)`
-  margin-left: 34px;
+/**
+ * Internal dependencies
+ */
+import { VISIBILITY, STATUS } from '../../../constants';
+
+const StyledListItem = styled.li`
+  position: relative;
+  padding: 6px 8px;
+  margin: 4px 8px;
+  align-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+  ${themeHelpers.focusableOutlineCSS}
+  &:hover {
+    background-color: ${theme.colors.border.defaultNormal};
+  }
+`;
+const LabelText = styled(Text).attrs({
+  as: 'span',
+})`
+  font-size: 14px;
+  color: ${theme.colors.fg.primary};
 `;
 
-function StatusPanel() {
+const HelperText = styled(Text).attrs({
+  as: 'span',
+})`
+  color: ${theme.colors.fg.tertiary};
+`;
+
+const RenderItemOverride = forwardRef(
+  ({ option, isSelected, ...rest }, ref) => (
+    <StyledListItem ref={ref} active={isSelected} {...rest}>
+      <LabelText>{option.label}</LabelText>
+      <br />
+      <HelperText>{option.helper}</HelperText>
+    </StyledListItem>
+  )
+);
+
+function StatusPanel({
+  nameOverride,
+  popupZIndex,
+  canCollapse,
+  isPersistable,
+  ...rest
+}) {
   const {
     status = '',
     password,
@@ -46,10 +92,11 @@ function StatusPanel() {
     editLink,
     title,
     storyId,
+    visibility,
   } = useStory(
     ({
       state: {
-        story: { status, password, editLink, title, storyId },
+        story: { status, password, editLink, title, storyId, visibility },
         capabilities,
       },
       actions: { updateStory, saveStory },
@@ -62,35 +109,38 @@ function StatusPanel() {
       editLink,
       title,
       storyId,
+      visibility,
     })
   );
 
-  const [showReviewDialog, setShowReviewDialog] = useState(false);
-  const closeReviewDialog = useCallback(() => setShowReviewDialog(false), []);
+  const isUploading = useIsUploadingToStory();
 
-  const { shouldReviewDialogBeSeen } = useCheckpoint(
-    ({ state: { shouldReviewDialogBeSeen } }) => ({
-      shouldReviewDialogBeSeen,
-    })
-  );
-
-  const [hasPassword, setHasPassword] = useState(Boolean(password));
-
-  const visibility = useMemo(() => {
-    if (hasPassword) {
-      return 'protected';
+  useEffect(() => {
+    if (password) {
+      updateStory({
+        properties: { visibility: VISIBILITY.PASSWORD_PROTECTED },
+      });
+      return;
     }
 
-    if (status === 'private') {
-      return 'private';
+    if (status === STATUS.PRIVATE) {
+      updateStory({
+        properties: { visibility: VISIBILITY.PRIVATE },
+      });
+      return;
     }
 
-    return 'public';
-  }, [status, hasPassword]);
+    if (!visibility) {
+      updateStory({
+        properties: { visibility: VISIBILITY.PUBLIC },
+      });
+      return;
+    }
+  }, [password, status, updateStory, visibility]);
 
   const visibilityOptions = [
     {
-      value: 'public',
+      value: VISIBILITY.PUBLIC,
       label: __('Public', 'web-stories'),
       helper: __('Visible to everyone', 'web-stories'),
     },
@@ -98,12 +148,13 @@ function StatusPanel() {
 
   if (capabilities?.publish) {
     visibilityOptions.push({
-      value: 'private',
+      value: VISIBILITY.PRIVATE,
       label: __('Private', 'web-stories'),
       helper: __('Visible to site admins & editors only', 'web-stories'),
+      disabled: isUploading && visibility !== VISIBILITY.PRIVATE,
     });
     visibilityOptions.push({
-      value: 'protected',
+      value: VISIBILITY.PASSWORD_PROTECTED,
       label: __('Password Protected', 'web-stories'),
       helper: __('Visible only to those with the password.', 'web-stories'),
     });
@@ -122,27 +173,31 @@ function StatusPanel() {
 
   const publishPrivately = useCallback(() => {
     const properties = {
-      status: 'private',
+      status: STATUS.PRIVATE,
       password: '',
+      visibility: VISIBILITY.PRIVATE,
     };
-    setHasPassword(false);
 
     trackEvent('publish_story', {
-      status: 'private',
+      status: STATUS.PRIVATE,
       title_length: title.length,
     });
     refreshPostEditURL();
 
     saveStory(properties);
-  }, [setHasPassword, title.length, refreshPostEditURL, saveStory]);
+  }, [title.length, refreshPostEditURL, saveStory]);
 
-  const isAlreadyPublished = ['publish', 'future', 'private'].includes(status);
+  const isAlreadyPublished = [
+    STATUS.PUBLISH,
+    STATUS.FUTURE,
+    STATUS.PRIVATE,
+  ].includes(status);
 
   const handleChangeVisibility = useCallback(
-    (evt) => {
-      const newVisibility = evt.target.value;
+    (_, value) => {
+      const newVisibility = value;
 
-      if ('private' === newVisibility && !isAlreadyPublished) {
+      if (VISIBILITY.PRIVATE === newVisibility && !isAlreadyPublished) {
         if (
           !window.confirm(
             __(
@@ -158,24 +213,22 @@ function StatusPanel() {
       const properties = {};
 
       switch (newVisibility) {
-        case 'public':
-          properties.status = visibility === 'private' ? 'draft' : status;
+        case VISIBILITY.PUBLIC:
+          properties.status =
+            visibility === VISIBILITY.PRIVATE ? STATUS.DRAFT : status;
           properties.password = '';
-          setHasPassword(false);
+          properties.visibility = VISIBILITY.PUBLIC;
           break;
 
-        case 'private':
-          if (shouldReviewDialogBeSeen && !isAlreadyPublished) {
-            setShowReviewDialog(true);
-          } else {
-            publishPrivately();
-          }
+        case VISIBILITY.PRIVATE:
+          publishPrivately();
           return;
 
-        case 'protected':
-          properties.status = visibility === 'private' ? 'draft' : status;
+        case VISIBILITY.PASSWORD_PROTECTED:
+          properties.status =
+            visibility === VISIBILITY.PRIVATE ? STATUS.DRAFT : status;
           properties.password = password || '';
-          setHasPassword(true);
+          properties.visibility = VISIBILITY.PASSWORD_PROTECTED;
           break;
 
         default:
@@ -188,51 +241,56 @@ function StatusPanel() {
       status,
       visibility,
       password,
-      setHasPassword,
       updateStory,
       publishPrivately,
-      shouldReviewDialogBeSeen,
       isAlreadyPublished,
     ]
   );
 
   return (
-    <>
-      <SimplePanel
-        name="status"
-        title={__('Visibility', 'web-stories')}
-        collapsedByDefault={false}
-      >
-        <>
+    <SimplePanel
+      name={nameOverride || 'status'}
+      title={__('Visibility', 'web-stories')}
+      canCollapse={canCollapse}
+      isPersistable={isPersistable}
+      collapsedByDefault={false}
+      {...rest}
+    >
+      <>
+        <Row>
+          <DropDown
+            options={visibilityOptions}
+            selectedValue={visibility}
+            onMenuItemClick={handleChangeVisibility}
+            popupZIndex={popupZIndex}
+            disabled={visibilityOptions.length <= 1}
+            renderItem={RenderItemOverride}
+            hint={
+              visibilityOptions.find((option) => visibility === option.value)
+                ?.helper
+            }
+          />
+        </Row>
+        {visibility === VISIBILITY.PASSWORD_PROTECTED && (
           <Row>
-            <RadioGroup
-              groupLabel="Visibility"
-              name="radio-group-visibility"
-              options={visibilityOptions}
-              onChange={handleChangeVisibility}
-              value={visibility}
+            <Input
+              aria-label={__('Password', 'web-stories')}
+              value={password}
+              onChange={handleChangePassword}
+              placeholder={__('Enter a password', 'web-stories')}
             />
           </Row>
-          {hasPassword && (
-            <InputRow>
-              <Input
-                aria-label={__('Password', 'web-stories')}
-                value={password}
-                onChange={handleChangePassword}
-                placeholder={__('Enter a password', 'web-stories')}
-              />
-            </InputRow>
-          )}
-        </>
-      </SimplePanel>
-      <ReviewChecklistDialog
-        isOpen={showReviewDialog}
-        onIgnore={publishPrivately}
-        onClose={closeReviewDialog}
-        onReview={closeReviewDialog}
-      />
-    </>
+        )}
+      </>
+    </SimplePanel>
   );
 }
 
 export default StatusPanel;
+
+StatusPanel.propTypes = {
+  nameOverride: PropTypes.string,
+  popupZIndex: PropTypes.number,
+  canCollapse: PropTypes.bool,
+  isPersistable: PropTypes.bool,
+};

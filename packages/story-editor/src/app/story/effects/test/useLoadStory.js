@@ -19,6 +19,8 @@
  */
 import { renderHook } from '@testing-library/react-hooks';
 import PropTypes from 'prop-types';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
 
 /**
  * Internal dependencies
@@ -49,6 +51,10 @@ ContextWrapper.propTypes = {
 };
 
 describe('useLoadStory', () => {
+  beforeAll(() => {
+    elementTypes.forEach(registerElementType);
+  });
+
   beforeEach(() => {
     getStoryById.mockReset();
     clearHistory.mockReset();
@@ -59,7 +65,7 @@ describe('useLoadStory', () => {
       Promise.resolve(
         createStory({
           date: '2020-01-01T19:20:20',
-          date_gmt: '2020-01-01T20:20:20',
+          dateGmt: '2020-01-01T20:20:20',
         })
       )
     );

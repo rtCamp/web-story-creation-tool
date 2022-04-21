@@ -17,15 +17,19 @@
 /**
  * External dependencies
  */
+import { sprintf, __ } from '@googleforcreators/i18n';
 import {
   useMemo,
   useEffect,
   useCallback,
   useState,
   useRef,
-} from '@web-stories-wp/react';
-import { trackEvent, trackScreenView } from '@web-stories-wp/tracking';
-import { uniqueEntriesByKey } from '@web-stories-wp/design-system';
+} from '@googleforcreators/react';
+import { trackEvent, trackScreenView } from '@googleforcreators/tracking';
+import {
+  uniqueEntriesByKey,
+  useLiveRegion,
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -41,6 +45,7 @@ import Header from './header';
 import TemplateDetailsModal from './modal';
 
 function ExploreTemplates() {
+  const speak = useLiveRegion();
   const [isDetailsViewOpen, setIsDetailsViewOpen] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState(null);
   const [activeTemplateIndex, setActiveTemplateIndex] = useState(0);
@@ -160,6 +165,7 @@ function ExploreTemplates() {
       if (idRef.current) {
         idRef.current = undefined;
       }
+
       replace(`?id=${currentTemplate.id}&isLocal=${currentTemplate.isLocal}`);
     },
     [replace, orderedTemplates]
@@ -177,12 +183,13 @@ function ExploreTemplates() {
 
         if (!newIsOpen) {
           replace('');
+          speak(__('Exit detail templates view', 'web-stories'));
         }
 
         return newIsOpen;
       });
     },
-    [replace, updateTemplateView]
+    [replace, speak, updateTemplateView]
   );
 
   const switchToTemplateByOffset = useCallback(
@@ -191,8 +198,15 @@ function ExploreTemplates() {
       setActiveTemplate(newTemplate);
       setActiveTemplateIndex(offset);
       replace(`?id=${newTemplate.id}&isLocal=${newTemplate.isLocal}`);
+      speak(
+        sprintf(
+          /* translators: %s: template title */
+          __('Viewing %s', 'web-stories'),
+          newTemplate.title
+        )
+      );
     },
-    [orderedTemplates, replace]
+    [orderedTemplates, replace, speak]
   );
 
   const templateActions = useMemo(

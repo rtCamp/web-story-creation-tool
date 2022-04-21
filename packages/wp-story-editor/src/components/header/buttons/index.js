@@ -20,14 +20,14 @@
 import styled from 'styled-components';
 import {
   useStory,
-  CircularProgress,
   RedoButton,
   PreviewButton,
   SwitchToDraftButton,
   UndoButton,
   UpdateButton,
   PublishButton,
-} from '@web-stories-wp/story-editor';
+} from '@googleforcreators/story-editor';
+import { CircularProgress } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies

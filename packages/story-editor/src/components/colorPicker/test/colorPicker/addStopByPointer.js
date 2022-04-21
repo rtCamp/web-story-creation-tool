@@ -18,11 +18,11 @@
  * External dependencies
  */
 import { waitFor } from '@testing-library/react';
+import { firePointerEvent } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
-import { firePointerEvent } from '../../../../testUtils';
 import { LINE_LENGTH } from '../../constants';
 import { arrange } from './_utils';
 
@@ -58,7 +58,8 @@ describe('<ColorPicker /> when adding a stop with a pointer device', () => {
     expect(getTempGradientStop()).toBeInTheDocument();
     expect(getTempGradientStop()).toHaveAttribute(
       'aria-label',
-      expect.stringMatching(/temporary gradient stop at 20%/i)
+      // Due to rounding, the stop might be reported as being at 21%
+      expect.stringMatching(/temporary gradient stop at 2[01]%/i)
     );
 
     // Click gradient line at 20% mark
@@ -85,7 +86,7 @@ describe('<ColorPicker /> when adding a stop with a pointer device', () => {
             b: expect.any(Number),
             a: expect.any(Number),
           },
-          position: 0.8,
+          position: expect.closeTo(0.8, 1),
         },
         { color: { r: 255, g: 0, b: 255, a: 0.8 }, position: 1 },
       ],

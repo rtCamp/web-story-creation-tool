@@ -2,10 +2,10 @@
 /**
  * Class Editor
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -26,41 +26,35 @@
 
 namespace Google\Web_Stories\Admin;
 
+use Google\Web_Stories\Assets;
 use Google\Web_Stories\Context;
 use Google\Web_Stories\Decoder;
 use Google\Web_Stories\Experiments;
 use Google\Web_Stories\Font_Post_Type;
 use Google\Web_Stories\Infrastructure\HasRequirements;
 use Google\Web_Stories\Locale;
-use Google\Web_Stories\Assets;
+use Google\Web_Stories\Media\Types;
 use Google\Web_Stories\Model\Story;
+use Google\Web_Stories\Page_Template_Post_Type;
 use Google\Web_Stories\Service_Base;
 use Google\Web_Stories\Story_Post_Type;
-use Google\Web_Stories\Page_Template_Post_Type;
 use Google\Web_Stories\Tracking;
-use Google\Web_Stories\Media\Types;
 use WP_Post;
 
 /**
  * Class Editor
- *
- * @package Google\Web_Stories\Admin
  */
 class Editor extends Service_Base implements HasRequirements {
 
 	/**
 	 * Web Stories editor script handle.
-	 *
-	 * @var string
 	 */
-	const SCRIPT_HANDLE = 'wp-story-editor';
+	public const SCRIPT_HANDLE = 'wp-story-editor';
 
 	/**
 	 * AMP validator script handle.
-	 *
-	 * @var string
 	 */
-	const AMP_VALIDATOR_SCRIPT_HANDLE = 'amp-validator';
+	public const AMP_VALIDATOR_SCRIPT_HANDLE = 'amp-validator';
 
 	/**
 	 * Experiments instance.
@@ -188,10 +182,8 @@ class Editor extends Service_Base implements HasRequirements {
 	 * Initializes the Editor logic.
 	 *
 	 * @since 1.7.0
-	 *
-	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
 		add_filter( 'replace_editor', [ $this, 'replace_editor' ], 10, 2 );
 		add_filter( 'use_block_editor_for_post_type', [ $this, 'filter_use_block_editor_for_post_type' ], 10, 2 );
@@ -219,7 +211,6 @@ class Editor extends Service_Base implements HasRequirements {
 	 *
 	 * @param bool|mixed $replace Bool if to replace editor or not.
 	 * @param WP_Post    $post    Current post object.
-	 *
 	 * @return bool|mixed Whether the editor has been replaced.
 	 */
 	public function replace_editor( $replace, $post ) {
@@ -253,7 +244,6 @@ class Editor extends Service_Base implements HasRequirements {
 	 *
 	 * @param bool|mixed $use_block_editor  Whether the post type can be edited or not. Default true.
 	 * @param string     $post_type         The post type being checked.
-	 *
 	 * @return false|mixed Whether to use the block editor.
 	 */
 	public function filter_use_block_editor_for_post_type( $use_block_editor, $post_type ) {
@@ -265,22 +255,19 @@ class Editor extends Service_Base implements HasRequirements {
 	}
 
 	/**
-	 *
 	 * Enqueue scripts for the element editor.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $hook The current admin page.
-	 *
-	 * @return void
 	 */
-	public function admin_enqueue_scripts( $hook ) {
+	public function admin_enqueue_scripts( $hook ): void {
 		if ( ! $this->context->is_story_editor() ) {
 			return;
 		}
 
 		// Only output scripts and styles where in edit screens.
-		if ( ! in_array( $hook, [ 'post.php', 'post-new.php' ], true ) ) {
+		if ( ! \in_array( $hook, [ 'post.php', 'post-new.php' ], true ) ) {
 			return;
 		}
 
@@ -307,16 +294,16 @@ class Editor extends Service_Base implements HasRequirements {
 			]
 		);
 
-		// Dequeue forms.css, see https://github.com/google/web-stories-wp/issues/349 .
+		// Dequeue forms.css, see https://github.com/googleforcreators/web-stories-wp/issues/349 .
 		$this->assets->remove_admin_style( [ 'forms' ] );
 	}
 
 	/**
 	 * Get editor settings as an array.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return array
 	 */
@@ -359,37 +346,33 @@ class Editor extends Service_Base implements HasRequirements {
 		/** This filter is documented in wp-admin/includes/post.php */
 		$show_locked_dialog = apply_filters( 'show_post_locked_dialog', true, $post, $user );
 		$nonce              = wp_create_nonce( 'wp_rest' );
-		$mime_types         = $this->types->get_allowed_mime_types();
-		$image_mime_types   = $this->types->get_allowed_image_mime_types();
-		$audio_mime_types   = $this->types->get_allowed_audio_mime_types();
 
 		$story = new Story();
 		$story->load_from_post( $post );
 
+		// Explicitly setting these flags which became the default in PHP 8.1.
+		// Needed for correct single quotes in the editor & output.
+		// See https://github.com/GoogleForCreators/web-stories-wp/issues/10809.
+		$publisher_name = html_entity_decode( $story->get_publisher_name(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+
 		$settings = [
-			'autoSaveInterval'             => defined( 'AUTOSAVE_INTERVAL' ) ? AUTOSAVE_INTERVAL : null,
-			'isRTL'                        => is_rtl(),
-			'locale'                       => $this->locale->get_locale_settings(),
-			'allowedFileTypes'             => $this->types->get_allowed_file_types(),
-			'allowedTranscodableMimeTypes' => $this->types->get_allowed_transcodable_mime_types(),
-			'allowedImageFileTypes'        => $this->types->get_file_type_exts( $image_mime_types ),
-			'allowedImageMimeTypes'        => $image_mime_types,
-			'allowedAudioFileTypes'        => $this->types->get_file_type_exts( $audio_mime_types ),
-			'allowedAudioMimeTypes'        => $audio_mime_types,
-			'allowedMimeTypes'             => $mime_types,
-			'postType'                     => $this->story_post_type->get_slug(),
-			'storyId'                      => $story_id,
-			'dashboardLink'                => $dashboard_url,
-			'dashboardSettingsLink'        => $dashboard_settings_url,
-			'generalSettingsLink'          => $general_settings_url,
-			'cdnURL'                       => trailingslashit( WEBSTORIES_CDN_URL ),
-			'maxUpload'                    => $max_upload_size,
-			'isDemo'                       => $is_demo,
-			'capabilities'                 => [
+			'autoSaveInterval'        => \defined( 'AUTOSAVE_INTERVAL' ) ? AUTOSAVE_INTERVAL : null,
+			'isRTL'                   => is_rtl(),
+			'locale'                  => $this->locale->get_locale_settings(),
+			'allowedMimeTypes'        => $this->types->get_allowed_mime_types(),
+			'postType'                => $this->story_post_type->get_slug(),
+			'storyId'                 => $story_id,
+			'dashboardLink'           => $dashboard_url,
+			'dashboardSettingsLink'   => $dashboard_settings_url,
+			'generalSettingsLink'     => $general_settings_url,
+			'cdnURL'                  => trailingslashit( WEBSTORIES_CDN_URL ),
+			'maxUpload'               => $max_upload_size,
+			'isDemo'                  => $is_demo,
+			'capabilities'            => [
 				'hasUploadMediaAction' => current_user_can( 'upload_files' ),
 				'canManageSettings'    => current_user_can( 'manage_options' ),
 			],
-			'api'                          => [
+			'api'                     => [
 				'users'          => '/web-stories/v1/users/',
 				'currentUser'    => '/web-stories/v1/users/me/',
 				'stories'        => trailingslashit( $this->story_post_type->get_rest_url() ),
@@ -397,6 +380,7 @@ class Editor extends Service_Base implements HasRequirements {
 				'media'          => '/web-stories/v1/media/',
 				'hotlink'        => '/web-stories/v1/hotlink/validate/',
 				'publisherLogos' => '/web-stories/v1/publisher-logos/',
+				'products'       => '/web-stories/v1/products/',
 				'proxy'          => rest_url( '/web-stories/v1/hotlink/proxy/' ),
 				'link'           => '/web-stories/v1/link/',
 				'statusCheck'    => '/web-stories/v1/status-check/',
@@ -405,20 +389,21 @@ class Editor extends Service_Base implements HasRequirements {
 				'metaBoxes'      => $this->meta_boxes->get_meta_box_url( (int) $story_id ),
 				'storyLocking'   => rest_url( sprintf( '%s/%s/lock/', $this->story_post_type->get_rest_url(), $story_id ) ),
 			],
-			'metadata'                     => [
-				'publisher' => $story->get_publisher_name(),
+			'metadata'                => [
+				'publisher' => $publisher_name,
 			],
-			'postLock'                     => [
+			'postLock'                => [
 				'interval'         => $time_window,
 				'showLockedDialog' => $show_locked_dialog,
 			],
-			'version'                      => WEBSTORIES_VERSION,
-			'nonce'                        => $nonce,
-			'showMedia3p'                  => true,
-			'encodeMarkup'                 => $this->decoder->supports_decoding(),
-			'metaBoxes'                    => $this->meta_boxes->get_meta_boxes_per_location(),
-			'ffmpegCoreUrl'                => trailingslashit( WEBSTORIES_CDN_URL ) . 'js/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js',
-			'flags'                        => array_merge(
+			'canViewDefaultTemplates' => true,
+			'version'                 => WEBSTORIES_VERSION,
+			'nonce'                   => $nonce,
+			'showMedia3p'             => true,
+			'encodeMarkup'            => $this->decoder->supports_decoding(),
+			'metaBoxes'               => $this->meta_boxes->get_meta_boxes_per_location(),
+			'ffmpegCoreUrl'           => trailingslashit( WEBSTORIES_CDN_URL ) . 'js/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js',
+			'flags'                   => array_merge(
 				$this->experiments->get_experiment_statuses( 'general' ),
 				$this->experiments->get_experiment_statuses( 'editor' )
 			),
@@ -440,14 +425,8 @@ class Editor extends Service_Base implements HasRequirements {
 	 * @since 1.5.0
 	 *
 	 * @param int $story_id Post id of story.
-	 *
-	 * @return void
 	 */
-	protected function setup_lock( int $story_id ) {
-		if ( ! $this->experiments->is_experiment_enabled( 'enablePostLocking' ) ) {
-			return;
-		}
-
+	protected function setup_lock( int $story_id ): void {
 		if ( ! $this->story_post_type->has_cap( 'edit_posts' ) ) {
 			return;
 		}

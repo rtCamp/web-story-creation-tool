@@ -19,8 +19,8 @@
  */
 import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
-import { useRef } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+import { useRef } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 
 /**
  * Internal dependencies
@@ -85,8 +85,7 @@ function DragHandle({
   useKeyboardHandlers(handle, handleHeightChange);
 
   return (
-    // Disable reason: handled via useKeyboardHandlers.
-    // eslint-disable-next-line styled-components-a11y/click-events-have-key-events
+    // eslint-disable-next-line styled-components-a11y/click-events-have-key-events -- handled via useKeyboardHandlers.
     <Handle
       ref={handle}
       onClick={(e) => e.stopPropagation()}

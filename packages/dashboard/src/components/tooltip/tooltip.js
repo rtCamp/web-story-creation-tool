@@ -19,10 +19,10 @@
  */
 import {
   TOOLTIP_RTL_PLACEMENT,
-  Tooltip as BaseTooltip,
+  BaseTooltip,
   TooltipPropTypes,
   TOOLTIP_PLACEMENT,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -33,11 +33,18 @@ export default function Tooltip({
   placement = TOOLTIP_PLACEMENT.BOTTOM,
   ...props
 }) {
-  const { isRTL } = useConfig();
+  const { isRTL, styleConstants: { leftOffset } = {} } = useConfig();
   const derivedPlacement = isRTL ? TOOLTIP_RTL_PLACEMENT[placement] : placement;
 
   return (
-    <BaseTooltip placement={derivedPlacement} isMirrored={isRTL} {...props} />
+    <BaseTooltip
+      placement={derivedPlacement}
+      isRTL={isRTL}
+      leftOffset={leftOffset}
+      //TODO: https://github.com/GoogleForCreators/web-stories-wp/issues/11200
+      ignoreMaxOffsetY
+      {...props}
+    />
   );
 }
 Tooltip.propTypes = TooltipPropTypes;

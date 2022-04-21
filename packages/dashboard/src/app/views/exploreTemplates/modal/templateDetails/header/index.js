@@ -17,7 +17,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { __, sprintf } from '@web-stories-wp/i18n';
+import { __, sprintf } from '@googleforcreators/i18n';
 import styled from 'styled-components';
 import {
   Button,
@@ -25,8 +25,7 @@ import {
   BUTTON_SIZES,
   BUTTON_VARIANTS,
   Icons,
-  themeHelpers,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 /**
  * Internal dependencies
  */
@@ -39,10 +38,6 @@ const Nav = styled.nav`
   margin: 48px auto;
   /* line the close and cta buttons up with navigation arrow*/
   width: calc(76% + 121px);
-`;
-
-const HiddenHeading = styled.h2`
-  ${themeHelpers.visuallyHidden};
 `;
 
 const CTAButton = styled(Button).attrs({
@@ -62,13 +57,6 @@ function Header({
     templateActions || {};
   return (
     <Nav>
-      <HiddenHeading>
-        {sprintf(
-          /* translators: %s: template title */
-          __('Template Details for %s', 'web-stories'),
-          templateTitle
-        )}
-      </HiddenHeading>
       <Button
         type={BUTTON_TYPES.TERTIARY}
         variant={BUTTON_VARIANTS.SQUARE}

@@ -16,8 +16,8 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect } from '@web-stories-wp/react';
-import { useStory } from '@web-stories-wp/story-editor';
+import { useCallback, useEffect } from '@googleforcreators/react';
+import { useStory } from '@googleforcreators/story-editor';
 
 /**
  * Internal dependencies

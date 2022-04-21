@@ -18,8 +18,8 @@
  * External dependencies
  */
 
-import { useSnackbar } from '@web-stories-wp/design-system';
-import { useStory } from '@web-stories-wp/story-editor';
+import { useSnackbar } from '@googleforcreators/design-system';
+import { useStory } from '@googleforcreators/story-editor';
 import JSZip from 'jszip';
 /**
  * Internal dependencies

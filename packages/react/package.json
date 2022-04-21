@@ -1,26 +1,53 @@
 {
-  "name": "@web-stories-wp/react",
-  "private": true,
+  "name": "@googleforcreators/react",
+  "description": "A tiny wrapper package that re-exports React and provides additional utilities and custom hooks.",
+  "private": false,
+  "version": "0.1.202204141511",
+  "author": {
+    "name": "Google",
+    "url": "https://creators.google/"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "web stories"
+  ],
+  "homepage": "https://github.com/GoogleForCreators/web-stories-wp/blob/main/packages/react/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoogleForCreators/web-stories-wp.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/googleforcreators/web-stories-wp/issues"
+  },
   "engines": {
-    "node": ">= 16",
+    "node": ">= 12 || >= 14 || >= 16",
     "npm": ">= 7.3"
   },
-  "exports": {
-    "default": "./src/index.js"
+  "customExports": {
+    ".": {
+      "default": "./src/index.js"
+    }
   },
-  "main": "./src/index.js",
-  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist-module/index.js",
+  "source": "src/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "prop-types": "^15.8.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "resize-observer-polyfill": "^1.5.1",
     "shallow-equal": "^1.2.1",
     "use-context-selector": "^1.2.11",
     "use-debounce": "^7.0.1"
   },
   "devDependencies": {
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/react-hooks": "^7.0.2"
+    "@testing-library/react": "^12.1.5",
+    "@testing-library/react-hooks": "^8.0.0"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

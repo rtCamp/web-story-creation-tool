@@ -17,17 +17,17 @@
 /**
  * External dependencies
  */
-import { useMemo } from '@web-stories-wp/react';
+import { useMemo } from '@googleforcreators/react';
 import {
   useEscapeToBlurEffect,
   useKeyDownEffect,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
+import { duplicatePage } from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
 import { useStory, useConfig } from '../../../app';
-import { duplicatePage } from '../../../elements';
 
 function useCarouselKeys({ listElement, pageRefs }) {
   const { isRTL } = useConfig();

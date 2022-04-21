@@ -17,10 +17,10 @@
 /**
  * Internal dependencies
  */
-import StoryEditor from './storyEditor';
-import Dialog from './components/dialog';
+export { default as Dialog } from './components/dialog';
 
-export * from './components/transform';
+export { default as StoryEditor } from './storyEditor';
+
 export * from './components/previewPage';
 export * from './app/config';
 export * from './app/story';
@@ -32,9 +32,10 @@ export * from './components/form';
 export * from './components/panels/panel';
 export * from './components/panels/shared';
 export * from './components/checklist';
+export { default as FontPicker } from './components/fontPicker';
+export { focusStyle } from './components/panels/shared/styles';
 export * from './components/checklistCard';
 export * from './app/currentUser';
-export * from './output';
 
 export { createPage } from './elements';
 export { default as getUniquePresets } from './utils/getUniquePresets';
@@ -44,19 +45,15 @@ export { default as FontContext } from './app/font/context';
 export { default as useLoadFontFiles } from './app/font/actions/useLoadFontFiles';
 export { default as StoryPropTypes } from './types';
 export { GlobalStyle, default as theme } from './theme'; // @todo To be refactored.
-export { GlobalStyle as CropMoveableGlobalStyle } from './components/moveable/cropStyle';
-export { default as CircularProgress } from './components/circularProgress';
 export { default as InterfaceSkeleton } from './components/layout';
 export { default as Tooltip } from './components/tooltip';
-export { default as Popup } from './components/popup';
-export { default as useInspector } from './components/inspector/useInspector';
-export { default as InspectorContext } from './components/inspector/context';
+export { default as useSidebar } from './components/sidebar/useSidebar';
+export { default as SidebarContext } from './components/sidebar/context';
+export { default as useIsUploadingToStory } from './utils/useIsUploadingToStory';
+export { getInUseFontsForPages } from './utils/getInUseFonts';
 export {
   styles as highlightStyles,
   states as highlightStates,
   useHighlights,
 } from './app/highlights';
 export { ConfigProvider as EditorConfigProvider } from './app/config';
-
-export { Dialog };
-export default StoryEditor;

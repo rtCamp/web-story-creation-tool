@@ -19,8 +19,8 @@
  */
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { useState, useCallback } from '@web-stories-wp/react';
-import { getFileName } from '@web-stories-wp/media';
+import { useState, useCallback } from '@googleforcreators/react';
+import { getFileName } from '@googleforcreators/media';
 
 /**
  * Internal dependencies

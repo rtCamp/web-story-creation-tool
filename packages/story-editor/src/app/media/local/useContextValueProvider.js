@@ -17,9 +17,9 @@
 /**
  * External dependencies
  */
-import { useEffect, useCallback, useRef } from '@web-stories-wp/react';
-import { getSmallestUrlForWidth } from '@web-stories-wp/media';
-import { getTimeTracker } from '@web-stories-wp/tracking';
+import { useEffect, useCallback, useRef } from '@googleforcreators/react';
+import { getSmallestUrlForWidth } from '@googleforcreators/media';
+import { getTimeTracker } from '@googleforcreators/tracking';
 
 /**
  * Internal dependencies
@@ -76,6 +76,16 @@ export default function useContextValueProvider(reducerState, reducerActions) {
     actions: { getMedia, updateMedia },
   } = useAPI();
 
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   const fetchMedia = useCallback(
     (
       {
@@ -100,9 +110,14 @@ export default function useContextValueProvider(reducerState, reducerActions) {
         cacheBust: cacheBust,
       })
         .then(({ data, headers }) => {
+          if (!isMounted.current) {
+            return;
+          }
+
           const totalPages = parseInt(headers.totalPages);
           const totalItems = parseInt(headers.totalItems);
           const hasMore = p < totalPages;
+
           callback({
             media: data,
             mediaType: currentMediaType,
@@ -129,7 +144,7 @@ export default function useContextValueProvider(reducerState, reducerActions) {
     isCurrentResourceProcessing,
     isNewResourceTranscoding,
     isNewResourceMuting,
-    isResourceTrimming,
+    isElementTrimming,
     isCurrentResourceUploading,
     isCurrentResourceTranscoding,
     isCurrentResourceMuting,
@@ -166,13 +181,15 @@ export default function useContextValueProvider(reducerState, reducerActions) {
   stateRef.current = reducerState;
 
   const resetWithFetch = useCallback(() => {
-    // eslint-disable-next-line no-shadow
-    const { mediaType, pageToken, searchTerm } = stateRef.current;
+    const { mediaType: currentMediaType } = stateRef.current;
 
     resetFilters();
-    const isFirstPage = !pageToken;
-    if (!mediaType && !searchTerm && isFirstPage) {
-      fetchMedia({ mediaType, cacheBust: true }, fetchMediaSuccess);
+    const isFirstPage = !stateRef.current.pageToken;
+    if (!currentMediaType && !stateRef.current.searchTerm && isFirstPage) {
+      fetchMedia(
+        { mediaType: currentMediaType, cacheBust: true },
+        fetchMediaSuccess
+      );
     }
   }, [fetchMedia, fetchMediaSuccess, resetFilters]);
 
@@ -334,7 +351,7 @@ export default function useContextValueProvider(reducerState, reducerActions) {
       isCurrentResourceProcessing,
       isNewResourceTranscoding,
       isNewResourceMuting,
-      isResourceTrimming,
+      isElementTrimming,
       isCurrentResourceUploading,
       isCurrentResourceTranscoding,
       isCurrentResourceMuting,

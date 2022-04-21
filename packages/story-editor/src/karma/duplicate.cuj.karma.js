@@ -47,8 +47,12 @@ describe('Duplicate Page', () => {
 
   it('should duplicate an animation', async () => {
     // open effect chooser
+    await fixture.events.click(fixture.editor.sidebar.designTab);
+    await fixture.events.click(
+      fixture.editor.sidebar.designPanel.animationSection
+    );
     const effectChooserToggle =
-      fixture.editor.inspector.designPanel.animation.effectChooser;
+      fixture.editor.sidebar.designPanel.animation.effectChooser;
     await fixture.events.click(effectChooserToggle, { clickCount: 1 });
 
     // animation

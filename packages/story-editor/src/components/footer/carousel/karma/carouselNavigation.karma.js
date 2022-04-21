@@ -17,8 +17,9 @@
 /**
  * External dependencies
  */
-import { createSolid } from '@web-stories-wp/patterns';
+import { createSolid } from '@googleforcreators/patterns';
 import { waitFor } from '@testing-library/react';
+
 /**
  * Internal dependencies
  */
@@ -37,7 +38,8 @@ describe('Carousel Navigation', () => {
       { id: 'page4', backgroundColor: createSolid(0, 0, 255) },
     ]);
     await fixture.render();
-    await fixture.events.click(fixture.editor.library.textAdd);
+    await fixture.editor.library.textTab.click();
+    await fixture.events.click(fixture.editor.library.text.preset('Paragraph'));
   });
 
   afterEach(() => {

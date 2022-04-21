@@ -24,14 +24,14 @@ import {
   useEffect,
   useMemo,
   useCombinedRefs,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import PropTypes from 'prop-types';
-import { _x, __ } from '@web-stories-wp/i18n';
+import { _x, __ } from '@googleforcreators/i18n';
 import {
   StoryAnimation,
   STORY_ANIMATION_STATE,
   useStoryAnimationContext,
-} from '@web-stories-wp/animation';
+} from '@googleforcreators/animation';
 
 /**
  * Internal dependencies
@@ -42,19 +42,21 @@ import {
   useCanvasBoundingBoxRef,
   CANVAS_BOUNDING_BOX_IDS,
 } from '../../app';
+import { STABLE_ARRAY } from '../../constants';
 import StoryPropTypes from '../../types';
 import DisplayElement from './displayElement';
 import { Layer, PageArea } from './layout';
 import PageAttachment from './pageAttachment';
-import { VideoCaptionsLayer } from './videoCaptions';
+import ShoppingPageAttachment from './shoppingPageAttachment';
+import { MediaCaptionsLayer } from './mediaCaptions';
 
 const DisplayPageArea = styled(PageArea)`
   position: absolute;
 `;
 
-function DisplayPage({ page, editingElement }) {
-  return page
-    ? page.elements.map((element) => {
+function DisplayPage({ pageElements, editingElement }) {
+  return pageElements
+    ? pageElements.map((element) => {
         if (editingElement === element.id) {
           return null;
         }
@@ -66,15 +68,16 @@ function DisplayPage({ page, editingElement }) {
 }
 
 DisplayPage.propTypes = {
-  page: StoryPropTypes.page,
-  editingElement: StoryPropTypes.element,
+  pageElements: PropTypes.arrayOf(StoryPropTypes.element),
+  editingElement: PropTypes.string,
 };
 
-function DisplayPageAnimationController({
-  animationState,
-  resetAnimationState,
-  page,
-}) {
+function DisplayPageAnimationController({ resetAnimationState }) {
+  const { animationState, pageId } = useStory(({ state }) => ({
+    animationState: state.animationState,
+    pageId: state.currentPage?.id,
+  }));
+
   const WAAPIAnimationMethods = useStoryAnimationContext(
     ({ actions }) => actions.WAAPIAnimationMethods
   );
@@ -102,44 +105,32 @@ function DisplayPageAnimationController({
   /*
    * Reset animation state if user changes page
    */
-  useEffect(() => resetAnimationState, [resetAnimationState, page]);
+  useEffect(() => resetAnimationState, [resetAnimationState, pageId]);
 
   return null;
 }
 
 DisplayPageAnimationController.propTypes = {
-  page: StoryPropTypes.page,
-  animationState: PropTypes.oneOf(Object.values(STORY_ANIMATION_STATE)),
   resetAnimationState: PropTypes.func,
 };
 
-function DisplayLayer() {
+function StoryAnimations({ children }) {
   const {
-    currentPage,
-    animationState,
-    updateAnimationState,
+    isAnimationPlaying,
+    currentPageAnimations,
+    currentPageElements,
     selectedElements,
+    updateAnimationState,
   } = useStory(({ state, actions }) => {
     return {
-      currentPage: state.currentPage,
-      animationState: state.animationState,
+      isAnimationPlaying:
+        state.animationState === STORY_ANIMATION_STATE.PLAYING_SELECTED,
+      currentPageAnimations: state.currentPage?.animations || STABLE_ARRAY,
+      currentPageElements: state.currentPage?.elements || STABLE_ARRAY,
       selectedElements: state.selectedElements,
       updateAnimationState: actions.updateAnimationState,
     };
   });
-
-  const boundingBoxTrackingRef = useCanvasBoundingBoxRef(
-    CANVAS_BOUNDING_BOX_IDS.PAGE_CONTAINER
-  );
-  const { editingElement, setPageContainer, setFullbleedContainer } = useCanvas(
-    ({
-      state: { editingElement },
-      actions: { setPageContainer, setFullbleedContainer },
-    }) => ({ editingElement, setPageContainer, setFullbleedContainer })
-  );
-
-  const isBackgroundSelected =
-    selectedElements?.[0]?.id === currentPage?.elements?.[0]?.id;
 
   const resetAnimationState = useCallback(() => {
     updateAnimationState({ animationState: STORY_ANIMATION_STATE.RESET });
@@ -152,20 +143,65 @@ function DisplayLayer() {
 
   return (
     <StoryAnimation.Provider
-      animations={currentPage?.animations}
-      elements={currentPage?.elements}
+      animations={currentPageAnimations}
+      elements={currentPageElements}
       onWAAPIFinish={resetAnimationState}
-      selectedElementIds={
-        animationState === STORY_ANIMATION_STATE.PLAYING_SELECTED
-          ? animatedElements
-          : []
-      }
+      selectedElementIds={isAnimationPlaying ? animatedElements : STABLE_ARRAY}
     >
       <DisplayPageAnimationController
-        page={currentPage}
-        animationState={animationState}
         resetAnimationState={resetAnimationState}
       />
+      {children}
+    </StoryAnimation.Provider>
+  );
+}
+
+StoryAnimations.propTypes = {
+  children: PropTypes.node,
+};
+
+function DisplayLayer() {
+  const { backgroundColor, isBackgroundSelected, pageAttachment, hasProducts } =
+    useStory(({ state }) => {
+      return {
+        hasCurrentPage: Boolean(state.currentPage),
+        backgroundColor: state.currentPage?.backgroundColor,
+        isBackgroundSelected: state.selectedElements?.[0]?.isBackground,
+        pageAttachment: state.currentPage?.pageAttachment || {},
+        hasProducts: state.currentPage.elements?.some(
+          ({ type, product }) => type === 'product' && product?.productId
+        ),
+      };
+    });
+  // Have page elements shallowly equaled for scenarios like animation
+  // updates where elements don't change, but we get a new page elements
+  // array
+  const currentPageElements = useStory(
+    ({ state }) => state.currentPage?.elements || STABLE_ARRAY
+  );
+
+  const boundingBoxTrackingRef = useCanvasBoundingBoxRef(
+    CANVAS_BOUNDING_BOX_IDS.PAGE_CONTAINER
+  );
+  const { editingElement, setPageContainer, setFullbleedContainer } = useCanvas(
+    ({
+      state: { editingElement },
+      actions: { setPageContainer, setFullbleedContainer },
+    }) => ({ editingElement, setPageContainer, setFullbleedContainer })
+  );
+
+  const Overlay = useMemo(() => {
+    if (hasProducts) {
+      return <ShoppingPageAttachment theme={pageAttachment.theme} />;
+    }
+
+    // Always render <PageAttachment> because the pageAttachmentContainer ref
+    // is needed in the page attachment panel and the useElementsWithLinks hook.
+    return <PageAttachment pageAttachment={pageAttachment} />;
+  }, [pageAttachment, hasProducts]);
+
+  return (
+    <StoryAnimations>
       <Layer
         data-testid="DisplayLayer"
         pointerEvents="none"
@@ -174,24 +210,23 @@ function DisplayLayer() {
         <DisplayPageArea
           ref={useCombinedRefs(setPageContainer, boundingBoxTrackingRef)}
           fullbleedRef={setFullbleedContainer}
-          background={currentPage?.backgroundColor}
+          background={backgroundColor}
           isBackgroundSelected={isBackgroundSelected}
           fullBleedContainerLabel={__(
             'Fullbleed area (Display layer)',
             'web-stories'
           )}
-          overlay={
-            currentPage && (
-              <PageAttachment pageAttachment={currentPage.pageAttachment} />
-            )
-          }
+          overlay={Overlay}
           isControlled
         >
-          <DisplayPage page={currentPage} editingElement={editingElement} />
+          <DisplayPage
+            pageElements={currentPageElements}
+            editingElement={editingElement}
+          />
         </DisplayPageArea>
-        <VideoCaptionsLayer />
+        <MediaCaptionsLayer />
       </Layer>
-    </StoryAnimation.Provider>
+    </StoryAnimations>
   );
 }
 

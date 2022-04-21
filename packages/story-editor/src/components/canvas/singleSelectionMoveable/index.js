@@ -19,23 +19,25 @@
  */
 import PropTypes from 'prop-types';
 import {
+  forwardRef,
   useRef,
   useEffect,
   useState,
   useMemo,
   useBatchingCallback,
   useCombinedRefs,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import classnames from 'classnames';
-import { useUnits } from '@web-stories-wp/units';
+import { useUnits } from '@googleforcreators/units';
+import { useGlobalIsKeyPressed } from '@googleforcreators/design-system';
+import { useTransform } from '@googleforcreators/transform';
+import { Moveable } from '@googleforcreators/moveable';
 
 /**
  * Internal dependencies
  */
 import { useStory, useCanvas, useLayout } from '../../../app';
-import Moveable from '../../moveable';
 import objectWithout from '../../../utils/objectWithout';
-import { useTransform } from '../../transform';
 import useSnapping from '../utils/useSnapping';
 import useUpdateSelectionRectangle from '../utils/useUpdateSelectionRectangle';
 import useWindowResizeHandler from '../useWindowResizeHandler';
@@ -43,13 +45,10 @@ import useDrag from './useDrag';
 import useResize from './useResize';
 import useRotate from './useRotate';
 
-function SingleSelectionMoveable({
-  selectedElement,
-  targetEl,
-  pushEvent,
-  isEditMode,
-  editMoveableRef,
-}) {
+const SingleSelectionMoveable = forwardRef(function SingleSelectionMoveable(
+  { selectedElement, targetEl, pushEvent, isEditMode, ...props },
+  ref
+) {
   const moveable = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -69,6 +68,9 @@ function SingleSelectionMoveable({
   const backgroundElementId = useStory(
     ({ state }) => state.currentPage?.elements[0]?.id
   );
+
+  // ⇧ key throttles rotating 30 degrees at a time / forces locking ratio when resizing.
+  const isShiftPressed = useGlobalIsKeyPressed('shift');
 
   useWindowResizeHandler(moveable);
 
@@ -146,6 +148,10 @@ function SingleSelectionMoveable({
    */
   const resetMoveable = useBatchingCallback(
     (target) => {
+      if (!moveable.current) {
+        return;
+      }
+
       frame.direction = [0, 0];
       frame.translate = [0, 0];
       frame.resize = [0, 0];
@@ -156,9 +162,7 @@ function SingleSelectionMoveable({
       target.style.transform = '';
       target.style.width = '';
       target.style.height = '';
-      if (moveable.current) {
-        moveable.current.updateRect();
-      }
+      moveable.current.updateRect();
     },
     [frame, pushTransform, selectedElement.id]
   );
@@ -194,6 +198,7 @@ function SingleSelectionMoveable({
     isEditMode,
     pushTransform,
     classNames,
+    forceLockRatio: isShiftPressed,
   });
 
   const rotateProps = useRotate({
@@ -203,6 +208,7 @@ function SingleSelectionMoveable({
     frame,
     setTransformStyle,
     resetMoveable,
+    throttleRotation: isShiftPressed,
   });
 
   // Get a list of all the other non-bg nodes
@@ -216,16 +222,24 @@ function SingleSelectionMoveable({
     isDragging,
   });
 
+  const isResizable =
+    actionsEnabled && !hideHandles && true !== selectedElement.lockDimensions;
+  const isRotatable =
+    actionsEnabled &&
+    !hideHandles &&
+    false !== selectedElement.supportsRotation;
+
   return (
     <Moveable
+      {...props}
       className={classNames}
       zIndex={0}
-      ref={useCombinedRefs(moveable, editMoveableRef)}
+      ref={useCombinedRefs(moveable, ref)}
       target={targetEl}
       edge
       draggable={actionsEnabled}
-      resizable={actionsEnabled && !hideHandles}
-      rotatable={actionsEnabled && !hideHandles}
+      resizable={isResizable}
+      rotatable={isRotatable}
       {...dragProps}
       {...resizeProps}
       {...rotateProps}
@@ -234,7 +248,7 @@ function SingleSelectionMoveable({
       pinchable
     />
   );
-}
+});
 
 SingleSelectionMoveable.propTypes = {
   selectedElement: PropTypes.object.isRequired,

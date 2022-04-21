@@ -21,11 +21,11 @@ import {
   ContextMenu,
   ContextMenuComponents,
   noop,
-} from '@web-stories-wp/design-system';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/design-system';
+import { __ } from '@googleforcreators/i18n';
 import styled from 'styled-components';
 import { rgba } from 'polished';
-import { Fragment } from '@web-stories-wp/react';
+import { Fragment } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
@@ -33,6 +33,8 @@ import { Fragment } from '@web-stories-wp/react';
 import { useLayout } from '../../app';
 import { MediaPicker, useQuickActions } from '../../app/highlights';
 import { ZOOM_SETTING } from '../../constants';
+import { Z_INDEX_CANVAS_SIDE_MENU } from '../../constants/zIndex';
+import Tooltip from '../tooltip';
 import PageMenu from './pagemenu/pageMenu';
 
 const MenusWrapper = styled.section`
@@ -41,9 +43,10 @@ const MenusWrapper = styled.section`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  z-index: 9999;
+  z-index: ${Z_INDEX_CANVAS_SIDE_MENU};
   pointer-events: auto;
   min-height: 100%;
+  pointer-events: none;
   ${({ isZoomed, theme }) =>
     isZoomed &&
     `
@@ -62,6 +65,10 @@ const Divider = styled.div`
   background-color: ${({ theme }) => theme.colors.divider.primary};
 `;
 
+const StyledContextMenu = styled(ContextMenu)`
+  pointer-events: all;
+`;
+
 function PageSideMenu() {
   const { zoomSetting } = useLayout(({ state: { zoomSetting } }) => ({
     zoomSetting,
@@ -75,70 +82,78 @@ function PageSideMenu() {
       aria-label={__('Page side menu', 'web-stories')}
       isZoomed={isZoomed}
     >
-      <ContextMenu
-        isInline
-        isAlwaysVisible
-        isIconMenu
-        disableControlledTabNavigation
-        aria-label={__(
-          'Group of available options for selected element',
-          'web-stories'
-        )}
-        onMouseDown={(e) => {
-          // Stop the event from bubbling if the user clicks in between buttons.
-          // This prevents the selected element in the canvas from losing focus.
-          e.stopPropagation();
-        }}
-      >
-        {quickActions.map(
-          ({
-            Icon,
-            label,
-            onClick,
-            separator,
-            tooltipPlacement,
-            wrapWithMediaPicker,
-            ...quickAction
-          }) => {
-            const action = (externalOnClick = noop) => (
-              <Fragment key={label}>
-                {separator === 'top' && <ContextMenuComponents.MenuSeparator />}
-                <ContextMenuComponents.MenuButton
-                  aria-label={label}
-                  onClick={(evt) => {
-                    onClick(evt);
-                    externalOnClick(evt);
-                  }}
-                  {...quickAction}
-                >
-                  <ContextMenuComponents.MenuIcon
-                    title={label}
-                    placement={tooltipPlacement}
-                  >
-                    <Icon />
-                  </ContextMenuComponents.MenuIcon>
-                </ContextMenuComponents.MenuButton>
-                {separator === 'bottom' && (
-                  <ContextMenuComponents.MenuSeparator />
-                )}
-              </Fragment>
-            );
+      {
+        // Dont render a menu wrapper if there are no quick actions
+        quickActions.length ? (
+          <StyledContextMenu
+            isInline
+            isAlwaysVisible
+            isIconMenu
+            disableControlledTabNavigation
+            data-testid="Element quick actions"
+            aria-label={__(
+              'Group of available options for selected element',
+              'web-stories'
+            )}
+            onMouseDown={(e) => {
+              // Stop the event from bubbling if the user clicks in between buttons.
+              // This prevents the selected element in the canvas from losing focus.
+              e.stopPropagation();
+            }}
+          >
+            {quickActions.map(
+              ({
+                Icon,
+                label,
+                onClick,
+                separator,
+                tooltipPlacement,
+                wrapWithMediaPicker,
+                ...quickAction
+              }) => {
+                const action = (externalOnClick = noop) => (
+                  <Fragment key={label}>
+                    {separator === 'top' && (
+                      <ContextMenuComponents.MenuSeparator />
+                    )}
+                    <Tooltip placement={tooltipPlacement} title={label}>
+                      <ContextMenuComponents.MenuButton
+                        aria-label={label}
+                        onClick={(evt) => {
+                          onClick(evt);
 
-            if (wrapWithMediaPicker) {
-              return (
-                <MediaPicker
-                  key={label}
-                  render={({ onClick: openMediaPicker }) =>
-                    action(openMediaPicker)
-                  }
-                />
-              );
-            }
+                          externalOnClick(evt);
+                        }}
+                        {...quickAction}
+                      >
+                        <ContextMenuComponents.MenuIcon title={label}>
+                          <Icon />
+                        </ContextMenuComponents.MenuIcon>
+                      </ContextMenuComponents.MenuButton>
+                    </Tooltip>
+                    {separator === 'bottom' && (
+                      <ContextMenuComponents.MenuSeparator />
+                    )}
+                  </Fragment>
+                );
 
-            return action();
-          }
-        )}
-      </ContextMenu>
+                if (wrapWithMediaPicker) {
+                  return (
+                    <MediaPicker
+                      key={label}
+                      render={({ onClick: openMediaPicker }) =>
+                        action(openMediaPicker)
+                      }
+                    />
+                  );
+                }
+
+                return action();
+              }
+            )}
+          </StyledContextMenu>
+        ) : null
+      }
       {isZoomed && <Divider />}
       <PageMenu />
     </MenusWrapper>

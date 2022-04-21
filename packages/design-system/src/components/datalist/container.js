@@ -25,7 +25,7 @@ import {
   useFocusOut,
   useMemo,
   forwardRef,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
@@ -64,6 +64,8 @@ const Container = styled.div`
     css`
       border: 1px solid ${theme.colors.border.defaultNormal};
     `}
+
+   ${({ $containerStyleOverrides }) => $containerStyleOverrides};
 `;
 
 const OptionsContainer = forwardRef(function OptionsContainer(
@@ -75,6 +77,8 @@ const OptionsContainer = forwardRef(function OptionsContainer(
     renderContents,
     isInline,
     hasDropDownBorder = false,
+    containerStyleOverrides,
+    title,
   },
   inputRef
 ) {
@@ -113,9 +117,11 @@ const OptionsContainer = forwardRef(function OptionsContainer(
   return (
     <Container
       role="dialog"
+      title={title}
       ref={ref}
       isInline={isInline}
       hasDropDownBorder={hasDropDownBorder}
+      $containerStyleOverrides={containerStyleOverrides}
     >
       {hasSearch && (
         <SearchInput
@@ -147,6 +153,7 @@ OptionsContainer.propTypes = {
   renderContents: PropTypes.func.isRequired,
   isInline: PropTypes.bool,
   hasDropDownBorder: PropTypes.bool,
+  title: PropTypes.string,
 };
 
 export default OptionsContainer;

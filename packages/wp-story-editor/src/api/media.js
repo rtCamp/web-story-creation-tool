@@ -16,7 +16,7 @@
 /**
  * External dependencies
  */
-import { addQueryArgs } from '@web-stories-wp/design-system';
+import { addQueryArgs } from '@googleforcreators/url';
 
 /**
  * WordPress dependencies
@@ -69,12 +69,25 @@ export function getMedia(
   }));
 }
 
+// Important: Keep in sync with REST API preloading definition.
+export function getMediaForCorsCheck(config) {
+  const path = addQueryArgs(config.api.media, {
+    context: 'edit',
+    per_page: 10,
+    _fields: 'source_url',
+  });
+
+  return apiFetch({ path }).then((attachments) =>
+    attachments.map((attachment) => attachment.source_url)
+  );
+}
+
 /**
  * Get media by ID.
  *
  * @param {Object} config Configuration object.
  * @param {number} mediaId Media ID.
- * @return {Promise<import('@web-stories-wp/media').Resource>} Media object promise.
+ * @return {Promise<import('@googleforcreators/media').Resource>} Media object promise.
  */
 export function getMediaById(config, mediaId) {
   const path = addQueryArgs(`${config.api.media}${mediaId}/`, {
@@ -90,7 +103,7 @@ export function getMediaById(config, mediaId) {
  *
  * @param {Object} config Configuration object.
  * @param {number} mediaId Media ID.
- * @return {Promise<import('@web-stories-wp/media').Resource>} Media resource if found, null otherwise.
+ * @return {Promise<import('@googleforcreators/media').Resource>} Media resource if found, null otherwise.
  */
 export async function getMutedMediaById(config, mediaId) {
   const path = addQueryArgs(`${config.api.media}${mediaId}/`, {
@@ -112,7 +125,7 @@ export async function getMutedMediaById(config, mediaId) {
  *
  * @param {Object} config Configuration object.
  * @param {number} mediaId Media ID.
- * @return {Promise<import('@web-stories-wp/media').Resource>} Media resource if found, null otherwise.
+ * @return {Promise<import('@googleforcreators/media').Resource>} Media resource if found, null otherwise.
  */
 export async function getOptimizedMediaById(config, mediaId) {
   const path = addQueryArgs(`${config.api.media}${mediaId}/`, {
@@ -134,7 +147,7 @@ export async function getOptimizedMediaById(config, mediaId) {
  *
  * @param {Object} config Configuration object.
  * @param {number} mediaId Media ID.
- * @return {Promise<import('@web-stories-wp/media').Resource>} Media resource if found, null otherwise.
+ * @return {Promise<import('@googleforcreators/media').Resource>} Media resource if found, null otherwise.
  */
 export async function getPosterMediaById(config, mediaId) {
   const path = addQueryArgs(`${config.api.media}${mediaId}/`, {
@@ -157,13 +170,41 @@ export async function getPosterMediaById(config, mediaId) {
  * @param {Object} config Configuration object.
  * @param {File} file Media File to Save.
  * @param {?Object} additionalData Additional data to include in the request.
- * @return {Promise<import('@web-stories-wp/media').Resource>} Media resource.
+ * @return {Promise<import('@googleforcreators/media').Resource>} Media resource.
  */
 export function uploadMedia(config, file, additionalData) {
+  const {
+    originalId,
+    mediaId,
+    storyId,
+    templateId,
+    isMuted,
+    mediaSource,
+    trimData,
+    baseColor,
+    blurHash,
+  } = additionalData;
+
+  const wpKeysMapping = {
+    web_stories_media_source: mediaSource,
+    web_stories_is_muted: isMuted,
+    post: templateId || storyId || mediaId,
+    original_id: originalId,
+    web_stories_trim_data: trimData,
+    web_stories_base_color: baseColor,
+    web_stories_blurhash: blurHash,
+  };
+
+  Object.entries(wpKeysMapping).forEach(([key, value]) => {
+    if (value === undefined) {
+      delete wpKeysMapping[key];
+    }
+  });
+
   // Create upload payload
   const data = new window.FormData();
   data.append('file', file, file.name || file.type.replace('/', '.'));
-  Object.entries(additionalData).forEach(([key, value]) =>
+  Object.entries(wpKeysMapping).forEach(([key, value]) =>
     flattenFormData(data, key, value)
   );
 
@@ -184,11 +225,49 @@ export function uploadMedia(config, file, additionalData) {
  * @return {Promise} Media Object Promise.
  */
 export function updateMedia(config, mediaId, data) {
+  const {
+    baseColor,
+    blurHash,
+    isMuted,
+    mediaSource,
+    optimizedId,
+    mutedId,
+    posterId,
+    storyId,
+    altText,
+  } = data;
+
+  const wpKeysMapping = {
+    meta: {
+      web_stories_base_color: baseColor,
+      web_stories_blurhash: blurHash,
+      web_stories_optimized_id: optimizedId,
+      web_stories_muted_id: mutedId,
+      web_stories_poster_id: posterId,
+    },
+    web_stories_is_muted: isMuted,
+    web_stories_media_source: mediaSource,
+    featured_media: posterId,
+    post: storyId,
+    alt_text: altText,
+  };
+
+  Object.entries(wpKeysMapping.meta).forEach(([key, value]) => {
+    if (value === undefined) {
+      delete wpKeysMapping.meta[key];
+    }
+  });
+
+  Object.entries(wpKeysMapping).forEach(([key, value]) => {
+    if (value === undefined) {
+      delete wpKeysMapping[key];
+    }
+  });
   return apiFetch({
     path: `${config.api.media}${mediaId}/`,
-    data,
+    data: wpKeysMapping,
     method: 'POST',
-  });
+  }).then(getResourceFromAttachment);
 }
 
 /**
@@ -196,7 +275,7 @@ export function updateMedia(config, mediaId, data) {
  *
  * @param {Object} config Configuration object.
  * @param  {number} mediaId Media id
- * @return {Promise} Media Object Promise.
+ * @return {void}
  */
 export function deleteMedia(config, mediaId) {
   // `apiFetch` by default turns `DELETE` requests into `POST` requests
@@ -204,7 +283,7 @@ export function deleteMedia(config, mediaId) {
   // However, some Web Application Firewall (WAF) solutions prevent this.
   // `?_method=DELETE` is an alternative solution to override the request method.
   // See https://developer.wordpress.org/rest-api/using-the-rest-api/global-parameters/#_method-or-x-http-method-override-header
-  return apiFetch({
+  apiFetch({
     path: addQueryArgs(`${config.api.media}${mediaId}/`, { _method: 'DELETE' }),
     data: { force: true },
     method: 'POST',

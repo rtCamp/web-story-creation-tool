@@ -25,7 +25,7 @@ import {
   getFileName,
   getImageDimensions,
   getFirstFrameOfVideo,
-} from '@web-stories-wp/media';
+} from '@googleforcreators/media';
 
 /**
  * Create a local resource object.

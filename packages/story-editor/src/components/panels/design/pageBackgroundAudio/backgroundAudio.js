@@ -17,9 +17,9 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { Text, THEME_CONSTANTS } from '@web-stories-wp/design-system';
+import { useCallback } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { Text, THEME_CONSTANTS } from '@googleforcreators/design-system';
 import styled from 'styled-components';
 
 /**
@@ -41,17 +41,19 @@ function PageBackgroundAudioPanel() {
     capabilities: { hasUploadMediaAction },
   } = useConfig();
 
-  const { backgroundAudio, updateCurrentPageProperties } = useStory(
-    (state) => ({
+  const { backgroundAudio, currentPageId, updateCurrentPageProperties } =
+    useStory((state) => ({
       updateCurrentPageProperties: state.actions.updateCurrentPageProperties,
       backgroundAudio: state.state.currentPage?.backgroundAudio,
-    })
-  );
+      currentPageId: state.state.currentPage?.id,
+    }));
 
   const updateBackgroundAudio = useCallback(
-    (audioResource) => {
+    (updatedBackgroundAudio) => {
       updateCurrentPageProperties({
-        properties: { backgroundAudio: audioResource },
+        properties: {
+          backgroundAudio: updatedBackgroundAudio,
+        },
       });
     },
     [updateCurrentPageProperties]
@@ -78,6 +80,9 @@ function PageBackgroundAudioPanel() {
       <BackgroundAudioPanelContent
         backgroundAudio={backgroundAudio}
         updateBackgroundAudio={updateBackgroundAudio}
+        showCaptions
+        showLoopControl
+        audioId={`page-${currentPageId}-background-audio`}
       />
     </SimplePanel>
   );

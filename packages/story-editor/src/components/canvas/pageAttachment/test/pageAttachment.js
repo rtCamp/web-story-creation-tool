@@ -18,14 +18,16 @@
  * External dependencies
  */
 import { screen } from '@testing-library/react';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import PageAttachment from '..';
 import CanvasContext from '../../../../app/canvas/context';
-import { renderWithTheme } from '../../../../testUtils';
 import StoryContext from '../../../../app/story/context';
+import { ConfigProvider } from '../../../../app/config';
+import getDefaultConfig from '../../../../getDefaultConfig';
 
 function setup(props = {}) {
   const { pageAttachment = {}, canvasProps = null } = props;
@@ -49,11 +51,13 @@ function setup(props = {}) {
     },
   };
   return renderWithTheme(
-    <StoryContext.Provider value={storyContext}>
-      <CanvasContext.Provider value={canvasContext}>
-        <PageAttachment pageAttachment={pageAttachment} />
-      </CanvasContext.Provider>
-    </StoryContext.Provider>
+    <ConfigProvider config={getDefaultConfig()}>
+      <StoryContext.Provider value={storyContext}>
+        <CanvasContext.Provider value={canvasContext}>
+          <PageAttachment pageAttachment={pageAttachment} />
+        </CanvasContext.Provider>
+      </StoryContext.Provider>
+    </ConfigProvider>
   );
 }
 

@@ -18,13 +18,13 @@
  * External dependencies
  */
 
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreatorsors/i18n';
 import {
   Button,
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreatorsors/design-system';
 
 /**
  * Internal dependencies

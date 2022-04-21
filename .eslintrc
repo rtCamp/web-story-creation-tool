@@ -83,6 +83,10 @@
     "import/no-useless-path-segments": ["error", {
       "noUselessIndex": true
     }],
+    "import/no-relative-packages": "error",
+    "import/no-internal-modules": [ "error", {
+      "forbid": [ "@googleforcreators/**/*" ]
+    } ],
     "jsx-a11y/label-has-for": "off",
     "jsx-a11y/media-has-caption": [ "error", {
       "audio": [ "Audio" ],
@@ -93,7 +97,11 @@
     "no-return-assign": "error",
     "no-return-await": "error",
     "no-sequences": "error",
-    "no-shadow": "error",
+    "no-shadow": ["error",
+      {
+        "ignoreOnInitialization": true
+      }
+    ],
     "no-template-curly-in-string": "error",
     "no-throw-literal": "error",
     "no-unmodified-loop-condition": "error",
@@ -104,6 +112,7 @@
       }
     ],
     "no-useless-call": "error",
+    "jsx-a11y/anchor-has-content": "off",
     "no-useless-concat": "error",
     "no-console": "error",
     "no-duplicate-imports": "error",
@@ -201,6 +210,7 @@
     "jsdoc/require-param-description": "warn",
     "jsdoc/valid-types": "error",
     "eslint-comments/no-unused-disable": "error",
+    "eslint-comments/require-description": "error",
     "@wordpress/dependency-group": "error",
     "@wordpress/no-unused-vars-before-return": ["error", {
       "excludePattern": "^use"
@@ -219,17 +229,27 @@
   },
   "env": {
     "browser": true,
-    "es6": true
+    "es2020": true
   },
   "globals": {
-    "global": true,
-    "window": true,
-    "document": true,
-    "wp": "readonly",
-    "process": "readonly",
-    "__webpack_public_path__": true
+    "__webpack_public_path__": "writable",
+    "WEB_STORIES_CI": "readonly",
+    "WEB_STORIES_DISABLE_ERROR_BOUNDARIES": "readonly",
+    "WEB_STORIES_DISABLE_OPTIMIZED_RENDERING": "readonly",
+    "WEB_STORIES_DISABLE_PREVENT": "readonly",
+    "WEB_STORIES_DISABLE_QUICK_TIPS": "readonly",
+    "WEB_STORIES_ENV": "readonly"
   },
   "settings": {
+    "import/resolver": {
+      "@web-stories-wp/eslint-import-resolver": {
+        "mapping": {
+          "^@googleforcreators\\/(.*)\\/(.*)": "./packages/$1/src/$2",
+          "^@googleforcreators\\/(.*)": "./packages/$1/src/",
+          "^@web-stories-wp\\/(.*)": "./packages/$1/src/"
+        }
+      }
+    },
     "jsdoc": {
       "mode": "typescript",
       "preferredTypes": {
@@ -266,6 +286,7 @@
         "__mocks__/**/*.js",
         "**/__tests__/**/*.js",
         "**/test/**/*.js",
+        "**/testUtils/**/*.js",
         "**/?(*.)test.js",
         "tests/js/**/*.js"
       ],
@@ -284,7 +305,12 @@
         "testing-library",
         "jest-dom"
       ],
+      "env": {
+        "node": true
+      },
       "rules": {
+        "eslint-comments/require-description": "off",
+        "react/prop-types": "off",
         "jest/no-hooks": "off",
         "jest/prefer-expect-assertions": "off",
         "jest/prefer-inline-snapshots": "off",
@@ -294,6 +320,7 @@
             "ignore": ["describe"]
           }
         ],
+        "jest/prefer-snapshot-hint": "off",
         "jsdoc/require-jsdoc": "off",
         "testing-library/no-await-sync-events": "error",
         "testing-library/no-debugging-utils": "error",
@@ -305,7 +332,7 @@
         "__mocks__/**/*.js"
       ],
       "rules": {
-      "jest/require-hook":  "off"
+        "jest/require-hook":  "off"
       }
     },
     {
@@ -323,9 +350,11 @@
         "jasmine"
       ],
       "env": {
-        "jasmine": true
+        "jasmine": true,
+        "node": true
       },
       "rules": {
+        "eslint-comments/require-description": "off",
         "testing-library/no-debugging-utils": "error",
         "testing-library/no-dom-import": "error",
         "jasmine/new-line-before-expect": "off",
@@ -367,7 +396,11 @@
       "extends": [
         "plugin:jest/all"
       ],
+      "env": {
+        "node": true
+      },
       "rules": {
+        "eslint-comments/require-description": "off",
         "jest/no-hooks": "off",
         "jest/prefer-expect-assertions": "off",
         "jest/prefer-inline-snapshots": "off",
@@ -389,7 +422,8 @@
               "withUser"
             ]
           }
-        ]
+        ],
+        "jest/prefer-snapshot-hint": "off"
       },
       "globals": {
         "browser": "readonly",
@@ -402,6 +436,7 @@
         "packages/e2e-test-utils/**/*.js"
       ],
       "rules": {
+        "eslint-comments/require-description": "off",
         "jest/expect-expect": "off",
         "jest/no-export": "off",
         "jest/require-top-level-describe": "off"
@@ -414,18 +449,22 @@
       }
     },
     {
-      "files": ["packages/e2e-tests/src/config/**/*.js"],
+      "files": [
+        "packages/e2e-tests/src/config/**/*.js",
+        "**/testUtils/**/*.js"
+      ],
       "rules": {
+        "eslint-comments/require-description": "off",
         "jest/require-hook": "off"
       }
     },
     {
       "files": [
         "packages/commander/**/*.js",
-        "packages/fonts/scripts/cli.js",
-        "packages/migration/src/cli.js",
-        "packages/templates/scripts/cli.js",
-        "packages/text-sets/scripts/cli.js"
+        "packages/fonts/scripts/**/*.js",
+        "packages/migration/scripts/**/*.js",
+        "packages/templates/scripts/**/*.js",
+        "packages/text-sets/scripts/**/*.js"
       ],
       "rules": {
         "import/no-useless-path-segments": ["error", {
@@ -435,10 +474,18 @@
     },
     {
       "files": [
+        "packages/jest-parallel-sequencer/**/*.js"
+      ],
+      "env": {
+        "node": true
+      }
+    },
+    {
+      "files": [
         "__mocks__/**/*.js",
         "bin/**/*.js",
         "babel.config.cjs",
-        "rollup.config.migrate.cjs",
+        "rollup.config.js",
         "jest-puppeteer.config.cjs",
         "karma-*.config.cjs",
         "webpack.*.cjs",
@@ -449,11 +496,13 @@
         "packages/e2e-tests/src/config/*.js",
         "packages/dashboard/src/karma-tests.cjs",
         "packages/story-editor/src/karma-tests.cjs",
-        "packages/migration/src/**/*.js",
+        "packages/eslint-import-resolver/**/*.cjs",
+        "packages/jest-resolver/**/*.cjs",
         "packages/fonts/**/*.js",
         "packages/commander/**/*.js",
-        "packages/templates/scripts/cli.js",
-        "packages/text-sets/scripts/cli.js"
+        "packages/migration/scripts/**/*.js",
+        "packages/templates/scripts/**/*.js",
+        "packages/text-sets/scripts/**/*.js"
       ],
       "extends": [
         "plugin:node/recommended",
@@ -466,6 +515,7 @@
         "node": true
       },
       "rules": {
+        "eslint-comments/require-description": "off",
         "node/no-extraneous-import": "off",
         "node/no-missing-import": "off",
         "node/no-unpublished-import": "off",
@@ -504,7 +554,9 @@
         "no-undef": "off",
         "no-unused-vars": "off",
         "header/header": "off",
-        "prettier/prettier": "off"
+        "prettier/prettier": "off",
+        "eslint-comments/require-description": "off",
+        "react/prop-types" : "off"
       }
     },
     {
@@ -526,7 +578,7 @@
             "paths": [
               {
                 "name": "@wordpress/i18n",
-                "message": "Use @web-stories-wp/i18n instead."
+                "message": "Use @googleforcreators/i18n instead."
               }
             ]
           }
@@ -545,7 +597,7 @@
           {
             "paths": [
               {
-                "name": "@web-stories-wp/i18n",
+                "name": "@googleforcreators/i18n",
                 "message": "Use @wordpress/i18n instead."
               },
               {
@@ -582,11 +634,11 @@
             "paths": [
               {
                 "name": "react",
-                "message": "Use @web-stories-wp/react instead."
+                "message": "Use @googleforcreators/react instead."
               },
               {
                 "name": "react-dom",
-                "message": "Use @web-stories-wp/react instead."
+                "message": "Use @googleforcreators/react instead."
               }
             ]
           }
@@ -599,6 +651,39 @@
       ],
       "globals": {
         "tinymce": "readonly"
+      }
+    },
+    {
+      "files": [
+        "**/stories/*.js",
+        ".storybook/main.cjs"
+      ],
+      "rules": {
+        "react/no-array-index-key" : "off",
+        "react/prop-types": "off",
+        "eslint-comments/no-unused-disable": "off",
+        "eslint-comments/require-description": "off"
+      }
+    },
+    {
+      "files": [
+        "packages/story-editor/src/**/*.js",
+        "packages/dashboard/src/**/*.js"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/*.css"
+                ],
+                "message": "css import is not allowed in story-editor and dashboard"
+              }
+            ]
+          }
+        ]
       }
     }
   ]

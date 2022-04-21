@@ -25,7 +25,7 @@ import {
 
 describe('Inserting Media from Media Library', () => {
   // Uses the existence of the element's frame element as an indicator for successful insertion.
-  // TODO https://github.com/google/web-stories-wp/issues/7107
+  // TODO https://github.com/googleforcreators/web-stories-wp/issues/7107
   // eslint-disable-next-line jest/no-disabled-tests
   it.skip('should insert an image by clicking on it', async () => {
     await createNewStory();
@@ -35,6 +35,7 @@ describe('Inserting Media from Media Library', () => {
     await page.waitForSelector('[data-testid="mediaElement-image"]');
     // Clicking will only act on the first element.
     await expect(page).toClick('[data-testid="mediaElement-image"]');
+    await expect(page).toClick('menuitem', { text: 'Insert image' });
 
     await page.waitForSelector('[data-testid="frameElement"]:nth-of-type(2)');
 

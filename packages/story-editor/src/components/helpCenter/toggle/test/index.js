@@ -17,7 +17,8 @@
  * External dependencies
  */
 import { fireEvent, screen } from '@testing-library/react';
-import { renderWithProviders } from '@web-stories-wp/design-system/src/testUtils';
+// eslint-disable-next-line import/no-internal-modules -- Importing testUtils is OK.
+import { renderWithProviders } from '@googleforcreators/design-system/src/testUtils';
 
 /**
  * Internal dependencies

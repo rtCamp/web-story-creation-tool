@@ -27,7 +27,7 @@ import {
   getEditedPostContent,
 } from '@web-stories-wp/e2e-test-utils';
 
-// Disable for https://github.com/google/web-stories-wp/issues/6238
+// Disable for https://github.com/googleforcreators/web-stories-wp/issues/6238
 // eslint-disable-next-line jest/no-disabled-tests
 describe.skip('Publishing Flow', () => {
   let stopRequestInterception;
@@ -70,6 +70,7 @@ describe.skip('Publishing Flow', () => {
       wp.data.select('core/edit-post').isFeatureActive('welcomeGuide')
     );
 
+    // eslint-disable-next-line jest/no-conditional-in-test
     if (isWelcomeGuideActive) {
       await page.evaluate(() =>
         wp.data.dispatch('core/edit-post').toggleFeature('welcomeGuide')
@@ -84,6 +85,7 @@ describe.skip('Publishing Flow', () => {
       wp.data.select('core/edit-post').isFeatureActive('fullscreenMode')
     );
 
+    // eslint-disable-next-line jest/no-conditional-in-test
     if (isFullscreenMode) {
       await page.evaluate(() =>
         wp.data.dispatch('core/edit-post').toggleFeature('fullscreenMode')

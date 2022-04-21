@@ -24,8 +24,8 @@ import {
   theme as externalDesignSystemTheme,
   lightMode,
   SnackbarProvider,
-} from '@web-stories-wp/design-system';
-import { ConfigProvider } from '@web-stories-wp/dashboard';
+} from '@googleforcreators/design-system';
+import { ConfigProvider } from '@googleforcreators/dashboard';
 
 /**
  * Internal dependencies
@@ -57,7 +57,6 @@ export const renderWithProviders = (
 
   const ProvidedWrapper = wrapper;
 
-  // eslint-disable-next-line react/prop-types
   const Wrapper = ({ children }) => (
     <ProvidedWrapper>
       <FlagsProvider features={mergedProviderValues.features}>

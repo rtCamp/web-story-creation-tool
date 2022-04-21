@@ -107,47 +107,47 @@ Web Stories are powered by [AMP](https://amp.dev/), which adds some restrictions
 
 == Changelog ==
 
-For the plugin's full changelog, please see [the Releases page on GitHub](https://github.com/google/web-stories-wp/releases).
+For the plugin's full changelog, please see [the Releases page on GitHub](https://github.com/googleforcreators/web-stories-wp/releases).
 
-= 1.15.1 =
+= 1.19.0 =
 
-**Release Date:** December 7, 2021.
+**Release Date:** March 29, 2022.
 
-* Fixes a rare issue with crashing and failing to load particular stories.
-* Fixes an issue with mangled Unicode characters.
-* Fixes an issue with styling differences between the editor and the preview.
-
-= 1.15.0 =
-
-**Release Date:** November 30, 2021.
-
-* New feature: external media hotlinking.
-* New feature: templates search form in the dashboard.
-* New feature: ability to qualify links as "nofollow" or "sponsored".
-* New feature: added support for password protected stories.
+* New feature: floating menu bar for easier editing.
+* New feature: support for adding captions and disabling looping for page background audio.
+* New feature: ability to upload custom fonts.
+* New feature: story locking, displaying a message if someone else is already editing a story.
+* Enhancement: overhauled workspace, consolidating sidebar to create more space for the canvas.
+* Enhancement: make it easier to apply saved styles.
+* Enhancement: add detection for possible server misconfiguration related to CORS.
 * Bug fixes and performance improvements.
 
-= 1.14.0 =
+= 1.18.1 =
 
-**Release Date:** November 2, 2021.
+**Release Date:** March 8, 2022.
 
-* New feature: archive page customization.
-* New feature: improved video captions appearance on the frontend.
-* New feature: right-click menu in the layers panel.
-* Performance improvements in the editor for default page templates.
-* Fixes an issue with embeds not appearing on the frontend.
+* Fixes an issue where adding video captions did not work.
+
+= 1.18.0 =
+
+**Release Date:** March 1, 2022.
+
+* Enhancement: new pre-publish confirmation dialog.
+* Enhancement: new canvas appearance when creating a new story.
+* Enhancement: use semantic heading tags (`h1`, `h2`, etc.) based on font size.
+* Bumped minimum PHP version requirement to 7.2.
 * Bug fixes and performance improvements.
 
 == Upgrade Notice ==
 
-= 1.15.1 =
+= 1.19.0 =
 
-Several bug fixes to address the editor crashing and styling differences between editor and preview.
+Feature-packed release bringing you a revamped workspace UI with a consolidated sidebar, floating menu bar, background audio captions, custom fonts, and much more!
 
-= 1.15.0 =
+= 1.18.1 =
 
-Media hotlinking, templates search, link qualification, and several bug fixes and performance improvements.
+This release fixes an issue where adding video captions did not work.
 
-= 1.14.0 =
+= 1.18.0 =
 
-Archive page customization, improved video captions appearance, layer panel improvements, and several bug fixes.
+New pre-publish confirmation dialog, semantic headings, and several bug fixes and performance improvements.

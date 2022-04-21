@@ -22,7 +22,8 @@ import {
   localStore,
   LOCAL_STORAGE_PREFIX,
   setAppElement,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
@@ -30,7 +31,6 @@ import {
 import CurrentUserContext from '../../../../../../app/currentUser/context';
 import MediaContext from '../../../../../../app/media/context';
 import VideoOptimizationDialog from '../videoOptimizationDialog';
-import { renderWithTheme } from '../../../../../../testUtils';
 
 const updateCurrentUser = jest.fn();
 const storageKey = LOCAL_STORAGE_PREFIX.VIDEO_OPTIMIZATION_DIALOG_DISMISSED;

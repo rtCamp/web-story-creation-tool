@@ -17,10 +17,10 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo } from '@web-stories-wp/react';
+import { useCallback, useMemo } from '@googleforcreators/react';
 import { css } from 'styled-components';
-import { __, _x, sprintf } from '@web-stories-wp/i18n';
-import { DropDown, PLACEMENT } from '@web-stories-wp/design-system';
+import { __, _x, sprintf } from '@googleforcreators/i18n';
+import { DropDown, PLACEMENT } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -31,6 +31,7 @@ import { useLayout } from '../../../app/layout';
 const selectButtonCSS = css`
   height: 36px;
   padding: 8px;
+  background-color: ${({ theme }) => theme.colors.bg.primary};
 
   span {
     padding: 0;

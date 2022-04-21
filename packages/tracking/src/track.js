@@ -26,8 +26,7 @@ import { gtag } from './shared';
  * @param {Object<*>?} [eventData] The event data to send.
  * @return {Promise<void>} Promise that always resolves.
  */
-//eslint-disable-next-line require-await
-async function track(eventName, eventData = {}) {
+function track(eventName, eventData = {}) {
   return new Promise((resolve) => {
     // This timeout ensures a tracking event does not block the user
     // event if it is not sent (in time).
@@ -36,7 +35,7 @@ async function track(eventName, eventData = {}) {
     // trigger a console warning.
     // See https://developers.google.com/analytics/devguides/collection/gtagjs/sending-data
     const failTimeout = setTimeout(() => {
-      global.console.warn(
+      window.console.warn(
         `[Web Stories] Tracking event "${eventName}" took too long to fire.`
       );
       resolve();

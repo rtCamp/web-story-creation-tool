@@ -17,15 +17,16 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useState } from '@web-stories-wp/react';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, useState } from '@googleforcreators/react';
 import styled from 'styled-components';
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 import {
   Input,
   Link,
   ThemeGlobals,
   THEME_CONSTANTS,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -35,7 +36,7 @@ import cleanForSlug from '../../../../utils/cleanForSlug';
 import inRange from '../../../../utils/inRange';
 import { Row } from '../../../form';
 import { SimplePanel } from '../../panel';
-import { inputContainerStyleOverride } from '../../shared';
+import { inputContainerStyleOverride } from '../../shared/styles';
 
 export const MIN_MAX = {
   PERMALINK: {
@@ -62,7 +63,7 @@ const LinkContainer = styled.div`
   margin-bottom: 16px;
 `;
 
-function SlugPanel() {
+function SlugPanel({ nameOverride }) {
   const {
     slug: savedSlug,
     link,
@@ -112,7 +113,7 @@ function SlugPanel() {
   // In case of non-pretty permalinks, we're not showing the input.
   return (
     <SimplePanel
-      name="permalink"
+      name={nameOverride || 'permalink'}
       title={__('Permalink', 'web-stories')}
       collapsedByDefault={false}
     >
@@ -145,3 +146,7 @@ function SlugPanel() {
 }
 
 export default SlugPanel;
+
+SlugPanel.propTypes = {
+  nameOverride: PropTypes.string,
+};

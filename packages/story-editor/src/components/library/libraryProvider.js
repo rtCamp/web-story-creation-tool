@@ -24,11 +24,11 @@ import {
   useMemo,
   useState,
   useCallback,
-} from '@web-stories-wp/react';
-import { useFeatures } from 'flagged';
-import { getTimeTracker, trackEvent } from '@web-stories-wp/tracking';
-import { loadTextSets } from '@web-stories-wp/text-sets';
-import { uniqueEntriesByKey } from '@web-stories-wp/design-system';
+} from '@googleforcreators/react';
+import { useFeature } from 'flagged';
+import { getTimeTracker, trackEvent } from '@googleforcreators/tracking';
+import { loadTextSets } from '@googleforcreators/text-sets';
+import { uniqueEntriesByKey } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -44,17 +44,26 @@ import {
   PAGE_TEMPLATES,
   SHAPES,
   TEXT,
+  SHOPPING,
 } from './constants';
 
 const LIBRARY_TAB_IDS = new Set(
-  [ELEMS, MEDIA, MEDIA3P, PAGE_TEMPLATES, SHAPES, TEXT].map((tab) => tab.id)
+  [ELEMS, MEDIA, MEDIA3P, PAGE_TEMPLATES, SHAPES, TEXT, SHOPPING].map(
+    (tab) => tab.id
+  )
 );
 
 function LibraryProvider({ children }) {
-  const { showMedia3p } = useConfig();
+  const { showMedia3p, canViewDefaultTemplates } = useConfig();
   const {
-    actions: { getMedia },
+    actions: { getMedia, getCustomPageTemplates },
   } = useAPI();
+  const isShoppingEnabled = useFeature('shoppingIntegration');
+  const showElementsTab = useFeature('showElementsTab');
+
+  const supportsCustomTemplates = Boolean(getCustomPageTemplates);
+  const showPageTemplates = canViewDefaultTemplates || supportsCustomTemplates;
+
   const showMedia = Boolean(getMedia); // Do not show media tab if getMedia api callback is not provided.
   const [textSets, setTextSets] = useState({});
   const [areTextSetsLoading, setAreTextSetsLoading] = useState({});
@@ -76,7 +85,19 @@ function LibraryProvider({ children }) {
     []
   );
 
-  const { showElementsTab } = useFeatures();
+  const updateSavedTemplate = useCallback((template) => {
+    _setSavedTemplates((_savedTemplates) => {
+      return _savedTemplates.map((t) => {
+        if (t.templateId === template.templateId) {
+          return {
+            ...t,
+            ...template,
+          };
+        }
+        return t;
+      });
+    });
+  }, []);
 
   const tabs = useMemo(
     // Order here is important, as it denotes the actual visual order of elements.
@@ -87,9 +108,16 @@ function LibraryProvider({ children }) {
         TEXT,
         SHAPES,
         showElementsTab && ELEMS,
-        PAGE_TEMPLATES,
+        isShoppingEnabled && SHOPPING,
+        showPageTemplates && PAGE_TEMPLATES,
       ].filter(Boolean),
-    [showMedia3p, showElementsTab, showMedia]
+    [
+      showMedia3p,
+      showElementsTab,
+      showMedia,
+      showPageTemplates,
+      isShoppingEnabled,
+    ]
   );
 
   const [tab, setTab] = useState(tabs[0].id);
@@ -98,7 +126,7 @@ function LibraryProvider({ children }) {
   const { insertTextSet, insertTextSetByOffset } =
     useInsertTextSet(shouldUseSmartColor);
 
-  const { highlightedTab } = useHighlights(({ tab: highlightedTab }) => ({
+  const { highlightedTab } = useHighlights(({ section: highlightedTab }) => ({
     highlightedTab,
   }));
 
@@ -117,6 +145,7 @@ function LibraryProvider({ children }) {
   const shapesTabRef = useRef(null);
   const elementsTabRef = useRef(null);
   const pageTemplatesTabRef = useRef(null);
+  const shoppingRef = useRef(null);
 
   const tabRefs = useMemo(
     () => ({
@@ -126,6 +155,7 @@ function LibraryProvider({ children }) {
       [SHAPES.id]: shapesTabRef,
       [ELEMS.id]: elementsTabRef,
       [PAGE_TEMPLATES.id]: pageTemplatesTabRef,
+      [SHOPPING.id]: shoppingRef,
     }),
     []
   );
@@ -147,11 +177,12 @@ function LibraryProvider({ children }) {
         insertTextSet,
         insertTextSetByOffset,
         setSavedTemplates,
+        updateSavedTemplate,
         setNextTemplatesToFetch,
         setShouldUseSmartColor,
       },
       data: {
-        tabs: tabs,
+        tabs,
       },
     }),
     [
@@ -168,20 +199,34 @@ function LibraryProvider({ children }) {
       setNextTemplatesToFetch,
       shouldUseSmartColor,
       setSavedTemplates,
+      updateSavedTemplate,
     ]
   );
   useEffect(() => {
+    let mounted = true;
+
     async function getTextSets() {
       const trackTiming = getTimeTracker('load_text_sets');
       setAreTextSetsLoading(true);
-      setTextSets(await loadTextSets());
+      const newTextSets = await loadTextSets();
       trackTiming();
+
+      if (!mounted) {
+        return;
+      }
+
+      setTextSets(newTextSets);
       setAreTextSetsLoading(false);
     }
+
     // if text sets have not been loaded but are needed fetch dynamically imported text sets
     if (tab === TEXT.id && !Object.keys(textSets).length) {
       getTextSets();
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [tab, textSets]);
 
   return <Context.Provider value={state}>{children}</Context.Provider>;

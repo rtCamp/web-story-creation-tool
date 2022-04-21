@@ -19,7 +19,7 @@
  */
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { Text, THEME_CONSTANTS } from '@web-stories-wp/design-system';
+import { Text, THEME_CONSTANTS } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -81,18 +81,6 @@ export const Handle = styled(Slider)`
   &.focus-visible {
     outline: none !important;
   }
-`;
-
-export const CurrentTime = styled(Slider)`
-  top: -3px;
-  bottom: -3px;
-  width: 6px;
-  margin-left: -3px;
-  border-radius: 6px;
-  border-width: 0;
-  background-color: ${({ theme }) => theme.colors.interactiveBg.primaryNormal};
-  box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3),
-    0px 1px 3px 1px rgba(60, 64, 67, 0.15);
 `;
 
 const SVG = styled.svg`

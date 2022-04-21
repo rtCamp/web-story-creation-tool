@@ -24,6 +24,7 @@ import { waitFor } from '@testing-library/react';
  */
 import { Fixture } from '../../../karma';
 import { useStory } from '../../../app/story';
+import { useLocalMedia } from '../../../app/media';
 
 describe('Drop-Target integration', () => {
   let fixture;
@@ -107,9 +108,7 @@ describe('Drop-Target integration', () => {
       expect(bgElement.resource.baseColor).toEqual('#734727');
     });
 
-    // TODO: https://github.com/google/web-stories-wp/issues/10145
-    // eslint-disable-next-line jasmine/no-disabled-tests
-    xit('should correctly handle image dragged from library straight to edge (no cached base color)', async () => {
+    it('should correctly handle image dragged from library straight to edge (no cached base color)', async () => {
       const backgroundId = (await getElements(fixture))[0].id;
 
       // Verify that bg replacement is empty
@@ -118,7 +117,13 @@ describe('Drop-Target integration', () => {
       expect(rep1).toBeEmpty();
 
       // Get library element reference
-      const libraryElement = fixture.editor.library.media.item(4);
+      const mediaIndex = 4;
+      const { mediaResource } = await fixture.renderHook(() =>
+        useLocalMedia(({ state }) => ({
+          mediaResource: state.media[mediaIndex],
+        }))
+      );
+      const libraryElement = fixture.editor.library.media.item(mediaIndex);
 
       // Drag the element to the background
       await dragToDropTarget(fixture, libraryElement, backgroundId);
@@ -158,8 +163,12 @@ describe('Drop-Target integration', () => {
 
       // Verify the background base color is handled as expected.
       await waitFor(() => {
-        expect(bgElement.resource.baseColor).toEqual('#a38d7f');
+        if (bgElement.resource.baseColor === mediaResource.baseColor) {
+          return;
+        }
+        throw new Error('Background element image loading');
       });
+      expect(bgElement.resource.baseColor).toEqual(mediaResource.baseColor);
     });
   });
 
@@ -167,7 +176,7 @@ describe('Drop-Target integration', () => {
     let imageData;
 
     beforeEach(async () => {
-      await fixture.events.click(fixture.editor.library.media.item(0));
+      await insertMediaByIndex(fixture, 0);
       imageData = (await getElements(fixture))[1];
     });
 
@@ -276,7 +285,7 @@ describe('Drop-Target integration', () => {
       let imageData;
 
       beforeEach(async () => {
-        await fixture.events.click(fixture.editor.library.media.item(1));
+        await insertMediaByIndex(fixture, 1);
         imageData = (await getElements(fixture))[1];
       });
 
@@ -340,8 +349,9 @@ describe('Drop-Target integration', () => {
           await fixture.events.mouse.clickOn(bgElement, 5, 5);
 
           // And flip it
+          await fixture.events.click(fixture.editor.sidebar.designTab);
           await fixture.events.click(
-            fixture.editor.inspector.designPanel.pageBackground.flipHorizontal
+            fixture.editor.sidebar.designPanel.pageBackground.flipHorizontal
           );
         });
 
@@ -391,8 +401,9 @@ describe('Drop-Target integration', () => {
           await fixture.events.mouse.clickOn(element, 1, 1);
 
           // And flip it
+          await fixture.events.click(fixture.editor.sidebar.designTab);
           await fixture.events.click(
-            fixture.editor.inspector.designPanel.sizePosition.flipHorizontal
+            fixture.editor.sidebar.designPanel.sizePosition.flipHorizontal
           );
         });
 
@@ -443,11 +454,12 @@ describe('Drop-Target integration', () => {
         let flippedImageData;
 
         beforeEach(async () => {
-          await fixture.events.click(fixture.editor.library.media.item(2));
+          await insertMediaByIndex(fixture, 2);
           flippedImageData = (await getElements(fixture))[2];
 
+          await fixture.events.click(fixture.editor.sidebar.designTab);
           await fixture.events.click(
-            fixture.editor.inspector.designPanel.sizePosition.flipHorizontal
+            fixture.editor.sidebar.designPanel.sizePosition.flipHorizontal
           );
 
           const element = fixture.editor.canvas.displayLayer.display(
@@ -565,13 +577,18 @@ function dragCanvasElementToDropTarget(fixture, fromId, toId) {
   return dragToDropTarget(fixture, from, toId);
 }
 
+async function insertMediaByIndex(fixture, index) {
+  const mediaItem = fixture.editor.library.media.item(index);
+  await fixture.events.mouse.clickOn(mediaItem, 20, 20);
+}
+
 async function dragToDropTarget(fixture, from, toId) {
   const to = fixture.editor.canvas.framesLayer.frame(toId).node;
 
   // Schedule a sequence of events by dragging from center of image
   // to corner of target
   await fixture.events.mouse.seq(({ moveRel, down }) => [
-    moveRel(from, '50%', '50%'),
+    moveRel(from, '20%', '20%'),
     down(),
     moveRel(to, 5, 5, { steps: 5 }),
   ]);

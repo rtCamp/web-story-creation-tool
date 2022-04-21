@@ -19,9 +19,14 @@
  */
 import styled, { css, keyframes } from 'styled-components';
 import PropTypes from 'prop-types';
-import { useState, forwardRef, useMemo, useRef } from '@web-stories-wp/react';
+import {
+  useState,
+  forwardRef,
+  useMemo,
+  useRef,
+} from '@googleforcreators/react';
 import { v4 as uuidv4 } from 'uuid';
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 
 /**
  * Internal dependencies
@@ -34,9 +39,9 @@ import {
 } from '../button';
 import { Pencil } from '../../icons';
 import { Menu } from '../menu';
-import { Tooltip } from '../tooltip';
+import { BaseTooltip } from '../tooltip';
 import { PLACEMENT, Popup } from '../popup';
-import { ReactComponent as Landscape } from './landscape.svg';
+import Landscape from './icons/landscape.svg';
 import { MEDIA_VARIANTS } from './constants';
 
 export { MEDIA_VARIANTS };
@@ -54,6 +59,8 @@ const MediaCircle = styled(MediaRectangle)`
   height: 100%;
   width: 100%;
 `;
+
+const EmptyMediaWrapper = styled.div``;
 
 const ImageWrapper = styled.div`
   border-radius: ${({ variant }) =>
@@ -88,21 +95,31 @@ const menuStyleOverride = css`
   }
 `;
 
-const Button = styled(DefaultButton)`
-  background-color: ${({ theme }) =>
-    theme.colors.interactiveBg.secondaryNormal};
-  position: absolute;
-  bottom: -8px;
-  right: -8px;
-  &:hover {
-    background-color: ${({ theme }) =>
-      theme.colors.interactiveBg.secondaryHover};
-  }
-`;
+const Button = styled(DefaultButton)(
+  ({ showImage }) =>
+    css`
+      background-color: ${({ theme }) =>
+        theme.colors.interactiveBg.secondaryNormal};
+      position: relative;
+
+      ${showImage &&
+      css`
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+      `}
+
+      &:hover {
+        background-color: ${({ theme }) =>
+          theme.colors.interactiveBg.secondaryHover};
+      }
+    `
+);
 
 const MediaOptions = {
   [MEDIA_VARIANTS.RECTANGLE]: MediaRectangle,
   [MEDIA_VARIANTS.CIRCLE]: MediaCircle,
+  [MEDIA_VARIANTS.NONE]: EmptyMediaWrapper,
 };
 
 const dots = keyframes`
@@ -166,6 +183,8 @@ export const MediaInput = forwardRef(function Media(
     canUpload = true,
     menuProps = {},
     imgProps = {},
+    isRTL = false,
+    leftOffset = 0,
     ...rest
   },
   ref
@@ -181,28 +200,33 @@ export const MediaInput = forwardRef(function Media(
   const StyledMedia = MediaOptions[variant];
   // Media input only allows simplified dropdown with one group.
   const options = [{ group: menuOptions }];
+
   return (
-    <StyledMedia className={className} {...rest}>
-      <ImageWrapper variant={variant}>
-        {value ? (
-          <Img
-            src={value}
-            alt={alt}
-            crossOrigin="anonymous"
-            decoding="async"
-            width={imgProps?.width || null}
-            height={imgProps?.height || null}
-          />
-        ) : (
-          <DefaultImageWrapper>
-            <DefaultImage />
-          </DefaultImageWrapper>
-        )}
-        {isLoading && <LoadingDots />}
-      </ImageWrapper>
+    <StyledMedia className={className}>
+      {variant !== MEDIA_VARIANTS.NONE && (
+        <ImageWrapper variant={variant}>
+          {value ? (
+            <Img
+              src={value}
+              alt={alt}
+              crossOrigin="anonymous"
+              decoding="async"
+              width={imgProps?.width || null}
+              height={imgProps?.height || null}
+            />
+          ) : (
+            <DefaultImageWrapper>
+              <DefaultImage />
+            </DefaultImageWrapper>
+          )}
+          {isLoading && <LoadingDots />}
+        </ImageWrapper>
+      )}
       {canUpload && (
-        <Tooltip
+        <BaseTooltip
           title={hasMenu ? null : __('Open media picker', 'web-stories')}
+          isRTL={isRTL}
+          leftOffset={leftOffset}
         >
           <Button
             ref={(node) => {
@@ -215,6 +239,7 @@ export const MediaInput = forwardRef(function Media(
               internalRef.current = node;
             }}
             id={buttonId}
+            showImage={variant !== MEDIA_VARIANTS.NONE}
             variant={BUTTON_VARIANTS.SQUARE}
             type={BUTTON_TYPES.TERTIARY}
             size={BUTTON_SIZES.SMALL}
@@ -227,12 +252,13 @@ export const MediaInput = forwardRef(function Media(
           >
             <Pencil />
           </Button>
-        </Tooltip>
+        </BaseTooltip>
       )}
       <Popup
         placement={PLACEMENT.BOTTOM_END}
         anchor={internalRef}
         isOpen={isMenuOpen}
+        isRTL={isRTL}
       >
         <Menu
           parentId={buttonId}

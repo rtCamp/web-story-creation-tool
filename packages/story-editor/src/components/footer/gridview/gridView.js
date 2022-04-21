@@ -24,9 +24,9 @@ import {
   useRef,
   useCallback,
   useResizeEffect,
-} from '@web-stories-wp/react';
-import { __, sprintf } from '@web-stories-wp/i18n';
-import { PAGE_RATIO } from '@web-stories-wp/units';
+} from '@googleforcreators/react';
+import { __, sprintf } from '@googleforcreators/i18n';
+import { PAGE_RATIO } from '@googleforcreators/units';
 import {
   Slider,
   Button,
@@ -35,7 +35,7 @@ import {
   BUTTON_VARIANTS,
   Icons,
   useGridViewKeys,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -47,6 +47,7 @@ import {
   ReorderableItem,
 } from '../../reorderable';
 import PagePreview from '../pagepreview';
+import { Z_INDEX_GRID_VIEW_SLIDER } from '../../../constants/zIndex';
 
 const MIN_GRID_GAP = 20;
 const LINE_HEIGHT = 64;
@@ -159,7 +160,7 @@ function GridView({ onClose }) {
     })
   );
 
-  const { isRTL } = useConfig();
+  const { isRTL, styleConstants: { leftOffset } = {} } = useConfig();
   const [pagesPerRow, setPagesPerRow] = useState(4);
   const [availableWidth, setAvailableWidth] = useState(null);
   const wrapperRef = useRef();
@@ -223,6 +224,9 @@ function GridView({ onClose }) {
           value={pagesPerRow}
           handleChange={(newValue) => setPagesPerRow(newValue)}
           aria-label={__('Pages per row', 'web-stories')}
+          isRTL={isRTL}
+          leftOffset={leftOffset}
+          popupZIndexOverride={Z_INDEX_GRID_VIEW_SLIDER}
         />
         <NoButton />
       </TopRow>

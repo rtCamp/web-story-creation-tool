@@ -18,16 +18,16 @@
  * External dependencies
  */
 import styled, { css } from 'styled-components';
-import { useCallback } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { themeHelpers } from '@web-stories-wp/design-system';
+import { useCallback } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { themeHelpers } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
 import { useStory } from '../../app/story';
 import { useConfig } from '../../app/config';
-import cleanForSlug from '../../utils/cleanForSlug';
+import { updateSlug } from '../../utils/storyUpdates';
 import { styles, states, useHighlights } from '../../app/highlights';
 
 const Input = styled.input`
@@ -43,6 +43,10 @@ const Input = styled.input`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  border-radius: ${({ theme }) => theme.borders.radius.small};
+
+  ${themeHelpers.focusableOutlineCSS};
+
   ${({ isHighlighted }) =>
     isHighlighted &&
     css`
@@ -77,10 +81,12 @@ function HeaderTitle() {
   );
 
   const handleBlur = useCallback(() => {
-    if (!slug || slug === storyId) {
-      const cleanSlug = encodeURIComponent(cleanForSlug(title)) || storyId;
-      updateStory({ properties: { slug: cleanSlug } });
-    }
+    updateSlug({
+      currentSlug: slug,
+      currentTitle: title,
+      storyId,
+      updateStory,
+    });
   }, [slug, storyId, title, updateStory]);
 
   if (typeof title !== 'string') {

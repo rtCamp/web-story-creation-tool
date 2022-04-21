@@ -17,15 +17,11 @@
 /**
  * External dependencies
  */
-import { renderToStaticMarkup } from '@web-stories-wp/react';
-/**
- * Internal dependencies
- */
+import { renderToStaticMarkup } from '@googleforcreators/react';
 import {
-  duplicateElement,
   getDefinitionForType,
-  getOffsetCoordinates,
-} from '../elements';
+  duplicateElement,
+} from '@googleforcreators/elements';
 
 const DOUBLE_DASH_ESCAPE = '_DOUBLEDASH_';
 
@@ -149,5 +145,3 @@ export function addElementsToClipboard(page, elements, animations, evt) {
     `<!-- ${serializedPayload} -->${htmlContent}`
   );
 }
-
-export { getOffsetCoordinates as getPastedCoordinates };

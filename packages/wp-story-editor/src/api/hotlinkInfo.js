@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * External dependencies
  */
-import { addQueryArgs } from '@web-stories-wp/design-system';
+import { addQueryArgs } from '@googleforcreators/url';
+import { snakeToCamelCaseObjectKeys } from '@web-stories-wp/wp-utils';
+
 /**
  * WordPress dependencies
  */
@@ -26,5 +29,5 @@ export function getHotlinkInfo(config, url) {
   const path = addQueryArgs(config.api.hotlink, { url });
   return apiFetch({
     path,
-  });
+  }).then(snakeToCamelCaseObjectKeys);
 }

@@ -17,8 +17,8 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+import { useCallback, useEffect, useState } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {
@@ -29,20 +29,29 @@ import {
   Icons,
   Text as DefaultText,
   THEME_CONSTANTS,
-  Tooltip,
-} from '@web-stories-wp/design-system';
-import { trackEvent } from '@web-stories-wp/tracking';
+} from '@googleforcreators/design-system';
+import { trackEvent } from '@googleforcreators/tracking';
+import {
+  getDefinitionForType,
+  createNewElement,
+} from '@googleforcreators/elements';
 
 /**
  * Internal dependencies
  */
 import { Color, MediaUploadButton, Row as DefaultRow } from '../../../form';
-import { useConfig, useStory } from '../../../../app';
+import { useConfig, useStory, useLayout } from '../../../../app';
+import {
+  getPagesWithFailedContrast,
+  ACCESSIBILITY_COPY,
+} from '../../../checklist';
 import { SimplePanel } from '../../panel';
 import { FlipControls } from '../../shared';
-import { createNewElement, getDefinitionForType } from '../../../../elements';
 import { states, styles, useHighlights } from '../../../../app/highlights';
 import getElementProperties from '../../../canvas/utils/getElementProperties';
+import Warning from '../warning';
+import useCORSProxy from '../../../../utils/useCORSProxy';
+import Tooltip from '../../../tooltip';
 
 const DEFAULT_FLIP = { horizontal: false, vertical: false };
 
@@ -92,21 +101,32 @@ const Text = styled(DefaultText)`
 `;
 
 function PageBackgroundPanel({ selectedElements, pushUpdate }) {
+  const { isDefaultBackground } = selectedElements[0];
   const {
     combineElements,
     currentPage,
     clearBackgroundElement,
     updateCurrentPageProperties,
+    currentPageBackgroundColor,
   } = useStory(({ state, actions }) => ({
     currentPage: state.currentPage,
     clearBackgroundElement: actions.clearBackgroundElement,
     combineElements: actions.combineElements,
     updateCurrentPageProperties: actions.updateCurrentPageProperties,
+    currentPageBackgroundColor:
+      !isDefaultBackground || state.currentPage?.backgroundColor,
   }));
+  const { getProxiedUrl } = useCORSProxy();
 
   const {
     capabilities: { hasUploadMediaAction },
   } = useConfig();
+  const pageSize = useLayout(({ state: { pageWidth, pageHeight } }) => ({
+    width: pageWidth,
+    height: pageHeight,
+  }));
+
+  const [failedContrast, setFailedContrast] = useState(false);
 
   const updateBackgroundColor = useCallback(
     (value) => {
@@ -163,11 +183,25 @@ function PageBackgroundPanel({ selectedElements, pushUpdate }) {
     })
   );
 
+  useEffect(() => {
+    getPagesWithFailedContrast([currentPage], pageSize)
+      .then((failedPages) => {
+        // getPagesWithFailedContrast returns an array of pages, since we only care
+        // about currentPage, we can grab the single page result.
+        const result = failedPages[0]?.result;
+        // We only want to show the warning if the text is on the background element
+        const isBackgroundElement = result?.some(
+          ({ isBackground }) => isBackground
+        );
+        setFailedContrast(Boolean(isBackgroundElement));
+      })
+      .catch(() => {});
+  }, [currentPage, pageSize]);
+
   const backgroundEl = selectedElements[0];
   if (!backgroundEl || !backgroundEl.isBackground) {
     return null;
   }
-  const isDefaultBackground = backgroundEl.isDefaultBackground;
   const isMedia = backgroundEl.isBackground && !isDefaultBackground;
 
   const { backgroundColor } = currentPage;
@@ -209,7 +243,11 @@ function PageBackgroundPanel({ selectedElements, pushUpdate }) {
         <Row expand={false}>
           <SelectedMedia>
             <MediaWrapper>
-              <LayerIcon element={backgroundEl} />
+              <LayerIcon
+                element={backgroundEl}
+                getProxiedUrl={getProxiedUrl}
+                currentPageBackgroundColor={currentPageBackgroundColor}
+              />
             </MediaWrapper>
             <Text size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}>
               {__('Media', 'web-stories')}
@@ -238,6 +276,9 @@ function PageBackgroundPanel({ selectedElements, pushUpdate }) {
             value={flip}
           />
         </Row>
+      )}
+      {failedContrast && (
+        <Warning message={ACCESSIBILITY_COPY.lowContrast.backgroundPanel} />
       )}
     </SimplePanel>
   );

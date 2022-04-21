@@ -17,14 +17,15 @@
 /**
  * External dependencies
  */
-import { useUnits } from '@web-stories-wp/units';
-import { useBatchingCallback } from '@web-stories-wp/react';
+import { useUnits } from '@googleforcreators/units';
+import { useBatchingCallback } from '@googleforcreators/react';
 /**
  * Internal dependencies
  */
 import { useDropTargets } from '../../dropTargets';
 import { useStory } from '../../../app';
 import useElementOutOfCanvas from '../utils/useElementOutOfCanvas';
+import useFullbleedMediaAsBackground from '../utils/useFullbleedMediaAsBackground';
 
 function useSingleSelectionDrag({
   setIsDragging,
@@ -46,6 +47,9 @@ function useSingleSelectionDrag({
     );
 
   const { handleElementOutOfCanvas } = useElementOutOfCanvas();
+  const { handleFullbleedMediaAsBackground } = useFullbleedMediaAsBackground({
+    selectedElement,
+  });
 
   const { updateSelectedElements } = useStory((state) => ({
     updateSelectedElements: state.actions.updateSelectedElements,
@@ -116,6 +120,7 @@ function useSingleSelectionDrag({
       }
     }
     resetDragging(target);
+    handleFullbleedMediaAsBackground(target);
     return undefined;
   };
 

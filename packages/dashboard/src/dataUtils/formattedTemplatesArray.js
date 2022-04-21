@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { toUTCDate } from '@web-stories-wp/date';
+import { toUTCDate } from '@googleforcreators/date';
 
 const formattedTemplatesArray = [
   {
@@ -28,7 +28,7 @@ const formattedTemplatesArray = [
       'Maecenas ultrices tortor nibh, eu consequat magna maximus non. Quisque nec tellus lacus.',
     id: 10,
     isLocal: false,
-    modified: toUTCDate('04-04-2020'),
+    modified: toUTCDate('04/04/2020'),
     pages: [
       {
         elements: [
@@ -408,6 +408,7 @@ const formattedTemplatesArray = [
               type: 'rectangle',
             },
             isBackground: true,
+            isDefaultBackground: true,
             type: 'shape',
             id: 'ef056bde-fdc3-4f71-809a-e69c62ae914d',
           },
@@ -1277,20 +1278,20 @@ const formattedTemplatesArray = [
     title: 'Filterable By Tag',
     postersByPage: [
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
     ],
   },
@@ -1302,7 +1303,7 @@ const formattedTemplatesArray = [
       'Maecenas ultrices tortor nibh, eu consequat magna maximus non. Quisque nec tellus lacus.',
     id: 9,
     isLocal: false,
-    modified: toUTCDate('04-04-2020'),
+    modified: toUTCDate('04/04/2020'),
     pages: [
       {
         elements: [
@@ -1495,20 +1496,20 @@ const formattedTemplatesArray = [
     title: 'Filterable By Color',
     postersByPage: [
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
     ],
   },
@@ -1520,7 +1521,7 @@ const formattedTemplatesArray = [
       'Maecenas ultrices tortor nibh, eu consequat magna maximus non. Quisque nec tellus lacus.',
     id: 3,
     isLocal: false,
-    modified: toUTCDate('04-04-2020'),
+    modified: toUTCDate('04/04/2020'),
     pages: [
       {
         elements: [
@@ -1712,20 +1713,20 @@ const formattedTemplatesArray = [
     title: 'Entertainment',
     postersByPage: [
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
     ],
   },
@@ -1737,7 +1738,7 @@ const formattedTemplatesArray = [
       'Maecenas ultrices tortor nibh, eu consequat magna maximus non. Quisque nec tellus lacus.',
     id: 4,
     isLocal: false,
-    modified: toUTCDate('04-04-2020'),
+    modified: toUTCDate('04/04/2020'),
     pages: [
       {
         elements: [
@@ -1929,20 +1930,20 @@ const formattedTemplatesArray = [
     title: 'Filterable By Vertical',
     postersByPage: [
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-3.png',
+        png: 'http://localhost:9876/__static__/featured-media-3.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-3.png',
+        png: 'http://localhost:9876/__static__/featured-media-3.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-3.png',
+        png: 'http://localhost:9876/__static__/featured-media-3.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-3.png',
+        png: 'http://localhost:9876/__static__/featured-media-3.png',
       },
     ],
   },
@@ -1954,7 +1955,7 @@ const formattedTemplatesArray = [
       'Maecenas ultrices tortor nibh, eu consequat magna maximus non. Quisque nec tellus lacus.',
     id: 5,
     isLocal: false,
-    modified: toUTCDate('04-04-2020'),
+    modified: toUTCDate('04/04/2020'),
     pages: [
       {
         elements: [
@@ -2146,20 +2147,20 @@ const formattedTemplatesArray = [
     title: 'Fitness',
     postersByPage: [
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
     ],
   },
@@ -2171,7 +2172,7 @@ const formattedTemplatesArray = [
       'Maecenas ultrices tortor nibh, eu consequat magna maximus non. Quisque nec tellus lacus.',
     id: 6,
     isLocal: false,
-    modified: toUTCDate('04-04-2020'),
+    modified: toUTCDate('04/04/2020'),
     pages: [
       {
         elements: [
@@ -2363,20 +2364,20 @@ const formattedTemplatesArray = [
     title: 'Travel',
     postersByPage: [
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-3.png',
+        png: 'http://localhost:9876/__static__/featured-media-3.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-3.png',
+        png: 'http://localhost:9876/__static__/featured-media-3.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-3.png',
+        png: 'http://localhost:9876/__static__/featured-media-3.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-3.png',
+        png: 'http://localhost:9876/__static__/featured-media-3.png',
       },
     ],
   },
@@ -2388,7 +2389,7 @@ const formattedTemplatesArray = [
       'Maecenas ultrices tortor nibh, eu consequat magna maximus non. Quisque nec tellus lacus.',
     id: 7,
     isLocal: false,
-    modified: toUTCDate('04-04-2020'),
+    modified: toUTCDate('04/04/2020'),
     pages: [
       {
         elements: [
@@ -2580,20 +2581,20 @@ const formattedTemplatesArray = [
     title: 'Wellbeing',
     postersByPage: [
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-1.png',
+        png: 'http://localhost:9876/__static__/featured-media-1.png',
       },
     ],
   },
@@ -2605,7 +2606,7 @@ const formattedTemplatesArray = [
       'Maecenas ultrices tortor nibh, eu consequat magna maximus non. Quisque nec tellus lacus.',
     id: 8,
     isLocal: false,
-    modified: toUTCDate('04-04-2020'),
+    modified: toUTCDate('04/04/2020'),
     pages: [
       {
         elements: [
@@ -2797,20 +2798,20 @@ const formattedTemplatesArray = [
     title: 'Beauty',
     postersByPage: [
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
       {
-        webp: 'https://placekitten.com/g/200/300',
-        png: 'https://placekitten.com/g/200/300',
+        webp: 'http://localhost:9876/__static__/featured-media-2.png',
+        png: 'http://localhost:9876/__static__/featured-media-2.png',
       },
     ],
   },

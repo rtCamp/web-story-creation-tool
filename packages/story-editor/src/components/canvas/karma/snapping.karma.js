@@ -30,7 +30,8 @@ describe('Snapping integration', () => {
     await fixture.render();
     await fixture.collapseHelpCenter();
 
-    await fixture.events.click(fixture.editor.library.media.item(0));
+    const mediaItem = fixture.editor.library.media.item(0);
+    await fixture.events.mouse.clickOn(mediaItem, 20, 20);
 
     const {
       state: {
@@ -55,6 +56,18 @@ describe('Snapping integration', () => {
       await fixture.events.mouse.up();
 
       await fixture.snapshot('Design space guideline hidden');
+    });
+
+    it('should show canvas center guidelines when moved to the center', async () => {
+      await fixture.events.mouse.seq(({ moveRel, moveBy, down }) => [
+        moveRel(frame1, 10, 10),
+        down(),
+        moveBy(10, 150, { steps: 6 }),
+      ]);
+
+      await fixture.snapshot('Canvas center guidelines visible');
+
+      await fixture.events.mouse.up();
     });
   });
 });

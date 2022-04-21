@@ -19,11 +19,14 @@
  */
 import PropTypes from 'prop-types';
 import { fireEvent, screen } from '@testing-library/react';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
-import { renderWithTheme } from '../../../../../../testUtils';
+import { createResource } from '@googleforcreators/media';
 import useLibrary from '../../../../useLibrary';
 import useConfig from '../../../../../../app/config/useConfig';
 import useMedia from '../../../../../../app/media/useMedia';
@@ -61,56 +64,48 @@ jest.mock('../../../../../../app/media/media3p/providerConfiguration', () => ({
   },
 }));
 
-jest.mock('react-photo-gallery', () => ({
-  __esModule: true,
-  default: jest.fn(({ photos, renderImage }) => (
-    <>{photos.map((photo, index) => renderImage({ photo, index }))}</>
-  )),
-}));
-
-// TODO: Use createResource / getResourceFromMedia3p.
-const createMediaResource = (name, provider) => ({
-  name,
-  provider: provider,
-  src: 'http://www.img.com/1',
-  width: 480,
-  height: 640,
-  imageUrls: [
-    {
-      imageName: 'full',
-      url: 'http://www.img.com/1',
-      width: 480,
-      height: 640,
-      mimeType: 'image/png',
+const createMediaResource = (id, name, provider) =>
+  createResource({
+    id,
+    name,
+    isExternal: true,
+    baseColor: '#734727',
+    alt: `${name} + ${id}`,
+    provider,
+    src: `http://www.img.com/${id}_1`,
+    width: 480,
+    height: 640,
+    sizes: {
+      full: {
+        sourceUrl: `http://www.img.com/${id}_full`,
+        width: 480,
+        height: 640,
+        mimeType: 'image/png',
+      },
+      large: {
+        sourceUrl: `http://www.img.com/${id}_large`,
+        width: 300,
+        height: 200,
+        mimeType: 'image/png',
+      },
+      thumbnail: {
+        sourceUrl: `http://www.img.com/${id}_thumbnail`,
+        width: 200,
+        height: 100,
+        mimeType: 'image/png',
+      },
     },
-    {
-      imageName: 'large',
-      url: 'http://www.img.com/2',
-      width: 300,
-      height: 200,
-      mimeType: 'image/png',
+    type: 'image',
+    mimeType: 'image/png',
+    creationDate: '1234',
+    attribution: {
+      author: {
+        displayName: 'Photographer Name',
+        url: 'https://author.url',
+      },
+      registerUsageUrl: 'https://registerUsageUrl.com/register',
     },
-    {
-      imageName: 'web_stories_thumbnail',
-      url: 'http://www.img.com/3',
-      width: 200,
-      height: 100,
-      mimeType: 'image/png',
-    },
-  ],
-  description: 'A cat',
-  type: 'image',
-  mimeType: 'image/png',
-  createTime: '1234',
-  updateTime: '5678',
-  attribution: {
-    author: {
-      displayName: 'Photographer Name',
-      url: 'https://author.url',
-    },
-    registerUsageUrl: 'https://registerUsageUrl.com/register',
-  },
-});
+  });
 
 const DEFAULT_PROVIDER_STATE = (index) => ({
   state: {
@@ -149,7 +144,10 @@ const DEFAULT_USE_MEDIA_RESULT = {
   },
 };
 
-const MEDIA = Array(10).fill(createMediaResource('img', 'PROVIDER_1'));
+const MEDIA = [];
+for (let i = 0; i < 10; i++) {
+  MEDIA.push(createMediaResource(i, 'img', 'PROVIDER_1'));
+}
 
 /* eslint-disable testing-library/no-node-access, testing-library/no-container */
 
@@ -159,6 +157,8 @@ describe('Media3pPane', () => {
   let useMediaResult;
 
   beforeAll(() => {
+    elementTypes.forEach(registerElementType);
+
     useConfig.mockImplementation(() => ({
       capabilities: {
         hasUploadMediaAction: true,
@@ -312,10 +312,11 @@ describe('Media3pPane', () => {
     useMediaResult.searchTerm = '';
     renderWithTheme(<Media3pPane isActive />);
 
-    fireEvent.keyDown(screen.queryAllByTestId(/^mediaElement-/)[0], {
-      key: 'Enter',
-      which: 13,
-    });
+    fireEvent.click(
+      screen.queryAllByRole('button', { name: 'Open insertion menu' })[0]
+    );
+
+    fireEvent.click(screen.getByText(/Insert image/));
 
     expect(registerUsage).toHaveBeenCalledWith({
       registerUsageUrl: 'https://registerUsageUrl.com/register',

@@ -2,10 +2,10 @@
 /**
  * Stories dashboard.
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $dashboard_settings = \Google\Web_Stories\Services::get( 'dashboard' )->get_dashboard_settings();
 
 $init_script = <<<JS
-	webStories.domReady( function() {
+	wp.domReady( function() {
 	  webStories.initializeStoryDashboard( 'web-stories-dashboard', %s );
 	} );
 JS;

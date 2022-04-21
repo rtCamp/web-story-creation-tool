@@ -21,35 +21,39 @@ import {
   usePrevious,
   useRef,
   useState,
-} from '@web-stories-wp/react';
-import { __, sprintf } from '@web-stories-wp/i18n';
-import { trackScreenView } from '@web-stories-wp/tracking';
-import { Snackbar, useSnackbar } from '@web-stories-wp/design-system';
+} from '@googleforcreators/react';
+import { __, sprintf } from '@googleforcreators/i18n';
+import { trackScreenView } from '@googleforcreators/tracking';
+import { Snackbar, useSnackbar } from '@googleforcreators/design-system';
 import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
  */
 import { ExploreTemplatesView, MyStoriesView } from '../../app/views';
-import {
-  ADMIN_TITLE,
-  APP_ROUTES,
-  NESTED_APP_ROUTES,
-  ROUTE_TITLES,
-} from '../../constants';
+import { APP_ROUTES, ROUTE_TITLES } from '../../constants';
 import { Route, useRouteHistory } from '../../app/router';
 import { AppFrame, LeftRail, PageContent } from '../pageStructure';
 import useApiAlerts from '../../app/api/useApiAlerts';
 import useApi from '../../app/api/useApi';
+import { useConfig } from '../../app/config';
 
 const InterfaceSkeleton = ({ additionalRoutes }) => {
+  const { currentPath, templateId, availableRoutes } = useRouteHistory(
+    ({ state }) => ({
+      ...state,
+      templateId: state.queryParams.id,
+    })
+  );
+  const { push, setAvailableRoutes } = useRouteHistory(
+    ({ actions }) => actions
+  );
+
   const {
-    state: {
-      currentPath,
-      queryParams: { id: templateId, isLocal },
-    },
-    actions: { push, replace },
-  } = useRouteHistory();
+    canViewDefaultTemplates,
+    leftRailSecondaryNavigation = [],
+    documentTitleSuffix = __('Web Stories', 'web-stories'),
+  } = useConfig();
 
   const { addInitialFetchListener } = useApi(
     ({
@@ -74,41 +78,55 @@ const InterfaceSkeleton = ({ additionalRoutes }) => {
   // have no stories created.
   useEffect(() => {
     return addInitialFetchListener?.((storyStatuses) => {
-      if (storyStatuses?.all <= 0 && isFirstLoadOnMyStories.current) {
+      if (
+        storyStatuses?.all <= 0 &&
+        isFirstLoadOnMyStories.current &&
+        canViewDefaultTemplates
+      ) {
         push(APP_ROUTES.TEMPLATES_GALLERY);
       }
       setIsRedirectComplete(true);
     });
-  }, [addInitialFetchListener, push, currentPath]);
+  }, [addInitialFetchListener, push, currentPath, canViewDefaultTemplates]);
+
+  // Only set the available routes & default route on initial mount
+  useEffect(() => {
+    if (availableRoutes.length > 0) {
+      return;
+    }
+    const additionalPaths = additionalRoutes
+      ? additionalRoutes.map(({ path }) => path)
+      : [];
+    setAvailableRoutes([...Object.values(APP_ROUTES), ...additionalPaths]);
+  }, [additionalRoutes, availableRoutes.length, setAvailableRoutes]);
 
   useEffect(() => {
     if (!isRedirectComplete) {
       return;
     }
-    // backwards compatibility for template details pages,
-    // if templateId is present modal will open to appropriate template
-    if (currentPath.includes(NESTED_APP_ROUTES.TEMPLATES_GALLERY_DETAIL)) {
-      replace(
-        templateId
-          ? `${APP_ROUTES.TEMPLATES_GALLERY}?id=${templateId}&isLocal=${
-              isLocal || false
-            }`
-          : `${APP_ROUTES.TEMPLATES_GALLERY}`
-      );
-      return;
-    }
 
-    const dynamicPageTitle = ROUTE_TITLES[currentPath] || ROUTE_TITLES.DEFAULT;
+    const additionalRouteTitle = leftRailSecondaryNavigation.find(
+      (config) => config.value === currentPath
+    );
+    const dynamicPageTitle =
+      ROUTE_TITLES[currentPath] ||
+      additionalRouteTitle?.label ||
+      ROUTE_TITLES.DEFAULT;
 
     document.title = sprintf(
       /* translators: Admin screen title. 1: Admin screen name, 2: Network or site name. */
-      __('%1$s \u2039 %2$s \u2212 WordPress', 'web-stories'),
+      __('%1$s \u2039 %2$s', 'web-stories'),
       dynamicPageTitle,
-      ADMIN_TITLE
+      documentTitleSuffix
     );
 
     trackScreenView(dynamicPageTitle);
-  }, [currentPath, isLocal, isRedirectComplete, replace, templateId]);
+  }, [
+    currentPath,
+    isRedirectComplete,
+    leftRailSecondaryNavigation,
+    documentTitleSuffix,
+  ]);
 
   useApiAlerts();
   const { clearSnackbar, removeSnack, placement, currentSnacks } =
@@ -130,13 +148,16 @@ const InterfaceSkeleton = ({ additionalRoutes }) => {
         <PageContent>
           <Route
             exact
+            isDefault
             path={APP_ROUTES.DASHBOARD}
             component={<MyStoriesView />}
           />
-          <Route
-            path={APP_ROUTES.TEMPLATES_GALLERY}
-            component={<ExploreTemplatesView />}
-          />
+          {canViewDefaultTemplates && (
+            <Route
+              path={APP_ROUTES.TEMPLATES_GALLERY}
+              component={<ExploreTemplatesView />}
+            />
+          )}
           {additionalRoutes &&
             additionalRoutes.map((routeProps) => (
               <Route key={routeProps.path} {...routeProps} />

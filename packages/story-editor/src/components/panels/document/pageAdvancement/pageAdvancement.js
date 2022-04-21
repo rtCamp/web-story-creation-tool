@@ -17,33 +17,34 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {
   useCallback,
   useEffect,
   useState,
   useDebouncedCallback,
-} from '@web-stories-wp/react';
-
-/**
- * External dependencies
- */
-import { __ } from '@web-stories-wp/i18n';
-import { trackEvent } from '@web-stories-wp/tracking';
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { trackEvent } from '@googleforcreators/tracking';
 import {
   NumericInput,
   Text,
   THEME_CONSTANTS,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
+import { clamp } from '@googleforcreators/units';
+import {
+  DEFAULT_PAGE_DURATION,
+  DEFAULT_AUTO_ADVANCE,
+} from '@googleforcreators/output';
 
 /**
  * Internal dependencies
  */
-import clamp from '../../../../utils/clamp';
 import { useStory } from '../../../../app/story';
 import { Row, Switch } from '../../../form';
 import { SimplePanel } from '../../panel';
-import { inputContainerStyleOverride } from '../../shared';
+import { inputContainerStyleOverride } from '../../shared/styles';
 
 const SwitchRow = styled.div`
   margin-bottom: 16px;
@@ -55,8 +56,6 @@ const MutedText = styled(Text).attrs({
   color: ${({ theme }) => theme.colors.fg.secondary};
 `;
 
-const DEFAULT_AUTO_ADVANCE = true;
-const DEFAULT_PAGE_DURATION = 7;
 const MIN_MAX = {
   PAGE_DURATION: {
     MIN: 1,
@@ -64,7 +63,7 @@ const MIN_MAX = {
   },
 };
 
-function PageAdvancementPanel() {
+function PageAdvancementPanel({ nameOverride }) {
   const { autoAdvance, defaultPageDuration, updateStory } = useStory(
     ({
       state: {
@@ -122,7 +121,7 @@ function PageAdvancementPanel() {
 
   return (
     <SimplePanel
-      name="pageAdvancement"
+      name={nameOverride || 'pageAdvancement'}
       title={__('Page Advancement', 'web-stories')}
       collapsedByDefault={false}
     >
@@ -164,3 +163,7 @@ function PageAdvancementPanel() {
 }
 
 export default PageAdvancementPanel;
+
+PageAdvancementPanel.propTypes = {
+  nameOverride: PropTypes.string,
+};

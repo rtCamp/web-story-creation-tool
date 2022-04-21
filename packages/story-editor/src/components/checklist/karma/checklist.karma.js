@@ -17,7 +17,7 @@
  * External dependencies
  */
 import { waitFor } from '@testing-library/react';
-import { DATA_VERSION } from '@web-stories-wp/migration';
+import { DATA_VERSION } from '@googleforcreators/migration';
 /**
  * Internal dependencies
  */
@@ -85,6 +85,10 @@ describe('Checklist integration', () => {
           type: 'image',
           mimeType: 'image/jpg',
           src: 'http://localhost:9876/__static__/earth.jpg',
+          alt: '',
+          width: 640,
+          height: 529,
+          baseColor: '#734727',
         },
       })
     );
@@ -348,18 +352,22 @@ describe('Checklist integration', () => {
     });
   });
 
-  it('should open the checklist after following "review checklist" button in dialog on publishing story', async () => {
+  it('should open the checklist after following "checklist" button in dialog on publishing story', async () => {
     fixture.events.click(fixture.editor.titleBar.publish);
-    // Ensure the debounced callback has taken effect.
-    await fixture.events.sleep(800);
 
     const reviewButton = await fixture.screen.getByRole('button', {
-      name: /^Review Checklist$/,
+      name: /^Checklist$/,
     });
     await fixture.events.click(reviewButton);
-    // This is the initial load of the checklist tab so we need to wait for it to load
-    // before we can see tabs.
-    await fixture.events.sleep(300);
+
+    await waitFor(
+      () => {
+        if (!fixture.editor.checklist.issues) {
+          throw new Error('Checklist not visible yet');
+        }
+      },
+      { timeout: 2000 }
+    );
 
     expect(
       fixture.editor.checklist.issues.getAttribute('data-isexpanded')
@@ -398,10 +406,13 @@ describe('Checklist integration - Card visibility', () => {
           first: () => ({
             toJSON: () => ({
               id: 10,
-              url: 'http://localhost:9876/__static__/earth.jpg',
-              mime: 'image/jpeg',
-              width: 400,
-              height: 480,
+              type: 'image',
+              mimeType: 'image/jpg',
+              src: 'http://localhost:9876/__static__/earth.jpg',
+              alt: 'earth',
+              width: 640,
+              height: 529,
+              baseColor: '#734727',
             }),
           }),
         }),
@@ -410,10 +421,13 @@ describe('Checklist integration - Card visibility', () => {
       once: (_type, callback) =>
         callback({
           id: 10,
-          url: 'http://localhost:9876/__static__/earth.jpg',
-          mime: 'image/jpeg',
-          width: 400,
-          height: 480,
+          type: 'image',
+          mimeType: 'image/jpg',
+          src: 'http://localhost:9876/__static__/earth.jpg',
+          alt: 'earth',
+          width: 640,
+          height: 529,
+          baseColor: '#734727',
         }),
       open: () => {},
       close: () => {},
@@ -482,11 +496,14 @@ describe('Checklist integration - Card visibility', () => {
         width: 640 / 2,
         height: 529 / 2,
         resource: {
+          id: 10,
           type: 'image',
           mimeType: 'image/jpg',
           src: 'http://localhost:9876/__static__/earth.jpg',
-          width: 300,
-          height: 400,
+          alt: 'earth',
+          width: 640,
+          height: 529,
+          baseColor: '#734727',
         },
       })
     );
@@ -548,18 +565,18 @@ describe('Checklist integration - Card visibility', () => {
               author: 1,
               slug: '',
               date: '2020-05-06T22:32:37',
-              date_gmt: '2020-05-06T22:32:37',
+              dateGmt: '2020-05-06T22:32:37',
               modified: '2020-05-06T22:32:37',
               excerpt: { raw: '' },
               link: 'http://stories.local/?post_type=web-story&p=1',
-              preview_link: 'http://stories.local/?post_type=web-story&p=1',
-              story_data: {
+              previewLink: 'http://stories.local/?post_type=web-story&p=1',
+              storyData: {
                 version: DATA_VERSION,
                 pages: [],
               },
-              featured_media: 2,
-              permalink_template: 'http://stories3.local/stories/%pagename%/',
-              style_presets: { textStyles: [], colors: [] },
+              featuredMedia: 2,
+              permalinkTemplate: 'http://stories3.local/stories/%pagename%/',
+              stylePresets: { textStyles: [], colors: [] },
               password: '',
             }),
         },

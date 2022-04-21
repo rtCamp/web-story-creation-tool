@@ -18,12 +18,16 @@
  * External dependencies
  */
 import { waitFor, fireEvent, screen } from '@testing-library/react';
-import { SnackbarContext, setAppElement } from '@web-stories-wp/design-system';
+import {
+  SnackbarContext,
+  setAppElement,
+} from '@googleforcreators/design-system';
+import { renderWithTheme } from '@googleforcreators/test-utils';
+
 /**
  * Internal dependencies
  */
 import MediaEditDialog from '../panes/media/local/mediaEditDialog';
-import { renderWithTheme } from '../../../testUtils';
 import ApiContext from '../../../app/api/context';
 import MediaContext from '../../../app/media/context';
 
@@ -104,7 +108,7 @@ describe('MediaEditDialog', () => {
     // Mock out `updateMedia`.
     let serverAltText = resource.alt;
     updateMedia.mockImplementation((_id, update) => {
-      serverAltText = update.alt_text;
+      serverAltText = update.altText;
     });
 
     // Mock out `updateMediaElement`.

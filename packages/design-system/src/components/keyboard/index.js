@@ -25,11 +25,12 @@ import {
   useState,
   useContext,
   useBatchingCallback,
-} from '@web-stories-wp/react';
+  useCallback,
+} from '@googleforcreators/react';
 /**
  * Internal dependencies
  */
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 import Context from './context';
 
 const PROP = '__WEB_STORIES_MT__';
@@ -84,7 +85,7 @@ function useKeyEffectInternal(
   deps = undefined
 ) {
   const { keys } = useContext(Context);
-  //eslint-disable-next-line react-hooks/exhaustive-deps
+  //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
   const batchingCallback = useBatchingCallback(callback, deps || []);
   useEffect(
     () => {
@@ -114,7 +115,7 @@ function useKeyEffectInternal(
         mousetrap.unbind(keySpec.key, type);
       };
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Deliberately don't want the other possible deps here.
     [batchingCallback, keys]
   );
 }
@@ -137,7 +138,7 @@ export function useKeyEffect(
   callback,
   deps = undefined
 ) {
-  //eslint-disable-next-line react-hooks/exhaustive-deps
+  //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
   useKeyEffectInternal(refOrNode, keyNameOrSpec, undefined, callback, deps);
 }
 
@@ -153,7 +154,7 @@ export function useKeyDownEffect(
   callback,
   deps = undefined
 ) {
-  //eslint-disable-next-line react-hooks/exhaustive-deps
+  //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
   useKeyEffectInternal(refOrNode, keyNameOrSpec, 'keydown', callback, deps);
 }
 
@@ -169,7 +170,7 @@ export function useKeyUpEffect(
   callback,
   deps = undefined
 ) {
-  //eslint-disable-next-line react-hooks/exhaustive-deps
+  //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
   useKeyEffectInternal(refOrNode, keyNameOrSpec, 'keyup', callback, deps);
 }
 
@@ -181,9 +182,20 @@ export function useKeyUpEffect(
  */
 export function useIsKeyPressed(refOrNode, keyNameOrSpec, deps = undefined) {
   const [isKeyPressed, setIsKeyPressed] = useState(false);
-  //eslint-disable-next-line react-hooks/exhaustive-deps
+
+  const handleBlur = useCallback(() => {
+    setIsKeyPressed(false);
+  }, []);
+  useEffect(() => {
+    window.addEventListener('blur', handleBlur);
+    return function () {
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [handleBlur]);
+
+  //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
   useKeyDownEffect(refOrNode, keyNameOrSpec, () => setIsKeyPressed(true), deps);
-  //eslint-disable-next-line react-hooks/exhaustive-deps
+  //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
   useKeyUpEffect(refOrNode, keyNameOrSpec, () => setIsKeyPressed(false), deps);
   return isKeyPressed;
 }
@@ -199,7 +211,7 @@ export function useGlobalKeyDownEffect(
   deps = undefined
 ) {
   setGlobalRef();
-  //eslint-disable-next-line react-hooks/exhaustive-deps
+  //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
   useKeyDownEffect(globalRef, keyNameOrSpec, callback, deps);
 }
 
@@ -214,7 +226,7 @@ export function useGlobalKeyUpEffect(
   deps = undefined
 ) {
   setGlobalRef();
-  //eslint-disable-next-line react-hooks/exhaustive-deps
+  //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
   useKeyUpEffect(globalRef, keyNameOrSpec, callback, deps);
 }
 
@@ -246,7 +258,7 @@ export function useEscapeToBlurEffect(refOrNode, deps = undefined) {
         activeElement.blur();
       }
     },
-    //eslint-disable-next-line react-hooks/exhaustive-deps
+    //eslint-disable-next-line react-hooks/exhaustive-deps -- Pass through provided deps.
     deps
   );
 }
@@ -375,7 +387,7 @@ function crossesDialogBoundary(target, keyTarget) {
  * @return {boolean} True if platform is a Mac.
  */
 export function isPlatformMacOS() {
-  const { platform } = global.navigator;
+  const { platform } = window.navigator;
   return platform.includes('Mac') || ['iPad', 'iPhone'].includes(platform);
 }
 
@@ -502,7 +514,7 @@ export function Shortcut({ component: Component = Kbd, shortcut = '' }) {
   return (
     <Component aria-label={createShortcutAriaLabel(shortcut)}>
       {chars.map((char, index) => (
-        // eslint-disable-next-line react/no-array-index-key
+        // eslint-disable-next-line react/no-array-index-key -- Should be OK due to also using the character.
         <Component key={`${index}-${char}`}>{prettifyShortcut(char)}</Component>
       ))}
     </Component>

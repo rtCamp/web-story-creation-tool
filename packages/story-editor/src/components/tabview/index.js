@@ -18,7 +18,7 @@
  * External dependencies
  */
 import styled, { css } from 'styled-components';
-import { useRef, useCallback, forwardRef } from '@web-stories-wp/react';
+import { useRef, useCallback, forwardRef } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 import {
   useKeyDownEffect,
@@ -27,7 +27,7 @@ import {
   THEME_CONSTANTS,
   themeHelpers,
   ThemeGlobals,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -35,7 +35,7 @@ import {
 import { useConfig } from '../../app';
 import Tooltip from '../tooltip';
 import usePerformanceTracking from '../../utils/usePerformanceTracking';
-import { TRACKING_EVENTS } from '../../constants/performanceTrackingEvents';
+import { TRACKING_EVENTS } from '../../constants';
 
 const ALERT_ICON_SIZE = 28;
 export const TAB_HEIGHT = 32;
@@ -158,7 +158,7 @@ function UnreffedTab(
     ? TRACKING_EVENTS.LIBRARY_PANEL_CLICK
     : TRACKING_EVENTS.DESIGN_PANEL_CLICK;
   usePerformanceTracking({
-    node: tabRefs[refId]?.current,
+    node: tabRefs?.[refId]?.current,
     eventData: {
       ...eventData,
       label: `${refId}_tab`,

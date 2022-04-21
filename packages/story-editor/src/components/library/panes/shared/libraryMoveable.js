@@ -18,28 +18,31 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { useCallback, useRef, useState } from '@web-stories-wp/react';
+import { useCallback, useRef, useState } from '@googleforcreators/react';
 import styled from 'styled-components';
-import { editorToDataX, editorToDataY } from '@web-stories-wp/units';
-import { useKeyDownEffect } from '@web-stories-wp/design-system';
+import { editorToDataX, editorToDataY } from '@googleforcreators/units';
+import { useKeyDownEffect } from '@googleforcreators/design-system';
+import {
+  Moveable,
+  InOverlay,
+  areEventsDragging,
+} from '@googleforcreators/moveable';
+import { useTransform } from '@googleforcreators/transform';
+
 /**
  * Internal dependencies
  */
-import { ZOOM_SETTING } from '../../../../constants';
-import Moveable from '../../../moveable';
+import { ZOOM_SETTING, TRACKING_EVENTS } from '../../../../constants';
 import { useDropTargets } from '../../../dropTargets';
 import { useLayout } from '../../../../app/layout';
 import useInsertElement from '../../../canvas/useInsertElement';
 import { useInsertTextSet } from '../../../canvas';
-import areEventsDragging from '../../../../utils/areEventsDragging';
-import InOverlay from '../../../overlay';
 import isTargetOutOfContainer from '../../../../utils/isTargetOutOfContainer';
 import useSnapping from '../../../canvas/utils/useSnapping';
 import { useStory, useCanvas } from '../../../../app';
 import objectWithout from '../../../../utils/objectWithout';
 import { noop } from '../../../../utils/noop';
 import usePerformanceTracking from '../../../../utils/usePerformanceTracking';
-import { TRACKING_EVENTS } from '../../../../constants/performanceTrackingEvents';
 
 const TargetBox = styled.div`
   position: absolute;
@@ -86,21 +89,12 @@ function LibraryMoveable({
   const { backgroundElement } = useStory((state) => ({
     backgroundElement: state.state.currentPage?.elements?.[0] ?? {},
   }));
-  const { fullbleedContainer, nodesById, pageContainer, designSpaceGuideline } =
-    useCanvas((state) => ({
+  const { fullbleedContainer, nodesById, pageContainer } = useCanvas(
+    (state) => ({
       fullbleedContainer: state.state.fullbleedContainer,
       pageContainer: state.state.pageContainer,
       nodesById: state.state.nodesById,
-      designSpaceGuideline: state.state.designSpaceGuideline,
-    }));
-
-  const toggleDesignSpace = useCallback(
-    (visible) => {
-      if (designSpaceGuideline) {
-        designSpaceGuideline.style.visibility = visible ? 'visible' : null;
-      }
-    },
-    [designSpaceGuideline]
+    })
   );
 
   const { activeDropTargetId, setDraggingResource } = useDropTargets(
@@ -109,6 +103,11 @@ function LibraryMoveable({
       setDraggingResource,
     })
   );
+
+  const { clearTransforms, pushTransform } = useTransform((state) => ({
+    clearTransforms: state.actions.clearTransforms,
+    pushTransform: state.actions.pushTransform,
+  }));
 
   const frame = {
     translate: [0, 0],
@@ -132,8 +131,9 @@ function LibraryMoveable({
     // Hide the clone, too.
     cloneRef.current.style.opacity = 0;
     setIsDragging(false);
+    clearTransforms();
     setDraggingResource(null);
-  }, [setDraggingResource]);
+  }, [setDraggingResource, clearTransforms]);
 
   // We only need to use this effect while dragging since the active element is document.body
   // and using just that interferes with other handlers.
@@ -148,9 +148,9 @@ function LibraryMoveable({
   );
 
   const onDrag = ({ beforeTranslate, inputEvent }) => {
+    pushTransform(null, { drag: beforeTranslate });
     // This is needed if the user clicks "Esc" but continues dragging.
     if (didManuallyReset) {
-      toggleDesignSpace(false);
       return false;
     }
     frame.translate = beforeTranslate;
@@ -159,7 +159,6 @@ function LibraryMoveable({
       cloneRef.current &&
       areEventsDragging(eventTracker.current, inputEvent)
     ) {
-      toggleDesignSpace(true);
       if (cloneRef.current.style.opacity !== 1 && !activeDropTargetId) {
         // We're not doing it in `onDragStart` since otherwise on clicking it would appear, too.
         cloneRef.current.style.opacity = 1;
@@ -233,7 +232,6 @@ function LibraryMoveable({
   });
 
   const onDragEnd = ({ inputEvent }) => {
-    toggleDesignSpace(false);
     if (didManuallyReset) {
       return false;
     }

@@ -24,8 +24,8 @@ import {
   useRef,
   useLayoutEffect,
   useState,
-} from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import {
   Button,
   BUTTON_SIZES,
@@ -34,7 +34,7 @@ import {
   Icons,
   themeHelpers,
   useKeyDownEffect,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -112,8 +112,7 @@ function ShortcutMenu() {
     // Call it now
     calc();
     // Call it in a frame
-    // Disable reason: No need to cancel this one
-    // eslint-disable-next-line @wordpress/react-no-unsafe-timeout
+    // eslint-disable-next-line @wordpress/react-no-unsafe-timeout -- No need to cancel this one
     setTimeout(calc);
     // And call it every time the window resizes
     window.addEventListener('resize', calc);
@@ -149,8 +148,7 @@ function ShortcutMenu() {
 
       <FlexContent bottomOffset={bottomOffset}>
         <HeaderShortcut id={HEADER_ID} />
-        {/* disable reason: scrollable content must be scrollable with keyboard */}
-        {/*eslint-disable-next-line styled-components-a11y/no-noninteractive-tabindex */}
+        {/*eslint-disable-next-line styled-components-a11y/no-noninteractive-tabindex -- scrollable content must be scrollable with keyboard */}
         <ScrollableContent role="presentation" tabIndex={0}>
           <LandmarkShortcuts />
           <RegularShortcuts />

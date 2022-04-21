@@ -19,22 +19,22 @@
  */
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { useCallback, useRef } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+import { useCallback, useRef } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import {
   Button,
   Icons,
   BUTTON_VARIANTS,
   BUTTON_TYPES,
   BUTTON_SIZES,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
 import { useConfig, useStory, useLayout } from '../../../app';
 import usePerformanceTracking from '../../../utils/usePerformanceTracking';
-import { TRACKING_EVENTS } from '../../../constants/performanceTrackingEvents';
+import { TRACKING_EVENTS } from '../../../constants';
 
 const Wrapper = styled.div`
   display: flex;

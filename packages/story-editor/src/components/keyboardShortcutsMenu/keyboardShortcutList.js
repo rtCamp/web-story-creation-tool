@@ -17,12 +17,12 @@
 /**
  * External dependencies
  */
-import { __, TranslateWithMarkup, sprintf } from '@web-stories-wp/i18n';
+import { __, TranslateWithMarkup, sprintf } from '@googleforcreators/i18n';
 import {
   isPlatformMacOS,
   prettifyShortcut,
   Shortcut,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 const isMacOS = isPlatformMacOS();
 
@@ -355,6 +355,16 @@ const shortcuts = {
           ),
         },
         {
+          label: __('Access floating toolbar', 'web-stories'),
+          shortcut: (
+            <kbd>
+              <kbd className="large-key">{prettifyShortcut('ctrl')}</kbd>
+              <kbd className="large-key">{prettifyShortcut('alt')}</kbd>
+              <kbd>{'P'}</kbd>
+            </kbd>
+          ),
+        },
+        {
           label: __('Open context menu', 'web-stories'),
           shortcut: (
             <kbd>
@@ -362,6 +372,28 @@ const shortcuts = {
               <kbd className="large-key">{prettifyShortcut('alt')}</kbd>
               <kbd className="large-key">{prettifyShortcut('shift')}</kbd>
               <kbd>{'M'}</kbd>
+            </kbd>
+          ),
+        },
+        {
+          label: __('Move element 1px', 'web-stories'),
+          shortcut: (
+            <kbd>
+              <TranslateWithMarkup
+                mapping={{
+                  lkbd: <LargeKey />,
+                  shortcut: <Shortcut shortcut="shift" />,
+                }}
+              >
+                {sprintf(
+                  /* translators: 1: Shift key. */
+                  __(
+                    '<lkbd>%s</lkbd> <span>+ arrow keys</span>',
+                    'web-stories'
+                  ),
+                  prettifyShortcut('shift')
+                )}
+              </TranslateWithMarkup>
             </kbd>
           ),
         },

@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { memo } from '@web-stories-wp/react';
+import { memo } from '@googleforcreators/react';
 import { render, act } from '@testing-library/react';
 
 /**
@@ -78,13 +78,12 @@ describe('StoryAnimation.WAAPIWrapper', () => {
       )
     );
     const ElementsWithWrapper = ({
-      // eslint-disable-next-line react/prop-types
       animations,
-      // eslint-disable-next-line react/prop-types
+
       elements,
-      // eslint-disable-next-line react/prop-types
+
       ElOneWAAPIInvocationTracker,
-      // eslint-disable-next-line react/prop-types
+
       ElTwoWAAPIInvocationTracker,
     }) => (
       <Provider animations={animations} elements={elements}>

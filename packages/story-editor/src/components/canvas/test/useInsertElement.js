@@ -18,6 +18,8 @@
  * External dependencies
  */
 import { renderHook, act } from '@testing-library/react-hooks';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
 
 /**
  * Internal dependencies
@@ -51,9 +53,8 @@ const PROPS_LOCAL = {
         file: 'local_image.jpg',
         width: 1920,
         height: 1080,
-        mime_type: 'image/jpeg',
-        source_url:
-          'http://wp.local/wp-content/uploads/2020/08/local_image.jpg',
+        mimeType: 'image/jpeg',
+        sourceUrl: 'http://wp.local/wp-content/uploads/2020/08/local_image.jpg',
       },
     },
   },
@@ -79,6 +80,8 @@ describe('useInsertElement', () => {
     useLayout.mockReturnValue({
       setZoomSetting,
     });
+
+    elementTypes.forEach(registerElementType);
   });
 
   it('should always invoke setZoomSetting with FIT', () => {

@@ -17,8 +17,7 @@
 /**
  * External dependencies
  */
-import { useState } from '@web-stories-wp/react';
-import { action } from '@storybook/addon-actions';
+import { useState } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
@@ -30,9 +29,16 @@ import { Modal } from '..';
 export default {
   title: 'DesignSystem/Components/Modal',
   component: Modal,
+  argTypes: {
+    onClose: { action: 'close modal clicked' },
+  },
+  parameters: {
+    controls: { include: ['onClose'] },
+  },
 };
 
-export const _default = () => {
+// eslint-disable-next-line react/prop-types
+export const _default = ({ onClose }) => {
   const [toggleModal, setToggleModal] = useState(false);
   return (
     <>
@@ -59,7 +65,7 @@ export const _default = () => {
         }}
         isOpen={toggleModal}
         onClose={() => {
-          action('close modal clicked');
+          onClose();
           setToggleModal(!toggleModal);
         }}
       >
@@ -76,7 +82,8 @@ export const _default = () => {
   );
 };
 
-export const OverriddenStyles = () => {
+// eslint-disable-next-line react/prop-types
+export const OverriddenStyles = ({ onClose }) => {
   const [toggleModal, setToggleModal] = useState(false);
 
   return (
@@ -99,7 +106,7 @@ export const OverriddenStyles = () => {
         ariaHideApp={false} // this is ONLY for storybook to eliminate a warning, we set the app id in the root index of dashboard
         isOpen={toggleModal}
         onClose={() => {
-          action('close modal clicked');
+          onClose();
           setToggleModal(!toggleModal);
         }}
         contentStyles={{

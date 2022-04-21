@@ -18,31 +18,36 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
+import { RichTextProvider } from '@googleforcreators/rich-text';
 
 /**
  * Internal dependencies
  */
-import Inspector from '../inspector';
+import Sidebar from '../sidebar';
 import Canvas from '../canvas';
-import { RichTextProvider } from '../richText';
 import { VideoTrimProvider } from '../videoTrim';
 import ErrorBoundary from '../errorBoundary';
-import { CanvasArea, InspectorArea } from './layout';
+import { useCanvas } from '../../app';
+import { CanvasArea, SidebarArea } from './layout';
 
-function Workspace({ header, footer, inspectorTabs }) {
+function Workspace({ header, footer }) {
+  const { editingElementState } = useCanvas((state) => ({
+    editingElementState: state.state.editingElementState,
+  }));
+
   return (
     <VideoTrimProvider>
-      <RichTextProvider>
+      <RichTextProvider editingState={editingElementState}>
+        <SidebarArea>
+          <ErrorBoundary>
+            <Sidebar />
+          </ErrorBoundary>
+        </SidebarArea>
         <CanvasArea>
           <ErrorBoundary>
             <Canvas header={header} footer={footer} />
           </ErrorBoundary>
         </CanvasArea>
-        <InspectorArea>
-          <ErrorBoundary>
-            <Inspector inspectorTabs={inspectorTabs} />
-          </ErrorBoundary>
-        </InspectorArea>
       </RichTextProvider>
     </VideoTrimProvider>
   );
@@ -51,7 +56,6 @@ function Workspace({ header, footer, inspectorTabs }) {
 Workspace.propTypes = {
   header: PropTypes.node,
   footer: PropTypes.object,
-  inspectorTabs: PropTypes.object,
 };
 
 export default Workspace;

@@ -17,142 +17,165 @@
 /**
  * External dependencies
  */
-import styled from 'styled-components';
 import {
   useLayoutEffect,
+  useEffect,
   useCallback,
   useState,
   useRef,
   useResizeEffect,
   createPortal,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
  */
-import { themeHelpers } from '../../theme';
 import { noop } from '../../utils';
 import { getTransforms, getOffset } from './utils';
-import { PLACEMENT } from './constants';
-
-// TODO scrollbar update, commented out until design updates are done
-const DEFAULT_POPUP_Z_INDEX = 11;
-
-const Container = styled.div.attrs(
-  ({
-    $offset: { x, y, width, height },
-    fillWidth,
-    fillHeight,
-    placement,
-    zIndex,
-  }) => ({
-    style: {
-      transform: `translate(${x}px, ${y}px) ${getTransforms(placement)}`,
-      ...(fillWidth ? { width: `${width}px` } : {}),
-      ...(fillHeight ? { height: `${height}px` } : {}),
-      zIndex,
-    },
-  })
-)`
-  /*! @noflip */
-  left: 0px;
-  top: 0px;
-  position: fixed;
-
-  ${themeHelpers.scrollbarCSS};
-`;
+import { PLACEMENT, PopupContainer } from './constants';
+const DEFAULT_TOPOFFSET = 0;
+const DEFAULT_POPUP_Z_INDEX = 2;
 
 function Popup({
+  isRTL = false,
   anchor,
   dock,
   children,
   renderContents,
   placement = PLACEMENT.BOTTOM,
-  zIndex = DEFAULT_POPUP_Z_INDEX,
   spacing,
   isOpen,
+  invisible = false,
   fillWidth = false,
   fillHeight = false,
-  onPositionUpdate = noop,
   refCallback = noop,
+  topOffset = DEFAULT_TOPOFFSET,
+  zIndex = DEFAULT_POPUP_Z_INDEX,
+  ignoreMaxOffsetY,
+  resetXOffset = false,
 }) {
   const [popupState, setPopupState] = useState(null);
-  const [mounted, setMounted] = useState(false);
+  const isMounted = useRef(false);
   const popup = useRef(null);
 
   const positionPopup = useCallback(
-    async (evt) => {
-      if (!mounted) {
+    (evt) => {
+      if (!isMounted.current || !anchor?.current) {
         return;
       }
-
       // If scrolling within the popup, ignore.
       if (evt?.target?.nodeType && popup.current?.contains(evt.target)) {
         return;
       }
-
-      await setPopupState({
-        offset:
-          anchor?.current && getOffset(placement, spacing, anchor, dock, popup),
+      setPopupState({
+        offset: anchor.current
+          ? getOffset({
+              placement,
+              spacing,
+              anchor,
+              dock,
+              popup,
+              isRTL,
+              topOffset,
+              ignoreMaxOffsetY,
+              resetXOffset,
+            })
+          : {},
+        height: popup.current?.getBoundingClientRect()?.height,
       });
     },
-    [anchor, dock, placement, spacing, mounted]
+    [
+      anchor,
+      placement,
+      spacing,
+      dock,
+      isRTL,
+      topOffset,
+      ignoreMaxOffsetY,
+      resetXOffset,
+    ]
   );
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    // If the popup height changes meanwhile, let's update the popup, too.
+    if (
+      popupState?.height &&
+      popupState.height !== popup.current?.getBoundingClientRect()?.height
+    ) {
+      positionPopup();
+    }
+  }, [popupState?.height, positionPopup]);
 
   useLayoutEffect(() => {
     if (!isOpen) {
-      return () => {};
+      return undefined;
     }
-    setMounted(true);
+    isMounted.current = true;
     positionPopup();
     // Adjust the position when scrolling.
     document.addEventListener('scroll', positionPopup, true);
     return () => {
       document.removeEventListener('scroll', positionPopup, true);
+      isMounted.current = false;
     };
   }, [isOpen, positionPopup]);
 
   useLayoutEffect(() => {
-    onPositionUpdate(popupState);
+    if (!isMounted.current) {
+      return;
+    }
+
     refCallback(popup);
-  }, [popupState, onPositionUpdate, refCallback]);
+  }, [popupState, refCallback]);
 
   useResizeEffect({ current: document.body }, positionPopup, [positionPopup]);
-
   return popupState && isOpen
     ? createPortal(
-        <Container
+        <PopupContainer
           ref={popup}
           fillWidth={fillWidth}
           fillHeight={fillHeight}
-          placement={placement}
-          zIndex={zIndex}
           $offset={popupState.offset}
+          invisible={invisible}
+          topOffset={topOffset}
+          zIndex={zIndex}
+          transforms={getTransforms(placement, isRTL)}
         >
           {renderContents
             ? renderContents({ propagateDimensionChange: positionPopup })
             : children}
-        </Container>,
+        </PopupContainer>,
         document.body
       )
     : null;
 }
 
 Popup.propTypes = {
+  isRTL: PropTypes.bool,
   anchor: PropTypes.shape({ current: PropTypes.instanceOf(Element) })
     .isRequired,
   dock: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   children: PropTypes.node,
   renderContents: PropTypes.func,
   placement: PropTypes.oneOf(Object.values(PLACEMENT)),
-  zIndex: PropTypes.number,
   spacing: PropTypes.object,
   isOpen: PropTypes.bool,
+  invisible: PropTypes.bool,
   fillWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
   fillHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
-  onPositionUpdate: PropTypes.func,
   refCallback: PropTypes.func,
+  topOffset: PropTypes.number,
+  zIndex: PropTypes.number,
+  ignoreMaxOffsetY: PropTypes.bool,
+  resetXOffset: PropTypes.bool,
 };
 
 export { Popup, PLACEMENT };

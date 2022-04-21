@@ -18,13 +18,13 @@
  * External dependencies
  */
 import { fireEvent, screen } from '@testing-library/react';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
 import StoryContext from '../../../../app/story/context';
 import MediaContext from '../../../../app/media/context';
-import { renderWithTheme } from '../../../../testUtils';
 import PreviewButton from '../preview';
 
 function arrange({
@@ -112,7 +112,7 @@ describe('PreviewButton', () => {
     }));
 
     const mockedOpen = jest.fn(() => previewPopup);
-    const windowSpy = jest.spyOn(global, 'open').mockImplementation(mockedOpen);
+    const windowSpy = jest.spyOn(window, 'open').mockImplementation(mockedOpen);
 
     fireEvent.click(previewButton);
 
@@ -143,7 +143,7 @@ describe('PreviewButton', () => {
     }));
 
     const mockedOpen = jest.fn(() => previewPopup);
-    const windowSpy = jest.spyOn(global, 'open').mockImplementation(mockedOpen);
+    const windowSpy = jest.spyOn(window, 'open').mockImplementation(mockedOpen);
 
     fireEvent.click(previewButton);
 

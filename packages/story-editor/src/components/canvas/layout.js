@@ -25,20 +25,23 @@ import {
   useRef,
   useEffect,
   useResizeEffect,
-} from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { generatePatternStyles } from '@web-stories-wp/patterns';
-import { FULLBLEED_RATIO } from '@web-stories-wp/units';
-import { THEME_CONSTANTS, themeHelpers } from '@web-stories-wp/design-system';
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { generatePatternStyles } from '@googleforcreators/patterns';
+import { FULLBLEED_RATIO } from '@googleforcreators/units';
+import {
+  THEME_CONSTANTS,
+  themeHelpers,
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
-import { HEADER_HEIGHT } from '../../constants';
-import pointerEventsCss from '../../utils/pointerEventsCss';
+import { HEADER_HEIGHT, HEADER_GAP } from '../../constants';
 import { useLayout } from '../../app';
 import useFooterHeight from '../footer/useFooterHeight';
 import { FOOTER_BOTTOM_MARGIN } from '../footer/constants';
+import pointerEventsCss from '../../utils/pointerEventsCss';
 import usePinchToZoom from './usePinchToZoom';
 
 /**
@@ -46,12 +49,6 @@ import usePinchToZoom from './usePinchToZoom';
  * for the layering details.
  */
 
-export const Z_INDEX = {
-  NAV: 2,
-  EDIT: 3,
-};
-
-const HEADER_GAP = 16;
 // 8px extra is for the focus outline to display.
 const PAGE_NAV_WIDTH = THEME_CONSTANTS.LARGE_BUTTON_SIZE + 8;
 const PAGE_NAV_GAP = 20;
@@ -125,7 +122,6 @@ const PageAreaContainer = styled(Area).attrs({
     hasVerticalOverflow ? 'flex-start' : 'center'};
   overflow: ${({ showOverflow }) =>
     showOverflow ? 'visible' : 'var(--overflow-x) var(--overflow-y)'};
-
   ${({
     isControlled,
     hasVerticalOverflow,
@@ -291,15 +287,14 @@ function useLayoutParams(containerRef) {
     ({ width, height }) => {
       // See Layer's `grid` CSS above. Per the layout, the maximum available
       // space for the page is:
-      const maxWidth = width;
-      const maxHeight =
+      const availableHeight =
         height -
         HEADER_HEIGHT -
         HEADER_GAP -
         footerHeight -
         FOOTER_BOTTOM_MARGIN;
 
-      setWorkspaceSize({ width: maxWidth, height: maxHeight });
+      setWorkspaceSize({ width, height, availableHeight });
     },
     [setWorkspaceSize, footerHeight]
   );
@@ -364,7 +359,7 @@ function useLayoutParamsCssVars() {
 const PageArea = forwardRef(function PageArea(
   {
     children,
-    fullbleedRef = createRef(),
+    fullbleedRef: _fullbleedRef = null,
     fullBleedContainerLabel = __('Fullbleed area', 'web-stories'),
     overlay = [],
     background,
@@ -378,6 +373,8 @@ const PageArea = forwardRef(function PageArea(
   },
   ref
 ) {
+  const internalFullblledRef = useRef();
+  const fullbleedRef = _fullbleedRef || internalFullblledRef;
   const {
     hasVerticalOverflow,
     hasHorizontalOverflow,

@@ -18,14 +18,14 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { useCallback } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { trackError } from '@web-stories-wp/tracking';
+import { useCallback } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { trackError } from '@googleforcreators/tracking';
 import {
   Text,
   THEME_CONSTANTS,
   useSnackbar,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -84,12 +84,12 @@ function DeleteDialog({ mediaId, type, onClose }) {
   const videoDialogTitle = __('Delete Video?', 'web-stories');
   const imageDialogDescription = __(
     'You are about to permanently delete this image from your site. ' +
-      'The image will appear broken in any WordPress content that uses it. ',
+      'The image will appear broken in any content that uses it. ',
     'web-stories'
   );
   const videoDialogDescription = __(
     'You are about to permanently delete this video from your site. ' +
-      'The video will appear broken in any WordPress content that uses it. ',
+      'The video will appear broken in any content that uses it. ',
     'web-stories'
   );
 

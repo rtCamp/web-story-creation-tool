@@ -17,8 +17,8 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
-import { FULLBLEED_RATIO } from '@web-stories-wp/units';
+import { useCallback } from '@googleforcreators/react';
+import { FULLBLEED_RATIO } from '@googleforcreators/units';
 
 /**
  * Internal dependencies
@@ -106,12 +106,20 @@ function useSnapping({
     ? [...otherNodes, designSpaceGuideline]
     : [];
 
+  const snapDirections = {
+    left: true,
+    top: true,
+    right: true,
+    bottom: true,
+    center: true,
+    middle: true,
+  };
+
   return {
     snappable: canSnap,
-    snapHorizontal: canSnap,
-    snapVertical: canSnap,
-    snapCenter: canSnap,
     snapGap: canSnap,
+    snapDirections,
+    elementSnapDirections: snapDirections,
     isDisplaySnapDigit: false,
     onSnap: handleSnap,
     horizontalGuidelines,

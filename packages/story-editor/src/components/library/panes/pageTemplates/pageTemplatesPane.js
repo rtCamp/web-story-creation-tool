@@ -22,15 +22,16 @@ import {
   useMemo,
   useCallback,
   useEffect,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import styled from 'styled-components';
-import { __ } from '@web-stories-wp/i18n';
-import { FULLBLEED_RATIO, PAGE_RATIO } from '@web-stories-wp/units';
+import { __ } from '@googleforcreators/i18n';
+import { FULLBLEED_RATIO, PAGE_RATIO } from '@googleforcreators/units';
 import {
   localStore,
   LOCAL_STORAGE_PREFIX,
-} from '@web-stories-wp/design-system';
-import { DATA_VERSION, migrate } from '@web-stories-wp/migration';
+} from '@googleforcreators/design-system';
+import { DATA_VERSION, migrate } from '@googleforcreators/migration';
+import { trackError } from '@googleforcreators/tracking';
 
 /**
  * Internal dependencies
@@ -39,6 +40,7 @@ import { Pane } from '../shared';
 import { Select } from '../../../form';
 import { useAPI } from '../../../../app/api';
 import useLibrary from '../../useLibrary';
+import { useConfig } from '../../../../app/config';
 import paneId from './paneId';
 import DefaultTemplates from './defaultTemplates';
 import SavedTemplates from './savedTemplates';
@@ -58,7 +60,6 @@ export const PaneInner = styled.div`
 
 const DropDownWrapper = styled.div`
   text-align: left;
-  height: 36px;
   margin: 28px 16px 17px;
 `;
 
@@ -78,6 +79,8 @@ function PageTemplatesPane(props) {
   const {
     actions: { getCustomPageTemplates },
   } = useAPI();
+
+  const { canViewDefaultTemplates } = useConfig();
   const supportsCustomTemplates = Boolean(getCustomPageTemplates);
 
   const {
@@ -93,8 +96,11 @@ function PageTemplatesPane(props) {
   }));
 
   const [showDefaultTemplates, setShowDefaultTemplates] = useState(
-    DEFAULT_TEMPLATE_VIEW === null ? true : DEFAULT_TEMPLATE_VIEW
+    DEFAULT_TEMPLATE_VIEW === null
+      ? canViewDefaultTemplates
+      : canViewDefaultTemplates && DEFAULT_TEMPLATE_VIEW
   );
+
   const [highlightedTemplate, setHighlightedTemplate] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -147,7 +153,8 @@ function PageTemplatesPane(props) {
           setNextTemplatesToFetch(nextTemplatesToFetch + 1);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        trackError('saved_templates', err.message);
         setNextTemplatesToFetch(false);
         setSavedTemplates((_savedTemplates) => _savedTemplates ?? []);
       })
@@ -159,9 +166,14 @@ function PageTemplatesPane(props) {
     setNextTemplatesToFetch,
   ]);
 
-  const handleSelection = (event, menuItem) => {
-    setShowDefaultTemplates(DEFAULT === menuItem);
-    localStore.setItemByKey(LOCAL_STORAGE_KEY, DEFAULT === menuItem);
+  const handleSelect = (_, menuItem) => {
+    const value = menuItem === DEFAULT;
+    const shouldSetShowDefaultTemplates = showDefaultTemplates !== value;
+
+    if (shouldSetShowDefaultTemplates) {
+      setShowDefaultTemplates(DEFAULT === menuItem);
+      localStore.setItemByKey(LOCAL_STORAGE_KEY, value);
+    }
   };
 
   useEffect(() => {
@@ -180,12 +192,14 @@ function PageTemplatesPane(props) {
     return () => clearTimeout(timeout);
   }, [highlightedTemplate]);
 
-  const options = [
-    {
+  const options = [];
+
+  if (canViewDefaultTemplates) {
+    options.push({
       value: DEFAULT,
       label: __('Default templates', 'web-stories'),
-    },
-  ];
+    });
+  }
 
   if (supportsCustomTemplates) {
     options.push({
@@ -214,12 +228,14 @@ function PageTemplatesPane(props) {
             </ButtonWrapper>
           )}
           <DropDownWrapper>
-            <Select
-              options={options}
-              selectedValue={showDefaultTemplates ? DEFAULT : SAVED}
-              onMenuItemClick={handleSelection}
-              aria-label={__('Select templates type', 'web-stories')}
-            />
+            {options.length > 1 && (
+              <Select
+                options={options}
+                selectedValue={showDefaultTemplates ? DEFAULT : SAVED}
+                onMenuItemClick={handleSelect}
+                aria-label={__('Select templates type', 'web-stories')}
+              />
+            )}
           </DropDownWrapper>
         </>
         {showDefaultTemplates ? (

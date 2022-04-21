@@ -21,13 +21,13 @@ import {
   screen,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import { setAppElement } from '@web-stories-wp/design-system';
-import { ConfigContext } from '@web-stories-wp/story-editor';
+import { setAppElement } from '@googleforcreators/design-system';
+import { ConfigContext } from '@googleforcreators/story-editor';
+import { renderWithTheme } from '@googleforcreators/test-utils';
 
 /**
  * Internal dependencies
  */
-import { renderWithTheme } from '../../../testUtils';
 import StatusCheck from '../statusCheck';
 
 jest.mock('../../../api/statusCheck');

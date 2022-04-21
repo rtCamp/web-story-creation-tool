@@ -43,18 +43,24 @@ describe('ColorPicker', () => {
 
       it('should display correctly', async () => {
         // Click the background element
-        await fixture.events.click(
-          fixture.editor.canvas.framesLayer.frames[0].node
+        await fixture.events.mouse.clickOn(
+          fixture.editor.canvas.framesLayer.frames[0].node,
+          10,
+          10
         );
 
-        const bgPanel = fixture.editor.inspector.designPanel.pageBackground;
+        await fixture.events.click(fixture.editor.sidebar.designTab);
+        const bgPanel = fixture.editor.sidebar.designPanel.pageBackground;
 
         // Click the background page panel color preview
         await fixture.events.click(bgPanel.backgroundColor.button);
 
-        await waitFor(() =>
-          expect(bgPanel.backgroundColor.picker).toBeDefined()
-        );
+        await waitFor(() => {
+          if (!bgPanel.backgroundColor.picker) {
+            throw new Error('picker not ready');
+          }
+          expect(bgPanel.backgroundColor.picker).toBeDefined();
+        });
 
         // Verify there are no aXe violations within the color picker.
         await expectAsync(
@@ -102,17 +108,18 @@ describe('ColorPicker', () => {
           fixture.editor.library.shapes.shape('Triangle')
         );
 
+        await fixture.events.click(fixture.editor.sidebar.designTab);
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.button
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.button
         );
 
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.picker.addSavedColor(
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.picker.addSavedColor(
             'global'
           )
         );
         expect(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.picker.applySavedColor(
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.picker.applySavedColor(
             '#c4c4c4'
           )
         ).toBeTruthy();
@@ -125,17 +132,18 @@ describe('ColorPicker', () => {
           fixture.editor.library.shapes.shape('Triangle')
         );
 
+        await fixture.events.click(fixture.editor.sidebar.designTab);
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.button
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.button
         );
 
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.picker.addSavedColor(
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.picker.addSavedColor(
             'local'
           )
         );
         expect(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.picker.applySavedColor(
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.picker.applySavedColor(
             '#c4c4c4'
           )
         ).toBeTruthy();
@@ -147,23 +155,36 @@ describe('ColorPicker', () => {
         await fixture.events.click(
           fixture.editor.library.shapes.shape('Triangle')
         );
+
+        await fixture.events.click(fixture.editor.sidebar.designTab);
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.button
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.button
         );
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.picker.addSavedColor(
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.picker.addSavedColor(
             'global'
           )
         );
 
         // Add text and apply the previously saved color.
-        await fixture.events.click(fixture.editor.library.textAdd);
-        await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
+        await fixture.events.click(fixture.editor.sidebar.insertTab);
+        await fixture.editor.library.textTab.click();
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.textStyle.fontColor.button
+          fixture.editor.library.text.preset('Paragraph')
+        );
+        await waitFor(() => {
+          if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+            throw new Error('node not ready');
+          }
+          expect(fixture.editor.canvas.framesLayer.frames[1].node).toBeTruthy();
+        });
+
+        await fixture.events.click(fixture.editor.sidebar.designTab);
+        await fixture.events.click(
+          fixture.editor.sidebar.designPanel.textStyle.fontColor.button
         );
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.textStyle.fontColor.picker.applySavedColor(
+          fixture.editor.sidebar.designPanel.textStyle.fontColor.picker.applySavedColor(
             '#c4c4c4'
           )
         );
@@ -178,23 +199,36 @@ describe('ColorPicker', () => {
         await fixture.events.click(
           fixture.editor.library.shapes.shape('Triangle')
         );
+
+        await fixture.events.click(fixture.editor.sidebar.designTab);
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.button
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.button
         );
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.shapeStyle.backgroundColor.picker.addSavedColor(
+          fixture.editor.sidebar.designPanel.shapeStyle.backgroundColor.picker.addSavedColor(
             'local'
           )
         );
 
         // Add text and apply the previously saved color.
-        await fixture.events.click(fixture.editor.library.textAdd);
-        await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
+        await fixture.events.click(fixture.editor.sidebar.insertTab);
+        await fixture.editor.library.textTab.click();
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.textStyle.fontColor.button
+          fixture.editor.library.text.preset('Paragraph')
+        );
+        await waitFor(() => {
+          if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+            throw new Error('node not ready');
+          }
+          expect(fixture.editor.canvas.framesLayer.frames[1].node).toBeTruthy();
+        });
+
+        await fixture.events.click(fixture.editor.sidebar.designTab);
+        await fixture.events.click(
+          fixture.editor.sidebar.designPanel.textStyle.fontColor.button
         );
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.textStyle.fontColor.picker.applySavedColor(
+          fixture.editor.sidebar.designPanel.textStyle.fontColor.picker.applySavedColor(
             '#c4c4c4'
           )
         );
@@ -206,20 +240,28 @@ describe('ColorPicker', () => {
 
       it('should allow saving text background color', async () => {
         // Add text element
-        await fixture.events.click(fixture.editor.library.textAdd);
-        await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
-
-        // add fill
+        await fixture.editor.library.textTab.click();
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.textStyle.fill
+          fixture.editor.library.text.preset('Paragraph')
+        );
+        await waitFor(() => {
+          if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+            throw new Error('node not ready');
+          }
+          expect(fixture.editor.canvas.framesLayer.frames[1].node).toBeTruthy();
+        });
+        // add fill
+        await fixture.events.click(fixture.editor.sidebar.designTab);
+        await fixture.events.click(
+          fixture.editor.sidebar.designPanel.textStyle.fill
         );
 
         // save default text fill to local palette
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.textStyle.backgroundColor.button
+          fixture.editor.sidebar.designPanel.textStyle.backgroundColor.button
         );
         const picker =
-          fixture.editor.inspector.designPanel.textStyle.backgroundColor.picker;
+          fixture.editor.sidebar.designPanel.textStyle.backgroundColor.picker;
         await fixture.events.click(picker.addSavedColor('local'));
 
         // check if default text fill is saved
@@ -230,13 +272,23 @@ describe('ColorPicker', () => {
     describe('CUJ: Creator can Apply or Save a Color from/to Their Preset Library: Manage Color Presets', () => {
       it('should allow deleting local and global color presets', async () => {
         // Add text element and a color preset.
-        await fixture.events.click(fixture.editor.library.textAdd);
-        await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
+        await fixture.editor.library.textTab.click();
         await fixture.events.click(
-          fixture.editor.inspector.designPanel.textStyle.fontColor.button
+          fixture.editor.library.text.preset('Paragraph')
+        );
+        await waitFor(() => {
+          if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+            throw new Error('node not ready');
+          }
+          expect(fixture.editor.canvas.framesLayer.frames[1].node).toBeTruthy();
+        });
+
+        await fixture.events.click(fixture.editor.sidebar.designTab);
+        await fixture.events.click(
+          fixture.editor.sidebar.designPanel.textStyle.fontColor.button
         );
         const picker =
-          fixture.editor.inspector.designPanel.textStyle.fontColor.picker;
+          fixture.editor.sidebar.designPanel.textStyle.fontColor.picker;
         await fixture.events.click(picker.addSavedColor('global'));
         await fixture.events.click(picker.addSavedColor('local'));
 
@@ -245,6 +297,7 @@ describe('ColorPicker', () => {
         await fixture.snapshot('Color presets in edit mode');
 
         // Verify being in edit mode.
+
         expect(picker.exitEditButton).toBeTruthy();
         expect(picker.deleteGlobalColor).toBeTruthy();
         // Verify edit mode has no aXe violations.
@@ -256,6 +309,9 @@ describe('ColorPicker', () => {
 
         // Confirm both the color picker and the confirmation dialog are open since it's a global color.
         await waitFor(() => {
+          if (fixture.screen.getAllByRole('dialog').length !== 2) {
+            throw new Error('dialog not ready');
+          }
           expect(fixture.screen.getAllByRole('dialog').length).toBe(2);
         });
         await fixture.events.click(

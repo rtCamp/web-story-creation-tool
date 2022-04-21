@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-export { PAGE_RATIO, PAGE_WIDTH, PAGE_HEIGHT } from '@web-stories-wp/units';
-
-export const WPBODY_ID = 'wpbody';
+export { PAGE_RATIO, PAGE_WIDTH, PAGE_HEIGHT } from '@googleforcreators/units';
 
 export const DASHBOARD_LEFT_NAV_WIDTH = 288;
 

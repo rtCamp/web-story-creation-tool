@@ -18,11 +18,10 @@
  * External dependencies
  */
 import { useFeature } from 'flagged';
-import { useCallback, useEffect } from '@web-stories-wp/react';
+import { useCallback, useEffect } from '@googleforcreators/react';
 import styled from 'styled-components';
-import { __, _n, sprintf } from '@web-stories-wp/i18n';
-import { trackEvent } from '@web-stories-wp/tracking';
-import { resourceList } from '@web-stories-wp/media';
+import { __, _n, sprintf } from '@googleforcreators/i18n';
+import { trackEvent } from '@googleforcreators/tracking';
 import {
   Button as DefaultButton,
   BUTTON_SIZES,
@@ -31,7 +30,8 @@ import {
   Text,
   THEME_CONSTANTS,
   Icons,
-} from '@web-stories-wp/design-system';
+  PLACEMENT,
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -39,7 +39,6 @@ import {
 import { useConfig } from '../../../../../app/config';
 import { useLocalMedia } from '../../../../../app/media';
 import { SearchInput } from '../../../common';
-import useLibrary from '../../../useLibrary';
 import { MediaUploadButton, Select } from '../../../../form';
 import {
   MediaGalleryMessage,
@@ -50,14 +49,15 @@ import {
 } from '../common/styles';
 import PaginatedMediaGallery from '../common/paginatedMediaGallery';
 import Flags from '../../../../../flags';
-import { Placement } from '../../../../popup/constants';
 import { PANE_PADDING } from '../../shared';
 import { LOCAL_MEDIA_TYPE_ALL } from '../../../../../app/media/local/types';
-import { focusStyle } from '../../../../panels/shared';
+import { focusStyle } from '../../../../panels/shared/styles';
 import Tooltip from '../../../../tooltip';
+import useOnMediaSelect from './useOnMediaSelect';
 import paneId from './paneId';
 import VideoOptimizationDialog from './videoOptimizationDialog';
 import LinkInsertion from './hotlink';
+import MediaRecording from './mediaRecording';
 
 export const ROOT_MARGIN = 300;
 
@@ -134,15 +134,11 @@ function MediaPane(props) {
     }
   );
 
-  const enableHotlinking = useFeature('enableHotlinking');
+  const enableMediaRecording = useFeature('mediaRecording');
 
   const {
     capabilities: { hasUploadMediaAction },
   } = useConfig();
-
-  const { insertElement } = useLibrary((state) => ({
-    insertElement: state.actions.insertElement,
-  }));
 
   const isSearching = searchTerm.length > 0;
 
@@ -158,39 +154,7 @@ function MediaPane(props) {
     [setMediaType]
   );
 
-  /**
-   * Insert element such image, video and audio into the editor.
-   *
-   * @param {Object} resource Resource object
-   * @param {string} thumbnailURL The thumbnail's url
-   * @return {null|*} Return onInsert or null.
-   */
-  const insertMediaElement = useCallback(
-    (resource, thumbnailURL) => {
-      resourceList.set(resource.id, {
-        url: thumbnailURL,
-        type: 'cached',
-      });
-      insertElement(resource.type, { resource });
-    },
-    [insertElement]
-  );
-
-  /**
-   * Callback of select in media picker to insert media element.
-   *
-   * @param {Object} resource Object coming from backbone media picker.
-   */
-  const onSelect = useCallback(
-    (resource) => {
-      // WordPress media picker event, sizes.medium.source_url is the smallest image
-      insertMediaElement(
-        resource,
-        resource.sizes?.medium?.source_url || resource.src
-      );
-    },
-    [insertMediaElement]
-  );
+  const { onSelect, insertMediaElement } = useOnMediaSelect();
 
   const onSearch = (value) => {
     const trimText = value.trim();
@@ -228,20 +192,6 @@ function MediaPane(props) {
     []
   );
 
-  const renderUploadButton = useCallback(
-    (open) => (
-      <Button
-        variant={BUTTON_VARIANTS.RECTANGLE}
-        type={BUTTON_TYPES.SECONDARY}
-        size={BUTTON_SIZES.SMALL}
-        onClick={open}
-      >
-        {__('Upload', 'web-stories')}
-      </Button>
-    ),
-    []
-  );
-
   return (
     <StyledPane id={paneId} {...props}>
       <PaneInner>
@@ -259,7 +209,7 @@ function MediaPane(props) {
               selectedValue={mediaType?.toString() || FILTER_NONE}
               onMenuItemClick={onFilter}
               options={FILTERS}
-              placement={Placement.BOTTOM_START}
+              placement={PLACEMENT.BOTTOM_START}
             />
             {isSearching && media.length > 0 && (
               <SearchCount>
@@ -275,8 +225,11 @@ function MediaPane(props) {
                 )}
               </SearchCount>
             )}
-            {!isSearching && enableHotlinking && (
+            {!isSearching && (
               <ButtonsWrapper>
+                {enableMediaRecording && hasUploadMediaAction && (
+                  <MediaRecording />
+                )}
                 <LinkInsertion />
                 {hasUploadMediaAction && (
                   <Tooltip title={__('Upload', 'web-stories')}>
@@ -287,12 +240,6 @@ function MediaPane(props) {
                   </Tooltip>
                 )}
               </ButtonsWrapper>
-            )}
-            {!isSearching && !enableHotlinking && hasUploadMediaAction && (
-              <MediaUploadButton
-                renderButton={renderUploadButton}
-                onInsert={onSelect}
-              />
             )}
           </FilterArea>
         </PaneHeader>

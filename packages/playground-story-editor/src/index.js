@@ -17,8 +17,8 @@
 /**
  * External dependencies
  */
-import { render, useMemo } from '@web-stories-wp/react';
-import StoryEditor from '@web-stories-wp/story-editor';
+import { render, useMemo } from '@googleforcreators/react';
+import StoryEditor from '@googleforcreators/story-editor';
 import styled from 'styled-components';
 
 /**

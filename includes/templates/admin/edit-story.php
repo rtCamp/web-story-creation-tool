@@ -2,10 +2,10 @@
 /**
  * The story editor.
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -67,6 +67,13 @@ $preload_paths = [
 			),
 		]
 	),
+	'/web-stories/v1/media/?' . build_query(
+		[
+			'context'  => 'edit',
+			'per_page' => 10,
+			'_fields'  => 'source_url',
+		]
+	),
 	'/web-stories/v1/users/?' . build_query(
 		[
 			'per_page' => 100,
@@ -115,6 +122,13 @@ $story_query_params = [
 	),
 ];
 
+/*
+ * Ensure the global $post remains the same after API data is preloaded.
+ * Because API preloading can call the_content and other filters, plugins
+ * can unexpectedly modify $post.
+ */
+$backup_global_post = $post;
+
 if ( empty( $_GET['web-stories-demo'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$preload_paths[] = $story_initial_path . build_query( $story_query_params );
 } else {
@@ -134,13 +148,6 @@ if ( empty( $_GET['web-stories-demo'] ) ) { // phpcs:ignore WordPress.Security.N
  * @param WP_Post  $post          Post being edited.
  */
 $preload_paths = apply_filters( 'web_stories_editor_preload_paths', $preload_paths, $post );
-
-/*
- * Ensure the global $post remains the same after API data is preloaded.
- * Because API preloading can call the_content and other filters, plugins
- * can unexpectedly modify $post.
- */
-$backup_global_post = $post;
 
 $preload_data = array_reduce(
 	$preload_paths,
@@ -164,7 +171,7 @@ wp_add_inline_script(
 );
 
 $init_script = <<<JS
-	webStories.domReady( function() {
+	wp.domReady( function() {
 	  webStories.initializeStoryEditor( 'web-stories-editor', %s, %s );
 	} );
 JS;

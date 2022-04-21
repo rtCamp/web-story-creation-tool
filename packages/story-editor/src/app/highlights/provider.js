@@ -16,7 +16,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo, useState } from '@web-stories-wp/react';
+import { useCallback, useMemo, useState } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 
 /**
@@ -58,10 +58,11 @@ function HighlightsProvider({ children }) {
       }
 
       if (highlight) {
-        const { tab, ...highlightState } = STATES[highlight];
+        const { tab, section, ...highlightState } = STATES[highlight];
         setHighlighted({
           [highlight]: { ...highlightState, showEffect: true },
           tab,
+          section,
         });
       }
     },

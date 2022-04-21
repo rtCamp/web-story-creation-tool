@@ -2,10 +2,10 @@
 /**
  * Class New_Relic
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2021 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -56,10 +56,8 @@ class New_Relic extends Service_Base implements Conditional {
 	 * Runs on instantiation.
 	 *
 	 * @since 1.10.0
-	 *
-	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		$this->disable_autorum();
 	}
 
@@ -85,7 +83,7 @@ class New_Relic extends Service_Base implements Conditional {
 		// Run at the same time as the output buffering.
 
 		// phpcs:ignore PHPCompatibility.Constants.NewConstants.php_int_minFound
-		return defined( 'PHP_INT_MIN' ) ? PHP_INT_MIN : ~PHP_INT_MAX;
+		return \defined( 'PHP_INT_MIN' ) ? PHP_INT_MIN : ~PHP_INT_MAX;
 	}
 
 	/**
@@ -110,10 +108,8 @@ class New_Relic extends Service_Base implements Conditional {
 	 * https://docs.newrelic.com/docs/browser/new-relic-browser/installation/monitor-amp-pages-new-relic-browser
 	 *
 	 * @since 1.10.0
-	 *
-	 * @return void
 	 */
-	public function disable_autorum() {
+	public function disable_autorum(): void {
 		if ( ! $this->context->is_web_story() ) {
 			return;
 		}

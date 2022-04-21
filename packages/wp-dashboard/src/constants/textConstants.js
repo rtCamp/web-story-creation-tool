@@ -16,7 +16,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@web-stories-wp/i18n';
+import { __ } from '@googleforcreators/i18n';
 
 export const SUCCESS = {
   SETTINGS: {
@@ -31,6 +31,9 @@ export const ERRORS = {
   },
   REMOVE_PUBLISHER_LOGO: {
     MESSAGE: __('Unable to remove publisher logo', 'web-stories'),
+  },
+  REMOVE_FONT: {
+    MESSAGE: __('Unable to remove font', 'web-stories'),
   },
   UPDATE_PUBLISHER_LOGO: {
     MESSAGE: __('Unable to update publisher logo', 'web-stories'),

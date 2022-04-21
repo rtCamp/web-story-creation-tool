@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import { useMemo, useCallback } from '@web-stories-wp/react';
+import { useMemo, useCallback } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
@@ -28,7 +28,7 @@ import { DESIGN_COPY, MIN_VIDEO_HEIGHT, MIN_VIDEO_WIDTH } from '../constants';
 import { filterStoryElements } from '../utils';
 import { useRegisterCheck } from '../countContext';
 import { useIsChecklistMounted } from '../popupMountedContext';
-import { VideoChecklistCard } from './shared';
+import VideoChecklistCard from './shared/videoChecklistCard';
 
 export function videoElementResolution(element) {
   if (element.type !== 'video') {

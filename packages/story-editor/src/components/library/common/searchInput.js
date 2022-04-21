@@ -22,14 +22,14 @@ import {
   useState,
   useCallback,
   useDebouncedCallback,
-} from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+} from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import styled from 'styled-components';
-import { SearchInput } from '@web-stories-wp/design-system';
+import { SearchInput } from '@googleforcreators/design-system';
 /**
  * Internal dependencies
  */
-import { focusStyle } from '../../panels/shared';
+import { focusStyle } from '../../panels/shared/styles';
 
 const StyledSearchInput = styled(SearchInput)`
   input {

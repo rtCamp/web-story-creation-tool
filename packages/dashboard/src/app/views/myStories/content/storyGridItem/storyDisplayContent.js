@@ -17,16 +17,16 @@
 /**
  * External dependencies
  */
-import { useMemo } from '@web-stories-wp/react';
+import { useMemo } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
-import { __, sprintf } from '@web-stories-wp/i18n';
-import { Tooltip, TOOLTIP_PLACEMENT } from '@web-stories-wp/design-system';
+import { __, sprintf } from '@googleforcreators/i18n';
+import { TOOLTIP_PLACEMENT } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
 import { STORY_STATUS } from '../../../../../constants';
-import { InlineInputForm } from '../../../../../components';
+import { InlineInputForm, Tooltip } from '../../../../../components';
 import { DashboardStatusesPropType } from '../../../../../types';
 import {
   StyledStoryDisplayContent,
@@ -84,7 +84,7 @@ const StoryDisplayContent = ({
 
   const { name, avatar } = lockUser;
 
-  const storyLockedTitle = isLocked && (
+  const storyLockedTitle = isLocked && avatar && (
     <LockedRow>
       <Tooltip
         position={TOOLTIP_PLACEMENT.BOTTOM_START}
@@ -97,16 +97,14 @@ const StoryDisplayContent = ({
           )
         }
       >
-        {avatar && (
-          <LockAvatar
-            src={avatar}
-            alt={name}
-            decoding="async"
-            height={24}
-            width={24}
-            data-test-id="lock-user-avatar"
-          />
-        )}
+        <LockAvatar
+          src={avatar}
+          alt={name}
+          decoding="async"
+          height={24}
+          width={24}
+          data-test-id="lock-user-avatar"
+        />
       </Tooltip>
     </LockedRow>
   );

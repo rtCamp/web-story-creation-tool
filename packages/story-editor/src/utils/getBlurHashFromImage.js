@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * External dependencies
  */
-import { preloadImage } from '@web-stories-wp/media';
-import { getTimeTracker, trackError } from '@web-stories-wp/tracking';
-
+import { preloadImage } from '@googleforcreators/media';
+import { getTimeTracker, trackError } from '@googleforcreators/tracking';
 /**
  * Internal dependencies
  */
-// eslint-disable-next-line import/default
 import Worker from './generateBlurhash.worker';
 
 const getImageData = (image) => {
@@ -48,7 +47,8 @@ const getBlurHashFromImage = async (src) => {
 
   const trackTiming = getTimeTracker('load_get_blurhash');
   return new Promise((resolve, reject) => {
-    const worker = new Worker(); // lgtm[js/call-to-non-callable]
+    const worker = new Worker();
+
     worker.postMessage({
       image: data,
       width,

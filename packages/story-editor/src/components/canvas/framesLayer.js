@@ -18,16 +18,21 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { memo, useRef, useCallback } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
-import { PAGE_WIDTH } from '@web-stories-wp/units';
-import { STORY_ANIMATION_STATE } from '@web-stories-wp/animation';
+import PropTypes from 'prop-types';
+import { memo, useRef, useCallback } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
+import { PAGE_WIDTH } from '@googleforcreators/units';
+import { STORY_ANIMATION_STATE } from '@googleforcreators/animation';
+import {
+  themeHelpers,
+  useKeyDownEffect,
+  useLiveRegion,
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
  */
-import { useKeyDownEffect } from '@web-stories-wp/design-system';
-import { DESIGN_SPACE_MARGIN } from '../../constants';
+import { DESIGN_SPACE_MARGIN, STABLE_ARRAY } from '../../constants';
 import {
   useStory,
   useCanvas,
@@ -40,12 +45,37 @@ import { Layer, NavNextArea, NavPrevArea, PageArea } from './layout';
 import FrameElement from './frameElement';
 import Selection from './selection';
 import PageNav from './pagenav';
+import {
+  FOCUS_GROUPS,
+  useEditLayerFocusManager,
+} from './editLayerFocusManager';
 
 const FramesPageArea = styled(PageArea)`
   pointer-events: initial;
 `;
 const marginRatio = 100 * (DESIGN_SPACE_MARGIN / PAGE_WIDTH);
-const DesignSpaceGuideline = styled.div`
+
+const FocusContainer = styled.div`
+  // begin under header row
+  grid-row: 2 / -1;
+  grid-column: 1 / -1;
+  // show focus border by adding margin
+  margin: 5px;
+
+  ${themeHelpers.focusableOutlineCSS};
+`;
+
+const FOCUS_CONTAINER_MESSAGE = __(
+  'Canvas Area. To navigate into the page, press Enter.',
+  'web-stories'
+);
+
+const FRAME_ELEMENT_MESSAGE = __(
+  'To exit the canvas area, press Escape. Press Tab to move to the next group or element.',
+  'web-stories'
+);
+
+const DesignSpaceGuidelineBorder = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border.negativePress};
   left: ${marginRatio}%;
   right: ${marginRatio}%;
@@ -57,40 +87,26 @@ const DesignSpaceGuideline = styled.div`
   visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
 `;
 
-function FramesLayer() {
-  const { currentPage, isAnimating } = useStory((state) => ({
-    currentPage: state.state.currentPage,
-    isAnimating: [
-      STORY_ANIMATION_STATE.PLAYING,
-      STORY_ANIMATION_STATE.SCRUBBING,
-    ].includes(state.state.animationState),
-  }));
-  const { setDesignSpaceGuideline } = useCanvas(
-    ({ actions: { setDesignSpaceGuideline } }) => ({
-      setDesignSpaceGuideline,
-    })
+function DesignSpaceGuideline() {
+  const setDesignSpaceGuideline = useCanvas(
+    ({ actions }) => actions.setDesignSpaceGuideline
   );
-
-  const { isAnythingTransforming } = useTransform((state) => ({
-    isAnythingTransforming: state.state.isAnythingTransforming,
+  const { isAnythingTransforming } = useTransform(({ state }) => ({
+    isAnythingTransforming: state.isAnythingTransforming,
   }));
 
+  return (
+    <DesignSpaceGuidelineBorder
+      ref={setDesignSpaceGuideline}
+      isVisible={isAnythingTransforming}
+    />
+  );
+}
+
+function FramesNavAndSelection({ children }) {
   const framesLayerRef = useRef(null);
-  useCanvasKeys(framesLayerRef);
 
-  const { onOpenMenu } = useRightClickMenu();
-
-  const { setScrollOffset } = useLayout(({ actions: { setScrollOffset } }) => ({
-    setScrollOffset,
-  }));
-  const onScroll = useCallback(
-    (evt) =>
-      setScrollOffset({
-        left: evt.target.scrollLeft,
-        top: evt.target.scrollTop,
-      }),
-    [setScrollOffset]
-  );
+  const onOpenMenu = useRightClickMenu((state) => state.onOpenMenu);
 
   useKeyDownEffect(framesLayerRef, 'mod+alt+shift+m', onOpenMenu);
 
@@ -105,25 +121,7 @@ function FramesLayer() {
       tabIndex="-1"
       aria-label={__('Frames layer', 'web-stories')}
     >
-      {!isAnimating && (
-        <FramesPageArea
-          fullBleedContainerLabel={__(
-            'Fullbleed area (Frames layer)',
-            'web-stories'
-          )}
-          onContextMenu={onOpenMenu}
-          onScroll={onScroll}
-        >
-          {currentPage &&
-            currentPage.elements.map((element) => {
-              return <FrameElement key={element.id} element={element} />;
-            })}
-          <DesignSpaceGuideline
-            ref={setDesignSpaceGuideline}
-            isVisible={isAnythingTransforming}
-          />
-        </FramesPageArea>
-      )}
+      {children}
       <NavPrevArea>
         <PageNav isNext={false} />
       </NavPrevArea>
@@ -132,6 +130,100 @@ function FramesLayer() {
       </NavNextArea>
       <Selection onContextMenu={onOpenMenu} />
     </Layer>
+  );
+}
+
+FramesNavAndSelection.propTypes = {
+  children: PropTypes.node,
+};
+
+function FrameElements() {
+  // We are returning this directly because we want the elementIds array to be shallowly
+  // compared between re-renders. This allows element properties to update without re-rendering
+  // this top level component.
+  const elementIds = useStory(
+    ({ state }) =>
+      state.currentPage?.elements?.map((el) => el.id) || STABLE_ARRAY
+  );
+  const isAnimating = useStory(({ state }) =>
+    [STORY_ANIMATION_STATE.PLAYING, STORY_ANIMATION_STATE.SCRUBBING].includes(
+      state.animationState
+    )
+  );
+
+  const onOpenMenu = useRightClickMenu((state) => state.onOpenMenu);
+
+  const { setScrollOffset } = useLayout(({ actions: { setScrollOffset } }) => ({
+    setScrollOffset,
+  }));
+  const onScroll = useCallback(
+    (evt) =>
+      setScrollOffset({
+        left: evt.target.scrollLeft,
+        top: evt.target.scrollTop,
+      }),
+    [setScrollOffset]
+  );
+
+  return (
+    !isAnimating && (
+      <FramesPageArea
+        fullBleedContainerLabel={__(
+          'Fullbleed area (Frames layer)',
+          'web-stories'
+        )}
+        onContextMenu={onOpenMenu}
+        onScroll={onScroll}
+      >
+        {elementIds.map((id) => {
+          return <FrameElement key={id} id={id} />;
+        })}
+        <DesignSpaceGuideline />
+      </FramesPageArea>
+    )
+  );
+}
+
+function FramesLayer() {
+  const canvasRef = useRef();
+  const speak = useLiveRegion();
+
+  const enterFocusGroup = useEditLayerFocusManager(
+    ({ enterFocusGroup }) => enterFocusGroup
+  );
+
+  // TODO: https://github.com/google/web-stories-wp/issues/10266
+  // refactor `useCanvasKeys`. This is the last hook causing extraneous re-renders in this component.
+  // - pulls most of state from useStory and only creates actions and attaches them to hot keys
+  // - extraneous re-renders in this component contribute only ~1ms to total re-render time,
+  //   so this is a high hanging fruit with little reward.
+  useCanvasKeys(canvasRef);
+
+  useKeyDownEffect(
+    canvasRef,
+    { key: ['enter'] },
+    () => {
+      enterFocusGroup({
+        groupId: FOCUS_GROUPS.ELEMENT_SELECTION,
+        cleanup: () => canvasRef.current?.focus(),
+      });
+      speak(FRAME_ELEMENT_MESSAGE);
+    },
+    [enterFocusGroup, speak]
+  );
+
+  return (
+    <FramesNavAndSelection>
+      <FocusContainer
+        role="region"
+        data-testid="canvas-focus-container"
+        ref={canvasRef}
+        aria-label={FOCUS_CONTAINER_MESSAGE}
+        // eslint-disable-next-line styled-components-a11y/no-noninteractive-tabindex -- Container used to separate elements from normal tab order.
+        tabIndex={0}
+      />
+      <FrameElements />
+    </FramesNavAndSelection>
   );
 }
 

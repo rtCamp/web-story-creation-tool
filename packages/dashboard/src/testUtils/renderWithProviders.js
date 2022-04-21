@@ -25,7 +25,7 @@ import {
   lightMode,
   SnackbarProvider,
   noop,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -45,6 +45,9 @@ const defaultProviderValues = {
     apiCallbacks: {
       createStoryFromTemplate: noop, // Not required in general, but without this "use template" button will not render and a test will fail.
     },
+    styleConstants: {
+      topOffset: 0,
+    },
   },
   api: {},
 };
@@ -61,7 +64,6 @@ export const renderWithProviders = (
 
   const ProvidedWrapper = wrapper;
 
-  // eslint-disable-next-line react/prop-types
   const Wrapper = ({ children }) => (
     <ProvidedWrapper>
       <FlagsProvider features={mergedProviderValues.features}>

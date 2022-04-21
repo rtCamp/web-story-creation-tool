@@ -4,10 +4,10 @@
  *
  * Responsible for adding the stories dashboard to WordPress admin.
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -28,17 +28,17 @@
 
 namespace Google\Web_Stories\Admin;
 
+use Google\Web_Stories\Assets;
 use Google\Web_Stories\Context;
 use Google\Web_Stories\Decoder;
 use Google\Web_Stories\Experiments;
-use Google\Web_Stories\Locale;
-use Google\Web_Stories\Tracking;
-use Google\Web_Stories\Media\Types;
 use Google\Web_Stories\Font_Post_Type;
-use Google\Web_Stories\Story_Post_Type;
-use Google\Web_Stories\Service_Base;
 use Google\Web_Stories\Integrations\Site_Kit;
-use Google\Web_Stories\Assets;
+use Google\Web_Stories\Locale;
+use Google\Web_Stories\Media\Types;
+use Google\Web_Stories\Service_Base;
+use Google\Web_Stories\Story_Post_Type;
+use Google\Web_Stories\Tracking;
 
 /**
  * Dashboard class.
@@ -47,10 +47,8 @@ class Dashboard extends Service_Base {
 
 	/**
 	 * Script handle.
-	 *
-	 * @var string
 	 */
-	const SCRIPT_HANDLE = 'wp-dashboard';
+	public const SCRIPT_HANDLE = 'wp-dashboard';
 
 	/**
 	 * Admin page hook suffixes.
@@ -175,10 +173,8 @@ class Dashboard extends Service_Base {
 	 * Initializes the dashboard logic.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		add_action( 'admin_menu', [ $this, 'add_menu_page' ] );
 		add_action( 'admin_init', [ $this, 'redirect_menu_page' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
@@ -192,7 +188,6 @@ class Dashboard extends Service_Base {
 	 * @since 1.0.0
 	 *
 	 * @param string $key The current admin page key.
-	 *
 	 * @return string|false|null The dashboard page's hook_suffix, or false if the user does not have the capability required.
 	 */
 	public function get_hook_suffix( $key ) {
@@ -203,11 +198,11 @@ class Dashboard extends Service_Base {
 	 * Registers the dashboard admin menu page.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
-	public function add_menu_page() {
+	public function add_menu_page(): void {
 		$parent = 'edit.php?post_type=' . $this->story_post_type->get_slug();
+
+		$settings = $this->get_dashboard_settings();
 
 		$this->hook_suffix['stories-dashboard'] = add_submenu_page(
 			$parent,
@@ -219,15 +214,17 @@ class Dashboard extends Service_Base {
 			0
 		);
 
-		$this->hook_suffix['stories-dashboard-explore'] = add_submenu_page(
-			$parent,
-			__( 'Explore Templates', 'web-stories' ),
-			__( 'Explore Templates', 'web-stories' ),
-			'edit_web-stories',
-			'stories-dashboard#/templates-gallery',
-			'__return_null',
-			1
-		);
+		if ( isset( $settings['canViewDefaultTemplates'] ) && $settings['canViewDefaultTemplates'] ) {
+			$this->hook_suffix['stories-dashboard-explore'] = add_submenu_page(
+				$parent,
+				__( 'Explore Templates', 'web-stories' ),
+				__( 'Explore Templates', 'web-stories' ),
+				'edit_web-stories',
+				'stories-dashboard#/templates-gallery',
+				'__return_null',
+				1
+			);
+		}
 
 		$this->hook_suffix['stories-dashboard-settings'] = add_submenu_page(
 			$parent,
@@ -246,10 +243,8 @@ class Dashboard extends Service_Base {
 	 * @codeCoverageIgnore
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
-	public function redirect_menu_page() {
+	public function redirect_menu_page(): void {
 		global $pagenow;
 
 		if ( ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -278,10 +273,8 @@ class Dashboard extends Service_Base {
 	 * Important: keep in sync with usage & definition in React app.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
-	public function load_stories_dashboard() {
+	public function load_stories_dashboard(): void {
 		$rest_url = trailingslashit( $this->story_post_type->get_rest_url() );
 
 		$preload_paths = [
@@ -361,10 +354,8 @@ class Dashboard extends Service_Base {
 	 * Renders the dashboard page.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
-	public function render() {
+	public function render(): void {
 		require_once WEBSTORIES_PLUGIN_DIR_PATH . 'includes/templates/admin/dashboard.php';
 	}
 
@@ -374,10 +365,8 @@ class Dashboard extends Service_Base {
 	 * @since 1.0.0
 	 *
 	 * @param string $hook_suffix The current admin page.
-	 *
-	 * @return void
 	 */
-	public function enqueue_assets( $hook_suffix ) {
+	public function enqueue_assets( $hook_suffix ): void {
 		if ( $this->get_hook_suffix( 'stories-dashboard' ) !== $hook_suffix ) {
 			return;
 		}
@@ -395,7 +384,7 @@ class Dashboard extends Service_Base {
 			]
 		);
 
-		// Dequeue forms.css, see https://github.com/google/web-stories-wp/issues/349 .
+		// Dequeue forms.css, see https://github.com/googleforcreators/web-stories-wp/issues/349 .
 		$this->assets->remove_admin_style( [ 'forms' ] );
 	}
 
@@ -421,18 +410,21 @@ class Dashboard extends Service_Base {
 		if ( ! $max_upload_size ) {
 			$max_upload_size = 0;
 		}
+		$mime_types               = $this->types->get_allowed_mime_types();
+		$allowed_image_mime_types = $mime_types['image'];
 
 		$settings = [
-			'isRTL'                 => is_rtl(),
-			'userId'                => get_current_user_id(),
-			'locale'                => $this->locale->get_locale_settings(),
-			'newStoryURL'           => $new_story_url,
-			'archiveURL'            => $this->story_post_type->get_archive_link(),
-			'cdnURL'                => trailingslashit( WEBSTORIES_CDN_URL ),
-			'allowedImageMimeTypes' => $this->types->get_allowed_image_mime_types(),
-			'version'               => WEBSTORIES_VERSION,
-			'encodeMarkup'          => $this->decoder->supports_decoding(),
-			'api'                   => [
+			'isRTL'                   => is_rtl(),
+			'userId'                  => get_current_user_id(),
+			'locale'                  => $this->locale->get_locale_settings(),
+			'newStoryURL'             => $new_story_url,
+			'archiveURL'              => $this->story_post_type->get_archive_link(),
+			'defaultArchiveURL'       => $this->story_post_type->get_archive_link( true ),
+			'cdnURL'                  => trailingslashit( WEBSTORIES_CDN_URL ),
+			'allowedImageMimeTypes'   => $allowed_image_mime_types,
+			'version'                 => WEBSTORIES_VERSION,
+			'encodeMarkup'            => $this->decoder->supports_decoding(),
+			'api'                     => [
 				'stories'        => trailingslashit( $this->story_post_type->get_rest_url() ),
 				'media'          => '/web-stories/v1/media/',
 				'currentUser'    => '/web-stories/v1/users/me/',
@@ -442,14 +434,15 @@ class Dashboard extends Service_Base {
 				'pages'          => '/wp/v2/pages/',
 				'publisherLogos' => '/web-stories/v1/publisher-logos/',
 			],
-			'maxUpload'             => $max_upload_size,
-			'maxUploadFormatted'    => size_format( $max_upload_size ),
-			'capabilities'          => [
+			'maxUpload'               => $max_upload_size,
+			'maxUploadFormatted'      => size_format( $max_upload_size ),
+			'capabilities'            => [
 				'canManageSettings' => current_user_can( 'manage_options' ),
 				'canUploadFiles'    => current_user_can( 'upload_files' ),
 			],
-			'siteKitStatus'         => $this->site_kit->get_plugin_status(),
-			'flags'                 => array_merge(
+			'canViewDefaultTemplates' => true,
+			'siteKitStatus'           => $this->site_kit->get_plugin_status(),
+			'flags'                   => array_merge(
 				$this->experiments->get_experiment_statuses( 'general' ),
 				$this->experiments->get_experiment_statuses( 'dashboard' )
 			),
@@ -469,10 +462,8 @@ class Dashboard extends Service_Base {
 	 * Displays a link to the Web Stories dashboard on the WordPress list table view.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
-	public function display_link_to_dashboard() {
+	public function display_link_to_dashboard(): void {
 		if ( ! $this->context->is_story_editor() ) {
 			return;
 		}

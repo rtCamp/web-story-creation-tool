@@ -25,7 +25,7 @@ import {
   createContext,
   useContextSelector,
   identity,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 /**
  * Internal dependencies
@@ -71,14 +71,9 @@ function ChecklistCheckpointProvider({ children }) {
   );
 
   const [highPriorityCount, setHighPriorityCount] = useState();
-  const [reviewDialogRequested, setReviewDialogRequested] = useState();
+  const [reviewChecklistRequested, setReviewChecklistRequested] = useState();
 
-  const shouldReviewDialogBeSeen =
-    highPriorityCount > 0 ||
-    [
-      PPC_CHECKPOINT_STATE.UNAVAILABLE,
-      PPC_CHECKPOINT_STATE.ONLY_RECOMMENDED,
-    ].includes(checkpointState);
+  const hasHighPriorityIssues = highPriorityCount > 0;
 
   const storyStatus = useStory(({ state: { story } }) => story.status);
 
@@ -113,34 +108,40 @@ function ChecklistCheckpointProvider({ children }) {
     setHighPriorityCount(count);
   }, []);
 
-  const onReviewDialogRequest = useCallback(() => {
-    setReviewDialogRequested(true);
-    dispatch(PPC_CHECKPOINT_ACTION.ON_PUBLISH_CLICKED);
+  const showPriorityIssues = useCallback(
+    () => dispatch(PPC_CHECKPOINT_ACTION.ON_PUBLISH_CLICKED),
+    []
+  );
+
+  const handleReviewChecklist = useCallback(() => {
+    setReviewChecklistRequested(true);
   }, []);
 
-  const onResetReviewDialogRequest = useCallback(() => {
-    setReviewDialogRequested(false);
+  const handleResetReviewChecklist = useCallback(() => {
+    setReviewChecklistRequested(false);
   }, []);
 
   const value = useMemo(
     () => ({
       state: {
         checkpoint: checkpointState,
-        shouldReviewDialogBeSeen,
-        reviewDialogRequested,
+        hasHighPriorityIssues,
+        reviewChecklistRequested,
       },
       actions: {
         updateHighPriorityCount,
-        onReviewDialogRequest,
-        onResetReviewDialogRequest,
+        handleResetReviewChecklist,
+        handleReviewChecklist,
+        showPriorityIssues,
       },
     }),
     [
       checkpointState,
-      onReviewDialogRequest,
-      onResetReviewDialogRequest,
-      reviewDialogRequested,
-      shouldReviewDialogBeSeen,
+      handleReviewChecklist,
+      showPriorityIssues,
+      handleResetReviewChecklist,
+      reviewChecklistRequested,
+      hasHighPriorityIssues,
       updateHighPriorityCount,
     ]
   );

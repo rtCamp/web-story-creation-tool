@@ -19,17 +19,17 @@
  */
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { __ } from '@web-stories-wp/i18n';
+import { PLACEMENT, Popup } from '@googleforcreators/design-system';
+import { __ } from '@googleforcreators/i18n';
 
 /**
  * Internal dependencies
  */
-import { useCanvas } from '../../../app';
-import Popup from '../../popup';
+import { useCanvas, useConfig } from '../../../app';
 import useElementsWithLinks from '../../../utils/useElementsWithLinks';
 import { OUTLINK_THEME } from '../../../constants';
-import { ReactComponent as DefaultIcon } from './defaultIcon.svg';
-import { ReactComponent as ArrowIcon } from './arrowBar.svg';
+import DefaultIcon from './icons/defaultIcon.svg';
+import ArrowIcon from './icons/arrowBar.svg';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -144,7 +144,7 @@ function PageAttachment({ pageAttachment = {} }) {
     icon,
     theme,
   } = pageAttachment;
-
+  const { isRTL, styleConstants: { topOffset } = {} } = useConfig();
   const bgColor = theme === OUTLINK_THEME.DARK ? DARK_COLOR : LIGHT_COLOR;
   const fgColor = theme === OUTLINK_THEME.DARK ? LIGHT_COLOR : DARK_COLOR;
   return (
@@ -164,10 +164,12 @@ function PageAttachment({ pageAttachment = {} }) {
             </OutlinkChip>
             {pageAttachmentContainer && hasInvalidLinkSelected && (
               <Popup
+                isRTL={isRTL}
                 anchor={{ current: pageAttachmentContainer }}
                 isOpen
-                placement={'left'}
+                placement={PLACEMENT.LEFT}
                 spacing={spacing}
+                topOffset={topOffset}
               >
                 <Tooltip>
                   {__(
@@ -188,6 +190,8 @@ PageAttachment.propTypes = {
   pageAttachment: PropTypes.shape({
     url: PropTypes.string,
     ctaText: PropTypes.string,
+    icon: PropTypes.string,
+    theme: PropTypes.string,
   }),
 };
 

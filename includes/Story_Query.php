@@ -2,10 +2,10 @@
 /**
  * Stories class.
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -125,7 +125,7 @@ class Story_Query {
 	 *
 	 * @return Renderer Renderer Instance.
 	 */
-	public function get_renderer() {
+	public function get_renderer(): Renderer {
 		$story_attributes = $this->get_story_attributes();
 		$view_type        = ( ! empty( $story_attributes['view_type'] ) ) ? $story_attributes['view_type'] : '';
 
@@ -149,8 +149,6 @@ class Story_Query {
 	 * Renders the stories output.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @return string
 	 */
 	public function render(): string {
 		$this->renderer = $this->get_renderer();

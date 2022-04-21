@@ -23,15 +23,16 @@ import {
   useMemo,
   useRef,
   useState,
-} from '@web-stories-wp/react';
+} from '@googleforcreators/react';
 import PropTypes from 'prop-types';
-import { trackEvent } from '@web-stories-wp/tracking';
+import { trackEvent } from '@googleforcreators/tracking';
+import { clamp } from '@googleforcreators/units';
+
 /**
  * Internal dependencies
  */
 import { SORT_DIRECTION, STORY_SORT_OPTIONS, VIEW_STYLE } from '../constants';
 import { PageSizePropType } from '../types';
-import clamp from './clamp';
 import usePagePreviewSize from './usePagePreviewSize';
 
 export default function useStoryView({
@@ -59,7 +60,7 @@ export default function useStoryView({
 
   const setPageClamped = useCallback(
     (newPage) => {
-      const pageRange = [1, totalPages];
+      const pageRange = { MIN: 1, MAX: totalPages };
       setPage(clamp(newPage, pageRange));
     },
     [totalPages]
@@ -124,15 +125,17 @@ export default function useStoryView({
   }, []);
 
   useEffect(() => {
-    trackEvent('search', {
-      search_type: 'dashboard_stories',
-      search_term: searchKeyword,
-      search_filter: filter,
-      search_author_filter: authorFilterId,
-      search_order: sortDirection,
-      search_orderby: sort,
-      search_view: viewStyle,
-    });
+    if (searchKeyword.length) {
+      trackEvent('search', {
+        search_type: 'dashboard_stories',
+        search_term: searchKeyword,
+        search_filter: filter,
+        search_author_filter: authorFilterId,
+        search_order: sortDirection,
+        search_orderby: sort,
+        search_view: viewStyle,
+      });
+    }
   }, [searchKeyword, filter, sortDirection, sort, viewStyle, authorFilterId]);
 
   useEffect(() => {

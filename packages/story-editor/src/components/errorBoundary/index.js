@@ -17,9 +17,9 @@
 /**
  * External dependencies
  */
-import { Component } from '@web-stories-wp/react';
+import { Component } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
-import { trackError } from '@web-stories-wp/tracking';
+import { trackError } from '@googleforcreators/tracking';
 /**
  * Internal dependencies
  */
@@ -53,7 +53,8 @@ class ErrorBoundary extends Component {
 }
 
 const shouldDisableErrorBoundaries =
-  process.env.DISABLE_ERROR_BOUNDARIES === 'true';
+  typeof WEB_STORIES_DISABLE_ERROR_BOUNDARIES !== 'undefined' &&
+  WEB_STORIES_DISABLE_ERROR_BOUNDARIES === 'true';
 export default shouldDisableErrorBoundaries
   ? ({ children }) => children
   : ErrorBoundary;

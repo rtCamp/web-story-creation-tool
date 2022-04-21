@@ -18,30 +18,35 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { useCallback, useMemo, useRef } from '@web-stories-wp/react';
-import { __, sprintf, translateToExclusiveList } from '@web-stories-wp/i18n';
+import { useCallback, useMemo, useRef } from '@googleforcreators/react';
+import { __, sprintf, translateToExclusiveList } from '@googleforcreators/i18n';
 import {
   prettifyShortcut,
   useSnackbar,
   PLACEMENT,
   Icons,
-} from '@web-stories-wp/design-system';
-import { trackEvent } from '@web-stories-wp/tracking';
-import { resourceList } from '@web-stories-wp/media';
+} from '@googleforcreators/design-system';
+import { trackEvent } from '@googleforcreators/tracking';
+import { ELEMENT_TYPES } from '@googleforcreators/elements';
+import {
+  resourceList,
+  getExtensionsFromMimeType,
+} from '@googleforcreators/media';
 
 /**
  * Internal dependencies
  */
-import { states, useHighlights } from '..';
-import updateProperties from '../../../components/inspector/design/updateProperties';
-import useVideoTrim from '../../../components/videoTrim/useVideoTrim';
+import states from '../states';
+import useHighlights from '../useHighlights';
+import updateProperties from '../../../components/style/updateProperties';
 import { useHistory } from '../../history';
 import { useConfig } from '../../config';
-import { useLocalMedia } from '../../media';
-import { ELEMENT_TYPES } from '../../../elements';
+import { useLocalMedia, TRANSCODABLE_MIME_TYPES } from '../../media';
 import { useStory, useStoryTriggersDispatch, STORY_EVENTS } from '../../story';
 import useApplyTextAutoStyle from '../../../utils/useApplyTextAutoStyle';
 import useFFmpeg from '../../media/utils/useFFmpeg';
+import useInsertElement from '../../../components/canvas/useInsertElement';
+import { DEFAULT_PRESET } from '../../../components/library/panes/text/textPresets';
 import { getResetProperties } from './utils';
 import { ACTIONS, RESET_PROPERTIES, RESET_DEFAULTS } from './constants';
 
@@ -56,21 +61,18 @@ const {
   ColorBucket,
   CircleSpeed,
   Eraser,
-  LetterTLargeLetterTSmall,
   LetterTPlus,
   Link,
   Media,
   PictureSwap,
   Captions,
-  Scissors,
 } = Icons;
 
 export const MediaPicker = ({ render, ...props }) => {
   const {
-    allowedTranscodableMimeTypes,
-    allowedFileTypes,
     allowedMimeTypes: {
       image: allowedImageMimeTypes,
+      vector: allowedVectorMimeTypes,
       video: allowedVideoMimeTypes,
     },
     MediaUpload,
@@ -110,12 +112,24 @@ export const MediaPicker = ({ render, ...props }) => {
   const { showSnackbar } = useSnackbar();
 
   // Media Upload Props
-  let allowedMimeTypes = [...allowedImageMimeTypes, ...allowedVideoMimeTypes];
+  let allowedMimeTypes = useMemo(
+    () => [
+      ...allowedImageMimeTypes,
+      ...allowedVectorMimeTypes,
+      ...allowedVideoMimeTypes,
+    ],
+    [allowedImageMimeTypes, allowedVectorMimeTypes, allowedVideoMimeTypes]
+  );
+  const allowedFileTypes = useMemo(
+    () =>
+      allowedMimeTypes.map((type) => getExtensionsFromMimeType(type)).flat(),
+    [allowedMimeTypes]
+  );
   if (isTranscodingEnabled) {
-    allowedMimeTypes = allowedMimeTypes.concat(allowedTranscodableMimeTypes);
+    allowedMimeTypes = allowedMimeTypes.concat(TRANSCODABLE_MIME_TYPES);
   }
 
-  const transcodableMimeTypes = allowedTranscodableMimeTypes.filter(
+  const transcodableMimeTypes = TRANSCODABLE_MIME_TYPES.filter(
     (x) => !allowedVideoMimeTypes.includes(x)
   );
 
@@ -164,10 +178,10 @@ export const MediaPicker = ({ render, ...props }) => {
             optimizeGif({ resource });
           }
         }
-        // WordPress media picker event, sizes.medium.source_url is the smallest image
+        // WordPress media picker event, sizes.medium.sourceUrl is the smallest image
         insertMediaElement(
           resource,
-          resource.sizes?.medium?.source_url || resource.src
+          resource.sizes?.medium?.sourceUrl || resource.src
         );
 
         postProcessingResource(resource);
@@ -235,7 +249,7 @@ const useQuickActions = () => {
   } = useConfig();
   const dispatchStoryEvent = useStoryTriggersDispatch();
   const {
-    currentPage,
+    backgroundElement,
     selectedElementAnimations,
     selectedElements,
     updateElementsById,
@@ -244,7 +258,9 @@ const useQuickActions = () => {
       state: { currentPage, selectedElementAnimations, selectedElements },
       actions: { updateElementsById },
     }) => ({
-      currentPage,
+      backgroundElement: currentPage?.elements.find(
+        (element) => element.isBackground
+      ),
       selectedElementAnimations,
       selectedElements,
       updateElementsById,
@@ -253,29 +269,14 @@ const useQuickActions = () => {
   const { undo } = useHistory(({ actions: { undo } }) => ({
     undo,
   }));
-  const { showSnackbar } = useSnackbar();
+  const showSnackbar = useSnackbar(({ showSnackbar }) => showSnackbar);
   const { setHighlights } = useHighlights(({ setHighlights }) => ({
     setHighlights,
   }));
-  const { hasTrimMode, toggleTrimMode } = useVideoTrim(
-    ({ state: { hasTrimMode }, actions: { toggleTrimMode } }) => ({
-      hasTrimMode,
-      toggleTrimMode,
-    })
-  );
-
-  const { canTranscodeResource } = useLocalMedia(
-    ({ state: { canTranscodeResource } }) => ({
-      canTranscodeResource,
-    })
-  );
 
   const undoRef = useRef(undo);
   undoRef.current = undo;
 
-  const backgroundElement = currentPage?.elements.find(
-    (element) => element.isBackground
-  );
   const selectedElement = selectedElements?.[0];
 
   /**
@@ -302,10 +303,20 @@ const useQuickActions = () => {
       }
 
       if (properties.includes(RESET_PROPERTIES.ANIMATION)) {
-        newProperties.animation = {
-          ...selectedElementAnimations?.[0],
-          delete: true,
-        };
+        // this is the only place where we're updating both animations and other
+        // properties on an element. updateElementsById only accepts if you upate
+        // one or the other, so we're upating animations if needed here separately
+        updateElementsById({
+          elementIds: [elementId],
+          properties: (currentProperties) =>
+            updateProperties(
+              currentProperties,
+              {
+                animation: { ...selectedElementAnimations?.[0], delete: true },
+              },
+              /* commitValues */ true
+            ),
+        });
       }
 
       if (properties.includes(RESET_PROPERTIES.STYLES)) {
@@ -400,10 +411,7 @@ const useQuickActions = () => {
     handleFocusAnimationPanel,
     handleFocusLinkPanel,
     handleFocusPageBackground,
-    handleFocusTextColor,
-    handleFocusFontPicker,
     handleFocusTextSetsPanel,
-    handleFocusStylePanel,
     handleFocusCaptionsPanel,
   } = useMemo(
     () => ({
@@ -411,13 +419,12 @@ const useQuickActions = () => {
       handleFocusLinkPanel: handleFocusPanel(states.LINK),
       handleFocusPageBackground: handleFocusPanel(states.PAGE_BACKGROUND),
       handleFocusTextSetsPanel: handleFocusPanel(states.TEXT_SET),
-      handleFocusFontPicker: handleFocusPanel(states.FONT),
-      handleFocusTextColor: handleFocusPanel(states.TEXT_COLOR),
-      handleFocusStylePanel: handleFocusPanel(states.STYLE),
       handleFocusCaptionsPanel: handleFocusPanel(states.CAPTIONS),
     }),
     [handleFocusPanel]
   );
+
+  const insertElement = useInsertElement();
 
   const actionMenuProps = useMemo(
     () => ({
@@ -461,13 +468,13 @@ const useQuickActions = () => {
         label: ACTIONS.INSERT_TEXT.text,
         onClick: (evt) => {
           handleFocusTextSetsPanel()(evt);
-
+          insertElement('text', DEFAULT_PRESET);
           trackEvent('quick_action', {
             name: ACTIONS.INSERT_TEXT.trackingEventName,
             element: 'none',
           });
         },
-        onMouseDown: handleMouseDown,
+        ...actionMenuProps,
       },
     ];
   }, [
@@ -476,7 +483,7 @@ const useQuickActions = () => {
     handleFocusMediaPanel,
     handleFocusPageBackground,
     handleFocusTextSetsPanel,
-    handleMouseDown,
+    insertElement,
   ]);
 
   const resetProperties = useMemo(
@@ -575,30 +582,7 @@ const useQuickActions = () => {
     selectedElement?.type,
   ]);
 
-  const shapeActions = useMemo(
-    () => [
-      {
-        Icon: Bucket,
-        label: ACTIONS.CHANGE_COLOR.text,
-        onClick: (evt) => {
-          handleFocusStylePanel()(evt);
-
-          trackEvent('quick_action', {
-            name: ACTIONS.CHANGE_COLOR.trackingEventName,
-            element: selectedElement?.type,
-          });
-        },
-        ...actionMenuProps,
-      },
-      ...foregroundCommonActions,
-    ],
-    [
-      actionMenuProps,
-      foregroundCommonActions,
-      handleFocusStylePanel,
-      selectedElement?.type,
-    ]
-  );
+  const shapeActions = foregroundCommonActions;
 
   const applyTextAutoStyle = useApplyTextAutoStyle(
     selectedElement,
@@ -610,32 +594,6 @@ const useQuickActions = () => {
   );
   const textActions = useMemo(
     () => [
-      {
-        Icon: Bucket,
-        label: ACTIONS.CHANGE_COLOR.text,
-        onClick: (evt) => {
-          handleFocusTextColor()(evt);
-
-          trackEvent('quick_action', {
-            name: ACTIONS.CHANGE_COLOR.trackingEventName,
-            element: selectedElement?.type,
-          });
-        },
-        ...actionMenuProps,
-      },
-      {
-        Icon: LetterTLargeLetterTSmall,
-        label: ACTIONS.CHANGE_FONT.text,
-        onClick: (evt) => {
-          handleFocusFontPicker()(evt);
-
-          trackEvent('quick_action', {
-            name: ACTIONS.CHANGE_FONT.trackingEventName,
-            element: selectedElement?.type,
-          });
-        },
-        ...actionMenuProps,
-      },
       {
         Icon: ColorBucket,
         label: ACTIONS.AUTO_STYLE_TEXT.text,
@@ -654,41 +612,9 @@ const useQuickActions = () => {
       applyTextAutoStyle,
       foregroundCommonActions,
       actionMenuProps,
-      handleFocusTextColor,
-      handleFocusFontPicker,
       selectedElement?.type,
     ]
   );
-
-  const videoCommonActions = useMemo(() => {
-    const resource = selectedElements?.[0]?.resource;
-    if (!resource) {
-      return [];
-    }
-    return canTranscodeResource(resource) && hasTrimMode
-      ? [
-          {
-            Icon: Scissors,
-            label: ACTIONS.TRIM_VIDEO.text,
-            onClick: () => {
-              toggleTrimMode();
-              trackEvent('quick_action', {
-                name: ACTIONS.TRIM_VIDEO.trackingEventName,
-                element: selectedElement.type,
-              });
-            },
-            ...actionMenuProps,
-          },
-        ]
-      : [];
-  }, [
-    selectedElements,
-    selectedElement,
-    canTranscodeResource,
-    hasTrimMode,
-    actionMenuProps,
-    toggleTrimMode,
-  ]);
 
   const videoActions = useMemo(() => {
     const [baseActions, clearActions] = showClearAction
@@ -713,7 +639,6 @@ const useQuickActions = () => {
         },
         ...actionMenuProps,
       },
-      ...videoCommonActions,
       ...clearActions,
     ];
   }, [
@@ -722,7 +647,6 @@ const useQuickActions = () => {
     handleFocusCaptionsPanel,
     selectedElement?.type,
     showClearAction,
-    videoCommonActions,
   ]);
 
   const backgroundElementMediaActions = useMemo(() => {
@@ -822,7 +746,7 @@ const useQuickActions = () => {
     const isVideo = selectedElement.type === 'video';
     // In case of video, we're also adding actions that are common for video regardless of bg/not.
     if (isVideo) {
-      return [...backgroundElementMediaActions, ...videoCommonActions];
+      return [...backgroundElementMediaActions];
     }
     return backgroundElementMediaActions;
   }

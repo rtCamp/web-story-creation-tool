@@ -17,15 +17,18 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
-import { getGoogleFontURL } from '@web-stories-wp/fonts';
+import { useCallback } from '@googleforcreators/react';
+import { getGoogleFontURL, getFontCSS } from '@googleforcreators/fonts';
+import {
+  loadStylesheet,
+  ensureFontLoaded,
+  loadInlineStylesheet,
+} from '@googleforcreators/dom';
 
 /**
  * Internal dependencies
  */
 import cleanForSlug from '../../../utils/cleanForSlug';
-import loadStylesheet from '../../../utils/loadStylesheet';
-import { ensureFontLoaded, loadInlineStylesheet } from '../utils';
 
 function useLoadFontFiles() {
   const maybeLoadFont = useCallback(async (font) => {
@@ -48,7 +51,7 @@ function useLoadFontFiles() {
         );
         break;
       case 'custom':
-        await loadInlineStylesheet(elementId, url, family);
+        await loadInlineStylesheet(elementId, getFontCSS(family, url));
         break;
       default:
         return;

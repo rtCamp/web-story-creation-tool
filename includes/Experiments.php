@@ -2,10 +2,10 @@
 /**
  * Class Experiments
  *
- * @package   Google\Web_Stories
+ * @link      https://github.com/googleforcreators/web-stories-wp
+ *
  * @copyright 2020 Google LLC
  * @license   https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/google/web-stories-wp
  */
 
 /**
@@ -36,10 +36,8 @@ use Google\Web_Stories\Infrastructure\HasRequirements;
 class Experiments extends Service_Base implements HasRequirements {
 	/**
 	 * Settings page name.
-	 *
-	 * @var string
 	 */
-	const PAGE_NAME = 'web-stories-experiments';
+	public const PAGE_NAME = 'web-stories-experiments';
 
 	/**
 	 * Settings instance.
@@ -54,7 +52,6 @@ class Experiments extends Service_Base implements HasRequirements {
 	 * @since 1.12.0
 	 *
 	 * @param Settings $settings Settings instance.
-	 *
 	 * @return void
 	 */
 	public function __construct( Settings $settings ) {
@@ -63,10 +60,8 @@ class Experiments extends Service_Base implements HasRequirements {
 
 	/**
 	 * Initializes experiments
-	 *
-	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		if ( WEBSTORIES_DEV_MODE ) {
 			add_action( 'admin_menu', [ $this, 'add_menu_page' ], 25 );
 			add_action( 'admin_init', [ $this, 'initialize_settings' ] );
@@ -90,10 +85,8 @@ class Experiments extends Service_Base implements HasRequirements {
 	 * Registers the experiments admin menu page.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
-	public function add_menu_page() {
+	public function add_menu_page(): void {
 		add_submenu_page(
 			'edit.php?post_type=' . Story_Post_Type::POST_TYPE_SLUG,
 			__( 'Experiments', 'web-stories' ),
@@ -109,10 +102,8 @@ class Experiments extends Service_Base implements HasRequirements {
 	 * Renders the experiments page.
 	 *
 	 * @codeCoverageIgnore
-	 *
-	 * @return void
 	 */
-	public function render() {
+	public function render(): void {
 		require_once WEBSTORIES_PLUGIN_DIR_PATH . 'includes/templates/admin/experiments.php';
 	}
 
@@ -120,10 +111,8 @@ class Experiments extends Service_Base implements HasRequirements {
 	 * Initializes the experiments settings page.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return void
 	 */
-	public function initialize_settings() {
+	public function initialize_settings(): void {
 		add_settings_section(
 			'web_stories_experiments_section',
 			// The empty string ensures the render function won't output a h2.
@@ -153,7 +142,7 @@ class Experiments extends Service_Base implements HasRequirements {
 				[
 					'label'   => $experiment['description'],
 					'id'      => $experiment['name'],
-					'default' => array_key_exists( 'default', $experiment ) && $experiment['default'],
+					'default' => \array_key_exists( 'default', $experiment ) && $experiment['default'],
 				]
 			);
 		}
@@ -171,10 +160,8 @@ class Experiments extends Service_Base implements HasRequirements {
 	 *     @type string $label   Experiment label.
 	 *     @type bool   $default Whether the experiment is enabled by default.
 	 * }
-	 *
-	 * @return void
 	 */
-	public function display_experiment_field( array $args ) {
+	public function display_experiment_field( array $args ): void {
 		$is_enabled_by_default = ! empty( $args['default'] );
 		$checked               = $is_enabled_by_default || $this->is_experiment_enabled( $args['id'] );
 		$disabled              = $is_enabled_by_default ? 'disabled' : '';
@@ -197,10 +184,8 @@ class Experiments extends Service_Base implements HasRequirements {
 	 * Display the experiments section.
 	 *
 	 * @codeCoverageIgnore
-	 *
-	 * @return void
 	 */
-	public function display_experiment_section() {
+	public function display_experiment_section(): void {
 		?>
 		<p>
 			<?php
@@ -293,91 +278,70 @@ class Experiments extends Service_Base implements HasRequirements {
 			],
 			/**
 			 * Author: @spacedmonkey
-			 * Issue: #3126
-			 * Creation date: 2021-02-02
+			 * Issue: #10339
+			 * Creation date: 2022-02-02
 			 */
 			[
-				'name'        => 'enablePostLocking',
-				'label'       => __( 'Story locking', 'web-stories' ),
-				'description' => __( 'Lock in-progress stories from being edited by other authors', 'web-stories' ),
-				'group'       => 'general',
-			],
-			/**
-			 * Author: @miina
-			 * Issue #471
-			 * Creation date: 2021-08-10
-			 */
-			[
-				'name'        => 'enableHotlinking',
-				'label'       => __( 'Insert media from link', 'web-stories' ),
-				'description' => __( 'Enable inserting media element from external link', 'web-stories' ),
+				'name'        => 'enablePostLockingTakeOver',
+				'label'       => __( 'Story locking take over', 'web-stories' ),
+				'description' => __( 'Allow locked stories to be taken over by another author', 'web-stories' ),
 				'group'       => 'editor',
-				'default'     => true,
 			],
-
 			/**
 			 * Author: @spacedmonkey
-			 * Issue #9039
-			 * Creation date: 2021-09-29
+			 * Issue: #10706
+			 * Creation date: 2022-03-07
 			 */
 			[
-				'name'        => 'enableCORSProxy',
-				'label'       => __( 'CORS Proxy', 'web-stories' ),
-				'description' => __( 'Enable inserting media element without CORS headers', 'web-stories' ),
+				'name'        => 'enableCORSCheck',
+				'label'       => __( 'CORS check', 'web-stories' ),
+				'description' => __( 'Add a check in the editor for CORS errors.', 'web-stories' ),
 				'group'       => 'editor',
 				'default'     => true,
 			],
-
 			/**
 			 * Author: @barklund
-			 * Issue: #8877
-			 * Creation date: 2021-09-01
+			 * Issue: #10112
+			 * Creation date: 2022-01-27
 			 */
 			[
-				'name'        => 'enableVideoTrim',
-				'label'       => __( 'Video trimming', 'web-stories' ),
-				'description' => __( 'Enable video trimming', 'web-stories' ),
+				'name'        => 'floatingMenu',
+				'label'       => __( 'Floating Menu', 'web-stories' ),
+				'description' => __( 'Enable the new floating design menu', 'web-stories' ),
 				'group'       => 'editor',
 				'default'     => true,
 			],
-
-			/**
-			 * Author: @barklund
-			 * Issue: #8973
-			 * Creation date: 2021-09-07
-			 */
-			[
-				'name'        => 'enableThumbnailCaching',
-				'label'       => __( 'Thumbnail Caching', 'web-stories' ),
-				'description' => __( 'Enable thumbnail caching', 'web-stories' ),
-				'group'       => 'editor',
-				'default'     => true,
-			],
-
-
 			/**
 			 * Author: @swissspidy
-			 * Issue: #9344
-			 * Creation date: 2021-11-26
+			 * Issue: #10930
+			 * Creation date: 2022-03-17
 			 */
 			[
-				'name'        => 'customVideoCaptionsInEditor',
-				'label'       => __( 'Video Captions', 'web-stories' ),
-				'description' => __( 'Improve video captions appearance in the editor', 'web-stories' ),
+				'name'        => 'mediaRecording',
+				'label'       => __( 'Media Recording', 'web-stories' ),
+				'description' => __( 'Enable recording from webcam/microphone', 'web-stories' ),
 				'group'       => 'editor',
-				'default'     => true,
 			],
-
 			/**
-			 * Author: @miina
-			 * Issue: #9880
-			 * Creation date: 2021-12-15
+			 * Issue: #10846
+			 * Creation date: 2022-03-28
 			 */
 			[
-				'name'        => 'customFonts',
-				'label'       => __( 'Custom Fonts', 'web-stories' ),
-				'description' => __( 'Enable adding custom fonts', 'web-stories' ),
+				'name'        => 'shoppingIntegration',
+				'label'       => __( 'Shopping', 'web-stories' ),
+				'description' => __( 'Enable shopping integration in the editor', 'web-stories' ),
 				'group'       => 'general',
+			],
+			/**
+			 * Author: @spacedmonkey
+			 * Issue: #11081
+			 * Creation date: 2022-03-30
+			 */
+			[
+				'name'        => 'captionHotlinking',
+				'label'       => __( 'Caption hotlinking', 'web-stories' ),
+				'description' => __( 'Enable hotlinking of captions', 'web-stories' ),
+				'group'       => 'editor',
 			],
 		];
 	}
@@ -388,7 +352,6 @@ class Experiments extends Service_Base implements HasRequirements {
 	 * @since 1.0.0
 	 *
 	 * @param string $group Experiments group name.
-	 *
 	 * @return array Experiment statuses with name as key and status as value.
 	 */
 	public function get_experiment_statuses( string $group ): array {
@@ -415,7 +378,7 @@ class Experiments extends Service_Base implements HasRequirements {
 	 * @param string $name Experiment name.
 	 * @return array|null Experiment if found, null otherwise.
 	 */
-	protected function get_experiment( string $name ) {
+	protected function get_experiment( string $name ): ?array {
 		$experiment = wp_list_filter( $this->get_experiments(), [ 'name' => $name ] );
 		return ! empty( $experiment ) ? array_shift( $experiment ) : null;
 	}
@@ -426,7 +389,6 @@ class Experiments extends Service_Base implements HasRequirements {
 	 * @since 1.0.0
 	 *
 	 * @param string $name Experiment name.
-	 *
 	 * @return bool Whether the experiment is enabled.
 	 */
 	public function is_experiment_enabled( string $name ): bool {
@@ -436,7 +398,7 @@ class Experiments extends Service_Base implements HasRequirements {
 			return false;
 		}
 
-		if ( array_key_exists( 'default', $experiment ) ) {
+		if ( \array_key_exists( 'default', $experiment ) ) {
 			return (bool) $experiment['default'];
 		}
 

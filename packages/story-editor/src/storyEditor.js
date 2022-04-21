@@ -19,14 +19,19 @@
  */
 import { StyleSheetManager, ThemeProvider } from 'styled-components';
 import stylisRTLPlugin from 'stylis-plugin-rtl';
+Object.defineProperty(stylisRTLPlugin, 'name', { value: 'stylisRTLPlugin' });
 import PropTypes from 'prop-types';
 import {
   SnackbarProvider,
   ModalGlobalStyle,
   deepMerge,
-} from '@web-stories-wp/design-system';
-import { useMemo } from '@web-stories-wp/react';
+} from '@googleforcreators/design-system';
 import { FlagsProvider } from 'flagged';
+import { TransformProvider } from '@googleforcreators/transform';
+import {
+  DefaultMoveableGlobalStyle,
+  CropMoveableGlobalStyle,
+} from '@googleforcreators/moveable';
 
 /**
  * Internal dependencies
@@ -43,19 +48,17 @@ import { MediaProvider } from './app/media';
 import { CurrentUserProvider } from './app/currentUser';
 import { TaxonomyProvider } from './app/taxonomy';
 import AutoSaveHandler from './components/autoSaveHandler';
-import { TransformProvider } from './components/transform';
 import { DropTargetsProvider } from './components/dropTargets';
 import { HelpCenterProvider } from './app/helpCenter';
 import { PageDataUrlProvider } from './app/pageDataUrls';
+import { PageCanvasProvider } from './app/pageCanvas';
 import DevTools from './components/devTools';
-import { GlobalStyle as DefaultMoveableGlobalStyle } from './components/moveable/moveStyle';
-import { GlobalStyle as CropMoveableGlobalStyle } from './components/moveable/cropStyle';
 import { GlobalStyle as CalendarStyle } from './components/form/dateTime/calendarStyle';
 import KeyboardOnlyOutlines from './utils/keyboardOnlyOutline';
-import defaultConfig from './defaultConfig';
+import getDefaultConfig from './getDefaultConfig';
 
 function StoryEditor({ config, initialEdits, children }) {
-  const _config = useMemo(() => deepMerge(defaultConfig, config), [config]);
+  const _config = deepMerge(getDefaultConfig(), config);
   const { storyId, isRTL, flags } = _config;
 
   return (
@@ -80,16 +83,18 @@ function StoryEditor({ config, initialEdits, children }) {
                                 <TransformProvider>
                                   <DropTargetsProvider>
                                     <HelpCenterProvider>
-                                      <PageDataUrlProvider>
-                                        <GlobalStyle />
-                                        <DevTools />
-                                        <DefaultMoveableGlobalStyle />
-                                        <CropMoveableGlobalStyle />
-                                        <ModalGlobalStyle />
-                                        <CalendarStyle />
-                                        <KeyboardOnlyOutlines />
-                                        {children}
-                                      </PageDataUrlProvider>
+                                      <PageCanvasProvider>
+                                        <PageDataUrlProvider>
+                                          <GlobalStyle />
+                                          <DevTools />
+                                          <DefaultMoveableGlobalStyle />
+                                          <CropMoveableGlobalStyle />
+                                          <ModalGlobalStyle />
+                                          <CalendarStyle />
+                                          <KeyboardOnlyOutlines />
+                                          {children}
+                                        </PageDataUrlProvider>
+                                      </PageCanvasProvider>
                                     </HelpCenterProvider>
                                   </DropTargetsProvider>
                                 </TransformProvider>

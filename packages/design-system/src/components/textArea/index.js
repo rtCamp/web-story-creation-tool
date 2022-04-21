@@ -18,7 +18,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import { forwardRef, useMemo, useState } from '@web-stories-wp/react';
+import { forwardRef, useMemo, useState } from '@googleforcreators/react';
 import styled, { css } from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -47,7 +47,9 @@ const Label = styled(Text)`
   margin-bottom: 12px;
 `;
 
-const Hint = styled(Text)`
+const Hint = styled(Text).attrs({
+  size: THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL,
+})`
   margin-top: 12px;
   color: ${({ hasError, theme }) =>
     theme.colors.fg[hasError ? 'negative' : 'tertiary']};
@@ -89,6 +91,7 @@ const StyledTextArea = styled.textarea(
     outline: none;
     color: ${theme.colors.fg.primary};
     resize: none;
+    box-shadow: none;
     ${themeHelpers.scrollbarCSS};
 
     ${themeHelpers.expandPresetStyles({
@@ -98,6 +101,10 @@ const StyledTextArea = styled.textarea(
         ],
       theme,
     })};
+
+    :focus {
+      box-shadow: none;
+    }
 
     :disabled {
       color: ${theme.colors.fg.disable};

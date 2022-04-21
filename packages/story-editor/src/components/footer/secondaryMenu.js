@@ -18,7 +18,7 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { useCallback, useEffect, useRef } from '@web-stories-wp/react';
+import { useCallback, useEffect, useRef } from '@googleforcreators/react';
 import PropTypes from 'prop-types';
 
 /**
@@ -27,12 +27,7 @@ import PropTypes from 'prop-types';
 import KeyboardShortcutsMenu from '../keyboardShortcutsMenu';
 import { HelpCenter } from '../helpCenter';
 import { useCanvas, useHelpCenter } from '../../app';
-import {
-  Checklist,
-  ChecklistCountProvider,
-  useChecklist,
-  useCheckpoint,
-} from '../checklist';
+import { Checklist, useChecklist, useCheckpoint } from '../checklist';
 import { useKeyboardShortcutsMenu } from '../keyboardShortcutsMenu/keyboardShortcutsMenuContext';
 import { FOOTER_MENU_GAP, FOOTER_MARGIN } from './constants';
 
@@ -92,15 +87,16 @@ function SecondaryMenu({ menu }) {
       })
     );
 
-  const { onResetReviewDialogRequest, reviewDialogRequested } = useCheckpoint(
-    ({
-      actions: { onResetReviewDialogRequest },
-      state: { reviewDialogRequested },
-    }) => ({
-      reviewDialogRequested,
-      onResetReviewDialogRequest,
-    })
-  );
+  const { handleResetReviewChecklist, reviewChecklistRequested } =
+    useCheckpoint(
+      ({
+        actions: { handleResetReviewChecklist },
+        state: { reviewChecklistRequested },
+      }) => ({
+        reviewChecklistRequested,
+        handleResetReviewChecklist,
+      })
+    );
 
   const isActiveTrimOrEdit = useCanvas(
     ({
@@ -160,14 +156,14 @@ function SecondaryMenu({ menu }) {
   ]);
 
   useEffect(() => {
-    if (reviewDialogRequested) {
+    if (reviewChecklistRequested) {
       setPopupRef();
-      onResetReviewDialogRequest();
+      handleResetReviewChecklist();
       openChecklist();
     }
   }, [
-    reviewDialogRequested,
-    onResetReviewDialogRequest,
+    reviewChecklistRequested,
+    handleResetReviewChecklist,
     openChecklist,
     setPopupRef,
   ]);
@@ -186,11 +182,7 @@ function SecondaryMenu({ menu }) {
     <Wrapper>
       <MenuItems>
         <HelpCenter components={menu?.helpCenter} />
-        {menu?.checklist && (
-          <ChecklistCountProvider>
-            <Checklist items={menu.checklist} />
-          </ChecklistCountProvider>
-        )}
+        {menu?.checklist && <Checklist items={menu.checklist} />}
         <KeyboardShortcutsMenu />
       </MenuItems>
     </Wrapper>

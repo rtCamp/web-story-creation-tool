@@ -19,7 +19,7 @@
  */
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { PatternPropType } from '@web-stories-wp/patterns';
+import { PatternPropType } from '@googleforcreators/patterns';
 import {
   THEME_CONSTANTS,
   Button,
@@ -30,9 +30,10 @@ import {
   BUTTON_VARIANTS,
   localStore,
   LOCAL_STORAGE_PREFIX,
-} from '@web-stories-wp/design-system';
-import { __ } from '@web-stories-wp/i18n';
-import { useState } from '@web-stories-wp/react';
+  themeHelpers,
+} from '@googleforcreators/design-system';
+import { __ } from '@googleforcreators/i18n';
+import { useState } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
@@ -48,23 +49,29 @@ import useDeleteColor from './useDeleteColor';
 const Body = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 8px 16px 16px;
+  padding: 8px 16px 0;
+  overflow: auto;
+  ${themeHelpers.scrollbarCSS};
+`;
+
+const Footer = styled.div`
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const SavedColors = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border.defaultNormal};
-  padding-bottom: 24px;
+  padding-bottom: 16px;
 `;
 
-const DefaultColors = styled.div`
-  padding-bottom: 24px;
-`;
+const DefaultColors = styled.div``;
 
 const Label = styled(Text).attrs({
   size: THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL,
 })`
   color: ${({ theme }) => theme.colors.fg.secondary};
-  margin: 16px 0 10px;
+  margin: 12px 0 10px;
 `;
 
 const DefaultText = styled(Label)`
@@ -103,6 +110,9 @@ function BasicColorPicker({
   showDialog,
   setShowDialog,
   changedStyle,
+  hasEyedropper,
+  allowsSavedColorDeletion,
+  shouldCloseOnSelection,
 }) {
   const { savedColors, storyColors } = useStory((state) => ({
     savedColors: state.state.story?.globalStoryStyles?.colors || [],
@@ -121,10 +131,18 @@ function BasicColorPicker({
     onEmpty: () => setIsEditMode(false),
   });
 
+  const handleSelect = (pattern) => {
+    handleColorChange(pattern);
+    // if closing on select, go ahead and close
+    if (shouldCloseOnSelection) {
+      handleClose();
+    }
+  };
+
   const handleClick = (preset, isLocal = false) => {
     // If not in edit mode, apply the color.
     if (!isEditMode) {
-      handleColorChange(preset);
+      handleSelect(preset);
       return;
     }
     // If deleting a local color, delete without confirmation.
@@ -147,67 +165,72 @@ function BasicColorPicker({
     setToDelete(preset);
   };
 
+  const hasHeader = !shouldCloseOnSelection || allowsSavedColorDeletion;
+
   return (
     <>
-      <Header
-        handleClose={handleClose}
-        isEditMode={isEditMode}
-        setIsEditMode={setIsEditMode}
-        hasPresets={hasPresets}
-      >
-        <DefaultText>{__('Color', 'web-stories')}</DefaultText>
-      </Header>
+      {hasHeader && (
+        <Header
+          handleClose={handleClose}
+          isEditMode={isEditMode}
+          setIsEditMode={setIsEditMode}
+          hasPresets={hasPresets && allowsSavedColors}
+        >
+          <DefaultText>{__('Color', 'web-stories')}</DefaultText>
+        </Header>
+      )}
       <Body>
-        <EyedropperWrapper>
-          <Button
-            variant={BUTTON_VARIANTS.SQUARE}
-            type={BUTTON_TYPES.QUATERNARY}
-            size={BUTTON_SIZES.SMALL}
-            aria-label={__('Pick a color from canvas', 'web-stories')}
-            onClick={initEyedropper()}
-            onPointerEnter={initEyedropper(false)}
-          >
-            <Icons.Pipette />
-          </Button>
-          <StyledText size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}>
-            {__('Sample color', 'web-stories')}
-          </StyledText>
-        </EyedropperWrapper>
-        <SavedColors>
-          {allowsSavedColors && (
-            <>
-              <Label id="colorpicker-story-colors-title">
-                {__('Current story', 'web-stories')}
-              </Label>
-              <BasicColorList
-                color={color}
-                colors={storyColors}
-                handleClick={handleClick}
-                isLocal
-                allowsOpacity={allowsOpacity}
-                allowsGradient={allowsGradient}
-                aria-labelledby="colorpicker-story-colors-title"
-                isEditMode={isEditMode}
-                data-testid="saved-story-colors"
-                changedStyle={changedStyle}
-              />
-              <Label id="colorpicker-saved-colors-title">
-                {__('Saved colors', 'web-stories')}
-              </Label>
-              <BasicColorList
-                color={color}
-                colors={savedColors}
-                isGlobal
-                handleClick={handleClick}
-                allowsOpacity={allowsOpacity}
-                allowsGradient={allowsGradient}
-                aria-labelledby="colorpicker-saved-colors-title"
-                isEditMode={isEditMode}
-                changedStyle={changedStyle}
-              />
-            </>
-          )}
-        </SavedColors>
+        {hasEyedropper && (
+          <EyedropperWrapper>
+            <Button
+              variant={BUTTON_VARIANTS.SQUARE}
+              type={BUTTON_TYPES.QUATERNARY}
+              size={BUTTON_SIZES.SMALL}
+              aria-label={__('Pick a color from canvas', 'web-stories')}
+              onClick={initEyedropper()}
+              onPointerEnter={initEyedropper(false)}
+            >
+              <Icons.Pipette />
+            </Button>
+            <StyledText size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}>
+              {__('Sample color', 'web-stories')}
+            </StyledText>
+          </EyedropperWrapper>
+        )}
+        {allowsSavedColors && (
+          <SavedColors>
+            <Label id="colorpicker-story-colors-title">
+              {__('Current story', 'web-stories')}
+            </Label>
+            <BasicColorList
+              color={color}
+              colors={storyColors}
+              handleClick={handleClick}
+              isLocal
+              allowsOpacity={allowsOpacity}
+              allowsGradient={allowsGradient}
+              aria-labelledby="colorpicker-story-colors-title"
+              isEditMode={isEditMode}
+              data-testid="saved-story-colors"
+              changedStyle={changedStyle}
+            />
+            <Label id="colorpicker-saved-colors-title">
+              {__('Saved colors', 'web-stories')}
+            </Label>
+            <BasicColorList
+              color={color}
+              colors={savedColors}
+              isGlobal
+              handleClick={handleClick}
+              allowsOpacity={allowsOpacity}
+              allowsGradient={allowsGradient}
+              aria-labelledby="colorpicker-saved-colors-title"
+              isEditMode={isEditMode}
+              changedStyle={changedStyle}
+            />
+          </SavedColors>
+        )}
+
         <DefaultColors>
           <Label id="colorpicker-default-colors-title">
             {__('Default', 'web-stories')}
@@ -216,7 +239,7 @@ function BasicColorPicker({
             color={color}
             colors={BASIC_COLORS}
             handleClick={(pattern) => {
-              handleColorChange(pattern);
+              handleSelect(pattern);
               setIsEditMode(false);
             }}
             allowsOpacity={allowsOpacity}
@@ -225,6 +248,8 @@ function BasicColorPicker({
             isEditMode={false}
           />
         </DefaultColors>
+      </Body>
+      <Footer>
         <StyledButton
           onClick={showCustomPicker}
           type={BUTTON_TYPES.SECONDARY}
@@ -234,7 +259,7 @@ function BasicColorPicker({
           {__('Custom', 'web-stories')}
           <StyledPlus />
         </StyledButton>
-      </Body>
+      </Footer>
       {showDialog && (
         <ConfirmationDialog
           onClose={() => setShowDialog(false)}
@@ -260,6 +285,9 @@ BasicColorPicker.propTypes = {
   showDialog: PropTypes.bool,
   setShowDialog: PropTypes.func,
   changedStyle: PropTypes.string,
+  hasEyedropper: PropTypes.bool,
+  allowsSavedColorDeletion: PropTypes.bool,
+  shouldCloseOnSelection: PropTypes.bool,
 };
 
 export default BasicColorPicker;

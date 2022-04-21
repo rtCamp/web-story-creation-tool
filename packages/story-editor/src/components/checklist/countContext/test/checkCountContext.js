@@ -16,7 +16,7 @@
 /**
  * External dependencies
  */
-import { useContext } from '@web-stories-wp/react';
+import { useContext } from '@googleforcreators/react';
 import { render } from '@testing-library/react';
 import { act, renderHook } from '@testing-library/react-hooks';
 /**
@@ -41,9 +41,8 @@ describe('ChecklistCategoryProvider', () => {
   });
 
   it('provides a method to add entries', () => {
-    // eslint-disable-next-line react/prop-types
     const ChecklistWrapper = ({ children }) => (
-      <ChecklistCountProvider>
+      <ChecklistCountProvider hasChecklist>
         <ChecklistCategoryProvider category={ISSUE_TYPES.PRIORITY}>
           {children}
         </ChecklistCategoryProvider>
@@ -66,6 +65,7 @@ describe('ChecklistCategoryProvider', () => {
       },
       [ISSUE_TYPES.DESIGN]: {},
       [ISSUE_TYPES.ACCESSIBILITY]: {},
+      hasChecklist: true,
     });
   });
 });
@@ -73,9 +73,9 @@ describe('ChecklistCategoryProvider', () => {
 describe('useRegisterCheck', () => {
   it('registers a check under a key', () => {
     const testKey = 'testKey';
-    // eslint-disable-next-line react/prop-types
+
     const ChecklistWrapper = ({ children }) => (
-      <ChecklistCountProvider>
+      <ChecklistCountProvider hasChecklist>
         <ChecklistCategoryProvider category={ISSUE_TYPES.PRIORITY}>
           {children}
         </ChecklistCategoryProvider>
@@ -99,6 +99,7 @@ describe('useRegisterCheck', () => {
       },
       [ISSUE_TYPES.DESIGN]: {},
       [ISSUE_TYPES.ACCESSIBILITY]: {},
+      hasChecklist: true,
     });
 
     rerender(false);
@@ -108,6 +109,7 @@ describe('useRegisterCheck', () => {
       },
       [ISSUE_TYPES.DESIGN]: {},
       [ISSUE_TYPES.ACCESSIBILITY]: {},
+      hasChecklist: true,
     });
   });
 });

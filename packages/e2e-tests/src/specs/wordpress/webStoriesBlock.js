@@ -34,8 +34,8 @@ import {
 import { addAllowedErrorMessage } from '../../config/bootstrap';
 
 const EMBED_BLOCK_CONTENT = `
-<!-- wp:web-stories/embed {"url":"https://preview.amp.dev/documentation/examples/introduction/stories_in_amp","title":"Stories in AMP - Hello World","poster":"https://amp.dev/static/samples/img/story_dog2_portrait.jpg"} -->
-<div class="wp-block-web-stories-embed alignnone"><amp-story-player style="width:360px;height:600px" data-testid="amp-story-player"><a href="https://preview.amp.dev/documentation/examples/introduction/stories_in_amp" style="--story-player-poster:url('https://amp.dev/static/samples/img/story_dog2_portrait.jpg')">Stories in AMP - Hello World</a></amp-story-player></div>
+<!-- wp:web-stories/embed {"url":"https://wp.stories.google/stories/intro-to-web-stories-storytime","title":"Stories in AMP - Hello World","poster":"https://amp.dev/static/samples/img/story_dog2_portrait.jpg"} -->
+<div class="wp-block-web-stories-embed alignnone"><amp-story-player style="width:360px;height:600px" data-testid="amp-story-player"><a href="https://wp.stories.google/stories/intro-to-web-stories-storytime" style="--story-player-poster:url('https://amp.dev/static/samples/img/story_dog2_portrait.jpg')">Stories in AMP - Hello World</a></amp-story-player></div>
 <!-- /wp:web-stories/embed -->
 `;
 
@@ -94,7 +94,7 @@ describe('Web Stories Block', () => {
 
     await page.type(
       'input[aria-label="Story URL"]',
-      'https://preview.amp.dev/documentation/examples/introduction/stories_in_amp'
+      'https://wp.stories.google/stories/intro-to-web-stories-storytime'
     );
     await expect(page).toClick('button[aria-label="Embed"]');
 
@@ -132,7 +132,7 @@ describe('Web Stories Block', () => {
     await takeSnapshot(page, 'Story select modal');
   });
 
-  // Disable for https://github.com/google/web-stories-wp/issues/6237
+  // Disable for https://github.com/googleforcreators/web-stories-wp/issues/6237
   // eslint-disable-next-line jest/no-disabled-tests
   describe.skip('AMP validation', () => {
     withDisabledToolbarOnFrontend();
@@ -150,6 +150,7 @@ describe('Web Stories Block', () => {
       expect(postPermalink).not.toBeNull();
       expect(postPermalink).toStrictEqual(expect.any(String));
 
+      //eslint-disable-next-line jest/no-conditional-in-test
       const ampPostPermaLink = postPermalink.includes('?')
         ? `${postPermalink}&amp`
         : `${postPermalink}?amp`;

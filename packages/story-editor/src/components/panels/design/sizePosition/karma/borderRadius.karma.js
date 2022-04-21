@@ -43,14 +43,22 @@ describe('Border Radius', () => {
 
   describe('CUJ: Creator can Manipulate Shape: Border Radius', () => {
     it('should allow the user to add border radius for text element', async () => {
-      await fixture.events.click(fixture.editor.library.textAdd);
-      await waitFor(() => fixture.editor.canvas.framesLayer.frames[1].node);
-      // Choose Fill as background for visibility.
+      await fixture.editor.library.textTab.click();
       await fixture.events.click(
-        fixture.editor.inspector.designPanel.textStyle.fill
+        fixture.editor.library.text.preset('Paragraph')
+      );
+      await waitFor(() => {
+        if (!fixture.editor.canvas.framesLayer.frames[1].node) {
+          throw new Error('node not ready');
+        }
+      });
+      // Choose Fill as background for visibility.
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      await fixture.events.click(
+        fixture.editor.sidebar.designPanel.textStyle.fill
       );
 
-      const panel = fixture.editor.inspector.designPanel.sizePosition;
+      const panel = fixture.editor.sidebar.designPanel.sizePosition;
       await fixture.events.click(panel.radius(), { clickCount: 3 });
       await fixture.events.keyboard.type('30');
       await fixture.events.keyboard.press('tab');
@@ -82,8 +90,10 @@ describe('Border Radius', () => {
     });
 
     it('should allow user to add border radius for media', async () => {
-      await fixture.events.click(fixture.editor.library.media.item(0));
-      const panel = fixture.editor.inspector.designPanel.sizePosition;
+      const mediaItem = fixture.editor.library.media.item(0);
+      await fixture.events.mouse.clickOn(mediaItem, 20, 20);
+      await fixture.events.click(fixture.editor.sidebar.designTab);
+      const panel = fixture.editor.sidebar.designPanel.sizePosition;
 
       // Take off lock.
       await fixture.events.click(panel.lockBorderRadius);
@@ -100,20 +110,18 @@ describe('Border Radius', () => {
         borderRadius: { topLeft, topRight, bottomLeft, bottomRight },
       } = element;
 
-      await waitFor(() => {
-        expect(topLeft).toBe(0);
-        expect(topRight).toBe(0);
-        expect(bottomLeft).toBe(50);
-        expect(bottomRight).toBe(0);
-        expect(element.borderRadius).toEqual(
-          jasmine.objectContaining({
-            topLeft: 0,
-            topRight: 0,
-            bottomLeft: 50,
-            bottomRight: 0,
-          })
-        );
-      });
+      expect(topLeft).toBe(0);
+      expect(topRight).toBe(0);
+      expect(bottomLeft).toBe(50);
+      expect(bottomRight).toBe(0);
+      expect(element.borderRadius).toEqual(
+        jasmine.objectContaining({
+          topLeft: 0,
+          topRight: 0,
+          bottomLeft: 50,
+          bottomRight: 0,
+        })
+      );
 
       await fixture.snapshot('Media element with bottom left corner radius');
     });
@@ -125,7 +133,8 @@ describe('Border Radius', () => {
       fixture.editor.library.shapes.shape('Rectangle')
     );
 
-    const panel = fixture.editor.inspector.designPanel.sizePosition;
+    await fixture.events.click(fixture.editor.sidebar.designTab);
+    const panel = fixture.editor.sidebar.designPanel.sizePosition;
     await fixture.events.click(panel.radius(), {
       clickCount: 3,
     });
@@ -140,12 +149,13 @@ describe('Border Radius', () => {
     await fixture.snapshot('Shape element with locked border radius');
   });
 
-  it('should not allow border for non-rectangular shape', async () => {
+  it('should not allow border radius for non-rectangular shape', async () => {
     await fixture.events.click(fixture.editor.library.shapesTab);
     await fixture.events.click(fixture.editor.library.shapes.shape('Circle'));
     // Verify that the radius input is not found.
+    await fixture.events.click(fixture.editor.sidebar.designTab);
     expect(() =>
-      fixture.editor.inspector.designPanel.sizePosition.radius()
+      fixture.editor.sidebar.designPanel.sizePosition.radius()
     ).toThrow();
   });
 });

@@ -16,16 +16,16 @@
 /**
  * External dependencies
  */
-import { Tooltip, useStory } from '@web-stories-wp/story-editor';
-import { useCallback } from '@web-stories-wp/react';
-import { __ } from '@web-stories-wp/i18n';
+import { Tooltip, useStory } from '@googleforcreators/story-editor';
+import { useCallback } from '@googleforcreators/react';
+import { __ } from '@googleforcreators/i18n';
 import {
   Button,
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
   Icons,
-} from '@web-stories-wp/design-system';
+} from '@googleforcreators/design-system';
 /**
  * Internal dependencies
  */
