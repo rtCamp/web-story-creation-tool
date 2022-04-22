@@ -10,6 +10,7 @@ import styled from "styled-components";
  * Internal dependencies
  */
 import CreationTool from "./components/creationTool";
+import { StoryStatusProvider } from "./app/storyStatus";
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -18,7 +19,9 @@ const AppContainer = styled.div`
 const initEditor = () => {};
 render(
   <AppContainer>
-    <CreationTool />
+    <StoryStatusProvider>
+      <CreationTool />
+    </StoryStatusProvider>
   </AppContainer>,
   document.getElementById("root")
 );

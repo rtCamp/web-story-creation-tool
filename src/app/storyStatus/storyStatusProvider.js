@@ -14,19 +14,11 @@ import Context from "./context";
 function StoryStatusProvider({ children }) {
   const [isImporting, updateIsImporting] = useState(false);
   const [isExporting, updateIsExporting] = useState(false);
-  const { isSaving } = useStory(
-    ({
-      state: {
-        meta: { isSaving },
-      },
-    }) => ({ isSaving })
-  );
 
   const value = {
     state: {
       isImporting,
       isExporting,
-      isSaving,
     },
     actions: {
       updateIsImporting,

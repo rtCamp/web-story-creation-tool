@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { StoryEditor } from "@googleforcreators/story-editor";
 import { elementTypes } from "@googleforcreators/element-library";
 import { registerElementType } from "@googleforcreators/elements";

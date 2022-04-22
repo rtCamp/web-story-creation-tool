@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
   addToDB,
@@ -69,7 +69,6 @@ const useIndexedDBMedia = () => {
 
   const uploadMedia = async (file, additionalData) => {
     let { resource: mediaData } = await getResourceFromLocalFile(file);
-    console.log("upload", { file, additionalData });
     mediaData = {
       ...mediaData,
       local: false, // this disables the UploadingIndicator
@@ -92,7 +91,6 @@ const useIndexedDBMedia = () => {
   };
 
   const updateMedia = async (mediaId, data) => {
-    console.log("update", data);
     await updateInDB(mediaId, data);
   };
 

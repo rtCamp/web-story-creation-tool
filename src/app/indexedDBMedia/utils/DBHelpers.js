@@ -181,7 +181,6 @@ export const deleteInDB = (mediaId) =>
         const newMediaList = prevMediaList.filter(
           (mediaItem) => mediaId !== mediaItem.id
         );
-        console.log(newMediaList);
         const requestUpdate = objectStore.put(newMediaList, ASSET_OBJECT_KEY);
         requestUpdate.onerror = (event) => {
           reject(event.target.errorCode);
