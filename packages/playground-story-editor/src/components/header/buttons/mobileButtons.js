@@ -41,6 +41,7 @@ const selectButtonCSS = css`
   @media (min-width: 480px) {
     display: none;
   }
+  margin-right: 20px;
 `;
 
 const ACTION_OPTIONS = [
