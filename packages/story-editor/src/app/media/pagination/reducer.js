@@ -49,12 +49,12 @@ function reducer(state = INITIAL_STATE, { type, payload }) {
     }
 
     case types.FETCH_MEDIA_SUCCESS: {
-      const { media, pageToken, nextPageToken, totalPages, totalItems } =
-        payload;
+      const { media, nextPageToken, totalPages, totalItems } = payload;
       return {
         ...state,
         // If a pageToken is present, append the results.
-        media: pageToken ? [...state.media, ...media] : media,
+        media:
+          payload.provider !== 'local' ? [...state.media, ...media] : media,
         nextPageToken,
         totalPages,
         hasMore: Boolean(nextPageToken),
