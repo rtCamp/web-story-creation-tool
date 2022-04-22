@@ -341,8 +341,20 @@ function useLayoutParamsCssVars() {
   );
   const fullHeight = pageWidth / FULLBLEED_RATIO;
   return {
-    '--page-nav-width': `${hasPageNavigation ? PAGE_NAV_WIDTH : 0}px`,
-    '--page-nav-gap': `${hasPageNavigation ? PAGE_NAV_GAP : 0}px`,
+    '--page-nav-width': `${
+      hasPageNavigation
+        ? PAGE_NAV_WIDTH
+        : window.matchMedia('(max-width:480px)').matches
+        ? 64
+        : 0
+    }px`,
+    '--page-nav-gap': `${
+      hasPageNavigation
+        ? PAGE_NAV_GAP
+        : window.matchMedia('(max-width:480px)').matches
+        ? 5
+        : 0
+    }px`,
     '--page-width-px': `${pageWidth}px`,
     '--page-height-px': `${pageHeight}px`,
     '--page-padding-px': `${pagePadding}px`,

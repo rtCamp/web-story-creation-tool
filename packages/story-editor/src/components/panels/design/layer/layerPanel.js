@@ -42,7 +42,11 @@ function LayerPanel() {
   );
 
   return (
-    <Container maxHeight={sidebarContentHeight}>
+    <Container
+      maxHeight={
+        !window.matchMedia('(max-width:480px)').matches && sidebarContentHeight
+      }
+    >
       <PanelContent padding={'0'}>
         <LayerList layers={layers} />
       </PanelContent>

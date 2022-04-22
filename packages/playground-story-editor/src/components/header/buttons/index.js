@@ -29,6 +29,7 @@ import Export from './export';
 import Save from './save';
 import Import from './import';
 import Reset from './reset';
+import MobileButtons from './mobileButtons';
 
 const ButtonList = styled.nav`
   display: flex;
@@ -73,20 +74,21 @@ function Buttons() {
       <List>
         <Reset />
         <Space />
-        {!window.matchMedia('(max-width:480px)') && (
+        {!window.matchMedia('(max-width:480px)').matches && (
           <>
             <Import />
             <Space />
+            <Export />
+            <Space />
+            <Save />
+            <Space />
+            <IconWithSpinner>
+              <Preview />
+              {(isSaving || isImporting || isExporting) && <Loading />}
+            </IconWithSpinner>
           </>
         )}
-        <Export />
-        <Space />
-        <Save />
-        <Space />
-        <IconWithSpinner>
-          <Preview />
-          {(isSaving || isImporting || isExporting) && <Loading />}
-        </IconWithSpinner>
+        {window.matchMedia('(max-width:480px)').matches && <MobileButtons />}
       </List>
     </ButtonList>
   );

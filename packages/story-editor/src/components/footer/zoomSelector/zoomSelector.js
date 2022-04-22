@@ -99,6 +99,7 @@ function ZoomSelector() {
       ariaLabel={__('Zoom Level', 'web-stories')}
       placeholder={placeholder}
       options={ZOOM_OPTIONS}
+      popupZIndex={window.matchMedia('(max-width:480px)').matches && 12}
       placement={PLACEMENT.TOP_START}
       onMenuItemClick={handleSetZoom}
       selectedValue={zoomSetting}

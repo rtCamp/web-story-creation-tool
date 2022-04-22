@@ -108,6 +108,9 @@ const ClickableButton = styled(Button)`
 const ClickableSlider = styled(Slider)`
   pointer-events: all;
   width: 366px;
+  @media (max-width: 480px) {
+    width: 300px;
+  }
 `;
 
 const PageSeparator = styled(ReorderableSeparator)`

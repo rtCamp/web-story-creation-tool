@@ -21,6 +21,7 @@ import { render, useMemo } from '@googleforcreators/react';
 import { StoryEditor } from '@googleforcreators/story-editor';
 import { registerElementType } from '@googleforcreators/elements';
 import { elementTypes } from '@googleforcreators/element-library';
+import { setAppElement } from '@googleforcreators/design-system';
 import styled from 'styled-components';
 
 /**
@@ -82,6 +83,7 @@ const CoreEditor = () => {
 
 const Playground = () => {
   elementTypes.forEach(registerElementType);
+  setAppElement(document.getElementById('playground-root'));
   return (
     <AppContainer>
       <MediaProvider>

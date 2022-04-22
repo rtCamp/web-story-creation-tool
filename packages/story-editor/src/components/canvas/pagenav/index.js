@@ -84,7 +84,7 @@ function PageNav({ isNext = true }) {
   });
 
   // Buttons are completely missing if there's no room for them
-  if (!hasPageNavigation) {
+  if (!hasPageNavigation && !window.matchMedia('(max-width:480px)').matches) {
     return false;
   }
 

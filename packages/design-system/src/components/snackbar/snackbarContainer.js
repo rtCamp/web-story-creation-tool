@@ -54,7 +54,9 @@ function getSnackbarXPos({ placement }) {
     case 'top':
     case 'bottom':
       return `
-      left: calc(50% + 4rem);
+      left: calc(50%${
+        !window.matchMedia('(max-width:480px)').matches ? '+ 4rem' : ''
+      });
       transform: translateX(-50%);
       width: auto;
     `;
