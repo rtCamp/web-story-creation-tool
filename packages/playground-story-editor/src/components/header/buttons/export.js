@@ -25,6 +25,7 @@ import {
   BUTTON_TYPES,
   BUTTON_VARIANTS,
 } from '@googleforcreators/design-system';
+import { Tooltip } from '@googleforcreators/story-editor';
 
 /**
  * Internal dependencies
@@ -40,16 +41,19 @@ function Export() {
   }));
 
   const { exportStory } = useExportStory();
+  const label = __('Export', 'web-stories');
   return (
-    <Button
-      variant={BUTTON_VARIANTS.RECTANGLE}
-      type={BUTTON_TYPES.PRIMARY}
-      size={BUTTON_SIZES.SMALL}
-      disabled={isExporting || isImporting}
-      onClick={exportStory}
-    >
-      {__('Export', 'web-stories')}
-    </Button>
+    <Tooltip title={label} hasTail>
+      <Button
+        variant={BUTTON_VARIANTS.RECTANGLE}
+        type={BUTTON_TYPES.PRIMARY}
+        size={BUTTON_SIZES.SMALL}
+        disabled={isExporting || isImporting}
+        onClick={exportStory}
+      >
+        {__('Export', 'web-stories')}
+      </Button>
+    </Tooltip>
   );
 }
 

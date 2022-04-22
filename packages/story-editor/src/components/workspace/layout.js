@@ -45,7 +45,7 @@ const CanvasArea = styled(Area).attrs({
 const SidebarArea = styled(Area).attrs({ area: 'sidebar', zIndex: 2 })`
   @media (max-width: 480px) {
     height: ${({ clicked, isMediaTab }) =>
-      clicked ? (isMediaTab ? '100%' : '50%') : '6%'};
+      clicked ? (isMediaTab ? '100%' : '50%') : '8%'};
     overflow-y: auto;
   }
 `;

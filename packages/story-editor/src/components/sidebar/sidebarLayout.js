@@ -45,6 +45,9 @@ const SidebarContainer = styled.div`
   height: 100%;
   padding: 0;
   overflow: auto;
+  @media (max-width: 480px) {
+    display: ${({ clicked }) => (!clicked ? 'none' : 'contents')};
+  }
 `;
 
 const UnjustifiedTabView = styled(TabView)`
@@ -86,7 +89,7 @@ function SidebarLayout({ handleClick, clicked }) {
         handleClick={handleClick}
         clicked={clicked}
       />
-      <SidebarContainer ref={setSidebarContentNode}>
+      <SidebarContainer clicked={clicked} ref={setSidebarContentNode}>
         <SidebarContent />
       </SidebarContainer>
     </Layout>

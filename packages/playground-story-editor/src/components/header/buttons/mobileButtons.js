@@ -34,11 +34,13 @@ import { escapeHTML } from '../../../utils';
 
 const selectButtonCSS = css`
   height: 32px;
-  padding: 8px;
   span {
     padding: 0;
   }
   transform: scale(0.9) translate(0px, -2px);
+  @media (min-width: 480px) {
+    display: none;
+  }
 `;
 
 const ACTION_OPTIONS = [

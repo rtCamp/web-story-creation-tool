@@ -39,8 +39,8 @@ const Space = styled.div`
   width: 8px;
 `;
 const ArrowCircle = styled.img`
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   left: -1px;
   top: -1px;
   src: url('${arrowCircle}');

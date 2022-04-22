@@ -31,6 +31,14 @@ import Import from './import';
 import Reset from './reset';
 import MobileButtons from './mobileButtons';
 
+const Wrapper = styled.div`
+  position: relative;
+  display: flex;
+  height: 32px;
+  @media (max-width: 480px) {
+    display: none;
+  }
+`;
 const ButtonList = styled.nav`
   display: flex;
   justify-content: flex-end;
@@ -73,22 +81,20 @@ function Buttons() {
     <ButtonList>
       <List>
         <Reset />
-        <Space />
-        {!window.matchMedia('(max-width:480px)').matches && (
-          <>
-            <Import />
-            <Space />
-            <Export />
-            <Space />
-            <Save />
-            <Space />
-            <IconWithSpinner>
-              <Preview />
-              {(isSaving || isImporting || isExporting) && <Loading />}
-            </IconWithSpinner>
-          </>
-        )}
-        {window.matchMedia('(max-width:480px)').matches && <MobileButtons />}
+        <Wrapper>
+          <Space />
+          <Import />
+          <Space />
+          <Export />
+          <Space />
+          <Save />
+          <Space />
+          <IconWithSpinner>
+            <Preview />
+            {(isSaving || isImporting || isExporting) && <Loading />}
+          </IconWithSpinner>
+        </Wrapper>
+        <MobileButtons />
       </List>
     </ButtonList>
   );

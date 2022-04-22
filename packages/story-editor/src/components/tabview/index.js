@@ -55,7 +55,9 @@ const Tabs = styled.ul.attrs({
   margin: 0;
   padding: 0;
   list-style: none;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.divider.secondary};
+  @media (min-width: 480px) {
+    border-bottom: 1px solid ${({ theme }) => theme.colors.divider.secondary};
+  }
 `;
 
 const TabElement = styled.li.attrs(({ isActive }) => ({
@@ -302,7 +304,7 @@ function TabView({
     <PushDownArrow onClick={handleClick} />
   );
   return (
-    <Tabs aria-label={label} ref={ref} {...rest}>
+    <Tabs aria-label={label} ref={ref} clicked={clicked} {...rest}>
       {tabs.map(({ id, title, icon: Icon, ...tabRest }) => (
         <Tab
           key={id}

@@ -26,10 +26,15 @@ import {
   BUTTON_VARIANTS,
   Icons,
 } from '@googleforcreators/design-system';
+import styled from 'styled-components';
 /**
  * Internal dependencies
  */
 import { escapeHTML } from '../../../utils';
+
+const ButtonContainer = styled.div`
+  transform: scale(0.9) translate(0px, -2px);
+`;
 
 function getPreviewLink() {
   return (
@@ -97,15 +102,17 @@ function Preview() {
   const label = __('Preview', 'web-stories');
   return (
     <Tooltip title={label} hasTail>
-      <Button
-        variant={BUTTON_VARIANTS.SQUARE}
-        type={BUTTON_TYPES.QUATERNARY}
-        size={BUTTON_SIZES.SMALL}
-        onClick={openPreviewLink}
-        aria-label={label}
-      >
-        <Icons.Eye />
-      </Button>
+      <ButtonContainer>
+        <Button
+          variant={BUTTON_VARIANTS.SQUARE}
+          type={BUTTON_TYPES.QUATERNARY}
+          size={BUTTON_SIZES.SMALL}
+          onClick={openPreviewLink}
+          aria-label={label}
+        >
+          <Icons.Eye />
+        </Button>
+      </ButtonContainer>
     </Tooltip>
   );
 }
