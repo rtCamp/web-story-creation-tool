@@ -41,6 +41,9 @@ export default function Tooltip({
       placement={derivedPlacement}
       isRTL={isRTL}
       leftOffset={leftOffset}
+      popupZIndexOverride={
+        window.matchMedia('(max-width:480px)').matches ? 12 : 2
+      }
       {...props}
     />
   );
