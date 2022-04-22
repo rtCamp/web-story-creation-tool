@@ -1,11 +1,13 @@
 /**
  * External dependencies
  */
+import React from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { DATA_VERSION } from "@googleforcreators/migration";
 import { useSnackbar } from "@googleforcreators/design-system";
 import { useStory, getStoryPropsToSave } from "@googleforcreators/story-editor";
+import { OutputStory } from "@googleforcreators/output";
 import { PAGE_RATIO, PAGE_WIDTH } from "@googleforcreators/units";
 
 /**
@@ -14,6 +16,7 @@ import { PAGE_RATIO, PAGE_WIDTH } from "@googleforcreators/units";
 import { isBlobURL } from "../../utils";
 import { COMMON_MIME_TYPE_MAPPING } from "../../consts";
 import { useStoryStatus } from "../storyStatus";
+import { renderToStaticMarkup } from "react-dom/server";
 
 function useExportStory() {
   const {
@@ -27,7 +30,6 @@ function useExportStory() {
   } = useStoryStatus(({ actions }) => ({ actions }));
 
   const zipStory = async (storyContent) => {
-    let markup = `<!doctype html>${storyContent}`;
     const zip = new JSZip();
 
     const mediaTypes = ["image", "video"];
@@ -63,9 +65,6 @@ function useExportStory() {
                 "h",
                 encodeURIComponent((PAGE_WIDTH * 2) / PAGE_RATIO)
               );
-
-              const markupSrc = src.replaceAll("&", "&amp;");
-              markup = markup.replaceAll(markupSrc, resizedSrc);
               return;
             }
 
@@ -93,15 +92,9 @@ function useExportStory() {
               element.resource.poster = posterFileName;
             }
 
-            const encodedUrl = src.replaceAll("&", "&amp;"); // To match url in the rendered markup.
-            markup = markup.replaceAll(encodedUrl, fileName);
-
             zip.file(fileName, file);
 
             if (posterFileName && posterFile) {
-              const encodedPosterUrl = poster.replaceAll("&", "&amp;"); // To match url in the rendered markup.
-              markup = markup.replaceAll(encodedPosterUrl, posterFileName);
-
               zip.file(posterFileName, posterFile);
             }
           })
@@ -121,6 +114,14 @@ function useExportStory() {
       version: DATA_VERSION,
       pages: updatedPages,
     };
+
+    const markup = renderToStaticMarkup(
+      <OutputStory
+        story={storyData.story}
+        pages={storyData.pages}
+        metadata={{ publisher: "" }}
+      />
+    );
 
     zip.file("config.json", JSON.stringify(storyData));
 
