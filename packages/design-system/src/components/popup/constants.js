@@ -58,12 +58,11 @@ export const RTL_PLACEMENT = {
 };
 
 export const PopupContainer = styled.div.attrs(
-  ({ $offset: { x, y, width }, fillWidth, transforms, invisible, zIndex }) => ({
+  ({ $offset: { x, y, width }, fillWidth, transforms, invisible }) => ({
     style: {
       transform: `translate(${x}px, ${y}px) ${transforms}`,
       ...(fillWidth ? { width: `${width}px` } : {}),
       ...(invisible ? { visibility: 'hidden' } : {}),
-      zIndex,
     },
   })
 )`
@@ -73,4 +72,8 @@ export const PopupContainer = styled.div.attrs(
   position: fixed;
   ${({ noOverFlow }) => (noOverFlow ? '' : 'overflow-y: auto;')};
   max-height: ${({ topOffset }) => `calc(100vh - ${topOffset}px)`};
+  z-index: ${({ zIndex }) => zIndex};
+  @media (max-width: 480px) {
+    z-index: 12;
+  }
 `;

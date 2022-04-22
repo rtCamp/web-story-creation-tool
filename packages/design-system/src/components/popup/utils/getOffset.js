@@ -25,6 +25,12 @@ export function getXOffset(
   dockRect,
   isRTL
 ) {
+  let mobilePlacement;
+  if (window.matchMedia('(max-width:480px)').matches) {
+    mobilePlacement = PLACEMENT.BOTTOM;
+  } else {
+    mobilePlacement = placement;
+  }
   // doctRect.left can have a valid value of zero, if dockRect exists, it takes precedence.
   const leftAligned = (dockRect ? dockRect.left : anchorRect.left) - spacing;
   const rightAligned = (dockRect ? dockRect.right : anchorRect.right) + spacing;
@@ -32,7 +38,7 @@ export function getXOffset(
     ? dockRect.left + dockRect.width / 2
     : anchorRect.left + anchorRect.width / 2;
 
-  switch (placement) {
+  switch (mobilePlacement) {
     case PLACEMENT.BOTTOM_START:
     case PLACEMENT.TOP_START:
     case PLACEMENT.LEFT:
@@ -54,7 +60,13 @@ export function getXOffset(
 }
 
 export function getYOffset(placement, spacing = 0, anchorRect) {
-  switch (placement) {
+  let mobilePlacement;
+  if (window.matchMedia('(max-width:480px)').matches) {
+    mobilePlacement = PLACEMENT.BOTTOM;
+  } else {
+    mobilePlacement = placement;
+  }
+  switch (mobilePlacement) {
     case PLACEMENT.BOTTOM:
     case PLACEMENT.BOTTOM_START:
     case PLACEMENT.BOTTOM_END:
@@ -119,6 +131,12 @@ export function getOffset({
   resetXOffset,
   topOffset = 0,
 }) {
+  let mobilePlacement;
+  if (window.matchMedia('(max-width:480px)').matches) {
+    mobilePlacement = PLACEMENT.BOTTOM;
+  } else {
+    mobilePlacement = placement;
+  }
   const anchorRect = anchor.current.getBoundingClientRect();
   const bodyRect = document.body.getBoundingClientRect();
   const popupRect = popup.current?.getBoundingClientRect();
@@ -138,17 +156,20 @@ export function getOffset({
     if (resetXOffset && popupRect?.left <= 0) {
       return isRTL ? width : 0;
     }
-    return getXOffset(placement, spacingH, anchorRect, dockRect, isRTL);
+    return getXOffset(mobilePlacement, spacingH, anchorRect, dockRect, isRTL);
   };
 
   const maxOffsetX = !isRTL
-    ? bodyRect.width - width - getXTransforms(placement) * width
-    : bodyRect.width - getXTransforms(placement) * width;
+    ? bodyRect.width - width - getXTransforms(mobilePlacement) * width
+    : bodyRect.width - getXTransforms(mobilePlacement) * width;
 
   // Vertical
   const offsetY = getYOffset(placement, spacingV, anchorRect);
   const maxOffsetY =
-    bodyRect.height + bodyRect.y - height - getYTransforms(placement) * height;
+    bodyRect.height +
+    bodyRect.y -
+    height -
+    getYTransforms(mobilePlacement) * height;
 
   // Clamp values
   return {
