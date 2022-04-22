@@ -32,7 +32,8 @@ const selectButtonCSS = css`
   height: 36px;
   padding: 8px;
   background-color: ${({ theme }) => theme.colors.bg.primary};
-
+  @media (max-width: 480px) {
+  }
   span {
     padding: 0;
   }
@@ -99,7 +100,7 @@ function ZoomSelector() {
       ariaLabel={__('Zoom Level', 'web-stories')}
       placeholder={placeholder}
       options={ZOOM_OPTIONS}
-      popupZIndex={window.matchMedia('(max-width:480px)').matches && 12}
+      popupZIndex={window.matchMedia('(max-width:480px)').matches ? 12 : 2}
       placement={PLACEMENT.TOP_START}
       onMenuItemClick={handleSetZoom}
       selectedValue={zoomSetting}

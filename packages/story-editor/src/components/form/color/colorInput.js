@@ -352,7 +352,7 @@ const ColorInput = forwardRef(function ColorInput(
         topOffset={topOffset}
         refCallback={positionPlacement}
         resetXOffset
-        zIndex={window.matchMedia('(max-width:480px)').matches && 12}
+        zIndex={window.matchMedia('(max-width:480px)').matches ? 12 : 2}
         renderContents={({ propagateDimensionChange }) => (
           <ColorPicker
             color={isMixed ? null : value}
