@@ -8,10 +8,9 @@ import {
   BUTTON_SIZES,
   BUTTON_TYPES,
   BUTTON_VARIANTS,
-  Tooltip,
 } from "@googleforcreators/design-system";
 import { useCallback } from "@googleforcreators/react";
-import { useStory } from "@googleforcreators/story-editor";
+import { useStory, Tooltip } from "@googleforcreators/story-editor";
 
 /**
  * Internal dependencies

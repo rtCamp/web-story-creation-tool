@@ -10,7 +10,7 @@ import { OutputStory } from "@googleforcreators/output";
 import {
   LOCAL_STORAGE_PREVIEW_MARKUP_KEY,
   LOCAL_STORAGE_CONTENT_KEY,
-} from "../consts";
+} from "../../consts";
 import { renderToStaticMarkup } from "react-dom/server";
 
 export const saveStoryById = ({

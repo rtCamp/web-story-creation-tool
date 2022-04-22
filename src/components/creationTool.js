@@ -11,7 +11,7 @@ import { registerElementType } from "@googleforcreators/elements";
  */
 import Layout from "./layout";
 import { LOCAL_STORAGE_CONTENT_KEY } from "../consts";
-import { saveStoryById, getFonts } from "../api";
+import { saveStoryById, getFonts } from "../api/editor";
 import useIndexedDBMedia from "../app/indexedDBMedia/useIndexedDBMedia";
 import MediaUpload from "./mediaUpload";
 
