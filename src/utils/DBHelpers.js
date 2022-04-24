@@ -3,7 +3,7 @@ import {
   DB_VERSION,
   ASSET_OBJECT_KEY,
   ASSET_OBJECT_STORE_NAME,
-} from "./consts";
+} from "../consts";
 
 /**
  * instantiates Indexed DB and add an empty array for assets.

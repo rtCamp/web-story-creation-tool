@@ -120,6 +120,7 @@ function useExportStory() {
         story={storyData.story}
         pages={storyData.pages}
         metadata={{ publisher: "" }}
+        flags={{ allowBlobs: true }}
       />
     );
 

@@ -1,6 +1,6 @@
 import { useStory } from "@googleforcreators/story-editor";
 import { useEffect, useRef } from "react";
-import { getFromDB } from "./utils/DBHelpers";
+import { getFromDB } from "../../utils";
 
 const useUpdateStoryAssets = () => {
   const updatedOnce = useRef(false);
@@ -36,7 +36,7 @@ const useUpdateStoryAssets = () => {
               };
 
               if ("video" === element?.type) {
-                updatedResource.poster = mediaData.poster;
+                updatedResource.poster = mediaListInDb.poster;
               }
               return {
                 ...rest,

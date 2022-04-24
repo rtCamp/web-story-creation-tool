@@ -14,6 +14,7 @@ import { LOCAL_STORAGE_CONTENT_KEY } from "../consts";
 import { saveStoryById, getFonts } from "../api/editor";
 import useIndexedDBMedia from "../app/indexedDBMedia/useIndexedDBMedia";
 import MediaUpload from "./mediaUpload";
+import { getMedia, updateMedia, deleteMedia, uploadMedia } from "../api/editor";
 
 function getInitialStory() {
   const savedStory = window.localStorage.getItem(LOCAL_STORAGE_CONTENT_KEY);
@@ -21,8 +22,7 @@ function getInitialStory() {
 }
 
 const CreationTool = () => {
-  const { isInitialized, getMedia, uploadMedia, updateMedia, deleteMedia } =
-    useIndexedDBMedia();
+  const { isInitialized } = useIndexedDBMedia();
   const config = useMemo(() => {
     return {
       autoSaveInterval: 5,

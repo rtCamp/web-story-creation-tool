@@ -9,8 +9,8 @@ import JSZip from "jszip";
  * Internal dependencies
  */
 import { useStoryStatus } from "../storyStatus";
-import { addToDB, getFromDB } from "../indexedDBMedia/utils/DBHelpers";
-import getResourceFromLocalFile from "../indexedDBMedia/utils/getResourceFromLocalFile";
+import { addToDB, getFromDB } from "../../utils";
+import { getResourceFromLocalFile } from "../../utils";
 import { allowedMimeTypes } from "../../consts";
 
 const INPUT_ID = "hidden-import-file-input";
@@ -90,19 +90,24 @@ function useStoryImport() {
             return;
           }
 
-          //ignore if file with same name already in DB
-          if (mediaTitles.includes(resource?.title)) {
-            console.log("//ignore if file with same name already in DB");
-            return;
-          }
-
           //ignore if not a valid mimeType
           if (
             ![...allowedMimeTypes.video, ...allowedMimeTypes.image].includes(
               resource?.mimeType
             )
           ) {
-            console.log("//ignore if not a valid mimeType");
+            console.log("ignore if not a valid mimeType");
+            return;
+          }
+
+          //ignore if file with same name already in DB
+          if (mediaTitles.includes(resource?.title)) {
+            const mediaAlreadyInDB = filesInDB.find(
+              (mediaInDB) => mediaInDB.title === resource?.title
+            );
+
+            elementsInImportedStory[elementIndex].resource.src =
+              mediaAlreadyInDB.src;
             return;
           }
 
@@ -165,7 +170,6 @@ function useStoryImport() {
           await addToDB(mediaItem);
         })
       );
-      console.log(stateToRestore);
 
       const updatedPages = stateToRestore.pages.map((page) => {
         if (page?.elements.length > 1) {
@@ -188,6 +192,8 @@ function useStoryImport() {
       });
 
       stateToRestore.pages = updatedPages;
+
+      console.log(stateToRestore);
 
       restore(stateToRestore);
 

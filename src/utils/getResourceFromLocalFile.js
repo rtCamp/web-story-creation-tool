@@ -9,7 +9,7 @@ import {
   getFileName,
   getImageDimensions,
   getFirstFrameOfVideo,
-} from '@googleforcreators/media';
+} from "@googleforcreators/media";
 
 /**
  * Create a local resource object.
@@ -52,7 +52,7 @@ const getImageResource = async (file) => {
   const { width, height } = await getImageDimensions(src);
 
   return createLocalResource({
-    type: 'image',
+    type: "image",
     mimeType,
     src,
     ...getResourceSize({ width, height }),
@@ -72,17 +72,17 @@ const getVideoResource = async (file) => {
   const mimeType = file.type;
 
   let length = 0;
-  let lengthFormatted = '';
+  let lengthFormatted = "";
 
   const reader = await createFileReader(file);
 
   const src = createBlob(new Blob([reader.result], { type: mimeType }));
 
-  const videoEl = document.createElement('video');
-  const canPlayVideo = '' !== videoEl.canPlayType(mimeType);
+  const videoEl = document.createElement("video");
+  const canPlayVideo = "" !== videoEl.canPlayType(mimeType);
   if (canPlayVideo) {
     videoEl.src = src;
-    videoEl.addEventListener('loadedmetadata', () => {
+    videoEl.addEventListener("loadedmetadata", () => {
       length = Math.round(videoEl.duration);
       const seconds = formatDuration(length % 60);
       let minutes = Math.floor(length / 60);
@@ -101,9 +101,9 @@ const getVideoResource = async (file) => {
   const { width, height } = await getImageDimensions(poster);
 
   const resource = createLocalResource({
-    type: 'video',
+    type: "video",
     mimeType,
-    src: canPlayVideo ? src : '',
+    src: canPlayVideo ? src : "",
     ...getResourceSize({ width, height }),
     poster,
     length,
@@ -116,7 +116,7 @@ const getVideoResource = async (file) => {
 };
 
 const formatDuration = (time) => {
-  return time.toLocaleString('en-US', {
+  return time.toLocaleString("en-US", {
     minimumIntegerDigits: 2,
     useGrouping: false,
   });
@@ -129,13 +129,13 @@ const createPlaceholderResource = (properties) => {
 const getPlaceholderResource = (file) => {
   const fileName = getFileName(file);
   const type = getTypeFromMime(file.type);
-  const mimeType = type === 'image' ? 'image/png' : 'video/mp4';
+  const mimeType = type === "image" ? "image/png" : "video/mp4";
 
   // The media library requires resources with valid mimeType and dimensions.
   return createPlaceholderResource({
-    type: type || 'image',
+    type: type || "image",
     mimeType: mimeType,
-    src: '',
+    src: "",
     ...getResourceSize({}),
     alt: fileName,
     title: fileName,
@@ -155,11 +155,11 @@ const getResourceFromLocalFile = async (file) => {
   let posterFile = null;
 
   try {
-    if ('image' === type) {
+    if ("image" === type) {
       resource = await getImageResource(file);
     }
 
-    if ('video' === type) {
+    if ("video" === type) {
       const results = await getVideoResource(file);
       resource = results.resource;
       posterFile = results.posterFile;
@@ -171,4 +171,4 @@ const getResourceFromLocalFile = async (file) => {
   return { resource, posterFile };
 };
 
-export default getResourceFromLocalFile;
+export { getResourceFromLocalFile };

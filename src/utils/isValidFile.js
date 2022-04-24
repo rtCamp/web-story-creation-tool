@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { allowedMimeTypes, maxUpload } from '../../../consts';
+import { allowedMimeTypes, maxUpload } from "../consts";
 
 export const isValidFile = (file) => {
   const allowedMimeTypesArray = [
@@ -10,10 +10,10 @@ export const isValidFile = (file) => {
   ];
 
   if (!allowedMimeTypesArray.includes(file.type)) {
-    throw new Error({ message: 'Invalid file type' });
+    throw new Error({ message: "Invalid file type" });
   }
 
   if (file.size > maxUpload) {
-    throw new Error({ message: 'Max Upload Limit Exceeded' });
+    throw new Error({ message: "Max Upload Limit Exceeded" });
   }
 };
