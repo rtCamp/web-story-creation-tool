@@ -4,7 +4,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useState } from "@googleforcreators/react";
-import { useStory } from "@googleforcreators/story-editor";
 
 /**
  * Internal dependencies
@@ -12,17 +11,26 @@ import { useStory } from "@googleforcreators/story-editor";
 import Context from "./context";
 
 function StoryStatusProvider({ children }) {
+  const [isInitializingIndexDB, updateIsInitializingIndexDB] = useState(true);
   const [isImporting, updateIsImporting] = useState(false);
   const [isExporting, updateIsExporting] = useState(false);
+  const [isRefreshingMedia, updateIsRefreshingMedia] = useState(true);
+  const [isUpdatingStoryAssets, updateIsUpdatingStoryAssets] = useState(true);
 
   const value = {
     state: {
+      isInitializingIndexDB,
       isImporting,
       isExporting,
+      isRefreshingMedia,
+      isUpdatingStoryAssets,
     },
     actions: {
+      updateIsInitializingIndexDB,
       updateIsImporting,
       updateIsExporting,
+      updateIsRefreshingMedia,
+      updateIsUpdatingStoryAssets,
     },
   };
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -70,7 +70,7 @@ function useStoryImport() {
       });
 
       const filesInDB = await getFromDB();
-      const mediaTitles = filesInDB.map((mediaItem) => mediaItem.title);
+      const mediaTitles = filesInDB.map((mediaItem) => mediaItem.alt);
 
       // upload each file while updating its URL in new story state.
       await Promise.all(
@@ -84,30 +84,35 @@ function useStoryImport() {
           const { resource } =
             elementIndex >= 0 ? elementsInImportedStory[elementIndex] : {};
 
-          //ignore if resource is undefined
-          if (!resource) {
-            console.log("ignore if resource is undefined");
-            return;
-          }
-
-          //ignore if not a valid mimeType
+          //ignore if resource is undefined or if not a valid mimeType or a poster image
           if (
+            !resource ||
             ![...allowedMimeTypes.video, ...allowedMimeTypes.image].includes(
               resource?.mimeType
-            )
+            ) ||
+            fileName.includes("-poster.jpeg")
           ) {
-            console.log("ignore if not a valid mimeType");
             return;
           }
 
           //ignore if file with same name already in DB
           if (mediaTitles.includes(resource?.title)) {
             const mediaAlreadyInDB = filesInDB.find(
-              (mediaInDB) => mediaInDB.title === resource?.title
+              (mediaInDB) => mediaInDB.alt === resource?.title
             );
 
             elementsInImportedStory[elementIndex].resource.src =
               mediaAlreadyInDB.src;
+
+            if (mediaAlreadyInDB.type === "video") {
+              const posterItem = filesInDB.find(
+                (m) => m.id === mediaAlreadyInDB.poster
+              );
+              elementsInImportedStory[elementIndex].resource.poster =
+                posterItem.src;
+              elementsInImportedStory[elementIndex].resource.posterId =
+                posterItem.id;
+            }
             return;
           }
 
@@ -127,13 +132,13 @@ function useStoryImport() {
           const mediaSrc = mediaResource.src;
 
           const mediaItem = { ...mediaResource, ...resource };
-          mediaItem.id = uuidv4();
+          mediaItem.id = resource.id;
           mediaItem.src = mediaSrc;
           mediaItem.local = false;
           mediaItem.file = mediaFile;
 
           // If resource is a video search for a poster file, if found add it to DB.
-          // Poster is not available in resource, so it will not be pushed to media.
+          // Poster is not available in resource.
 
           if ("video" === resource.type) {
             const videoFileName = fileName.split(".")[0];
@@ -152,8 +157,7 @@ function useStoryImport() {
                 );
 
                 posterItem.id = uuidv4();
-                posterItem.src = mediaSrc;
-                posterItem.file = mediaFile;
+                posterItem.file = posterMediaFile;
                 posterItem.mediaSource = "poster-generation";
 
                 mediaItem.poster = posterItem.src;
@@ -193,8 +197,6 @@ function useStoryImport() {
 
       stateToRestore.pages = updatedPages;
 
-      console.log(stateToRestore);
-
       restore(stateToRestore);
 
       updateIsImporting(false);
@@ -207,24 +209,6 @@ function useStoryImport() {
     } finally {
       updateIsImporting(false);
     }
-
-    // restore story state.
-
-    // const [file] = inputFiles;
-
-    // // const mediaItems = [...media];
-
-    // const stateToRestore = {
-    //   ...importedState,
-    //   story: {
-    //     ...importedState.story,
-    //     title: importedState.story.title || "",
-    //   },
-    // };
-
-    // restore(stateToRestore);
-
-    // updateIsImporting(false);
   };
 
   const handleFile = async (event) => {

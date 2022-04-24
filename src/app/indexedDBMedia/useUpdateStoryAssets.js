@@ -1,9 +1,20 @@
+/**
+ * External dependencies
+ */
 import { useStory } from "@googleforcreators/story-editor";
+
+/**
+ * Internal dependencies
+ */
 import { useEffect, useRef } from "react";
 import { getFromDB } from "../../utils";
+import { useStoryStatus } from "../storyStatus";
 
 const useUpdateStoryAssets = () => {
   const updatedOnce = useRef(false);
+  const { updateIsUpdatingStoryAssets } = useStoryStatus(({ actions }) => ({
+    updateIsUpdatingStoryAssets: actions.updateIsUpdatingStoryAssets,
+  }));
 
   const { updateElementsByResourceId, pages } = useStory((state) => ({
     updateElementsByResourceId: state.actions.updateElementsByResourceId,
@@ -11,6 +22,7 @@ const useUpdateStoryAssets = () => {
   }));
 
   const _updateStoryAssets = async () => {
+    updateIsUpdatingStoryAssets(true);
     const elementsList = [];
     pages.forEach((page) => {
       page.elements.forEach((element) => {
@@ -34,10 +46,7 @@ const useUpdateStoryAssets = () => {
                 ...mediaItemInDb,
                 id: resourceId,
               };
-
-              if ("video" === element?.type) {
-                updatedResource.poster = mediaListInDb.poster;
-              }
+              
               return {
                 ...rest,
                 resource: updatedResource,
@@ -48,6 +57,7 @@ const useUpdateStoryAssets = () => {
         }
       });
     });
+    updateIsUpdatingStoryAssets(false);
   };
 
   useEffect(() => {

@@ -15,6 +15,7 @@ import { saveStoryById, getFonts } from "../api/editor";
 import useIndexedDBMedia from "../app/indexedDBMedia/useIndexedDBMedia";
 import MediaUpload from "./mediaUpload";
 import { getMedia, updateMedia, deleteMedia, uploadMedia } from "../api/editor";
+import { useStoryStatus } from "../app/storyStatus";
 
 function getInitialStory() {
   const savedStory = window.localStorage.getItem(LOCAL_STORAGE_CONTENT_KEY);
@@ -22,7 +23,13 @@ function getInitialStory() {
 }
 
 const CreationTool = () => {
-  const { isInitialized } = useIndexedDBMedia();
+  useIndexedDBMedia();
+  const { isInitializingIndexDB, isRefreshingMedia } = useStoryStatus(
+    ({ state }) => ({
+      isInitializingIndexDB: state.isInitializingIndexDB,
+      isRefreshingMedia: state.isRefreshingMedia,
+    })
+  );
   const config = useMemo(() => {
     return {
       autoSaveInterval: 5,
@@ -44,7 +51,7 @@ const CreationTool = () => {
 
   elementTypes.forEach(registerElementType);
 
-  return isInitialized ? (
+  return !isInitializingIndexDB && !isRefreshingMedia ? (
     <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
       <Layout />
     </StoryEditor>
