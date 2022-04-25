@@ -221,8 +221,8 @@ function TabView({
   shortcut = '',
   tab,
   tabRefs,
-  handleClick = noop,
-  clicked = false,
+  setOpened = noop,
+  opened = false,
   ...rest
 }) {
   const { isRTL } = useConfig();
@@ -298,13 +298,13 @@ function TabView({
     [selectTab],
     {}
   );
-  const DrawerIcon = clicked ? (
-    <PushUpArrow onClick={handleClick} />
+  const DrawerIcon = opened ? (
+    <PushUpArrow onClick={setOpened} />
   ) : (
-    <PushDownArrow onClick={handleClick} />
+    <PushDownArrow onClick={setOpened} />
   );
   return (
-    <Tabs aria-label={label} ref={ref} clicked={clicked} {...rest}>
+    <Tabs aria-label={label} ref={ref} opened={opened} {...rest}>
       {tabs.map(({ id, title, icon: Icon, ...tabRest }) => (
         <Tab
           key={id}
@@ -349,8 +349,8 @@ TabView.propTypes = {
   ),
   label: PropTypes.string,
   shortcut: PropTypes.string,
-  handleClick: PropTypes.func,
-  clicked: PropTypes.bool,
+  setOpened: PropTypes.func,
+  opened: PropTypes.bool,
 };
 
 export default TabView;

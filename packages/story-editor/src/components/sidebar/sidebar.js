@@ -24,16 +24,16 @@ import { UploadDropTarget } from '../uploadDropTarget';
 
 import SidebarLayout from './sidebarLayout';
 
-function Sidebar({ handleClick, clicked }) {
+function Sidebar({ setOpened, opened }) {
   return (
     <UploadDropTarget disabled>
-      <SidebarLayout handleClick={handleClick} clicked={clicked} />
+      <SidebarLayout setOpened={setOpened} opened={opened} />
     </UploadDropTarget>
   );
 }
 Sidebar.propTypes = {
-  handleClick: PropTypes.func,
-  clicked: PropTypes.bool,
+  setOpened: PropTypes.func,
+  opened: PropTypes.bool,
 };
 
 export default Sidebar;

@@ -36,11 +36,11 @@ function Workspace({ header, footer }) {
   const { editingElementState } = useCanvas((state) => ({
     editingElementState: state.state.editingElementState,
   }));
-  const [clicked, setClicked] = useState(false);
+  const [opened, setOpened] = useState(false);
 
   const handleClicked = useCallback(() => {
-    setClicked(!clicked);
-  }, [clicked]);
+    setOpened(!opened);
+  }, [opened]);
 
   const {
     state: { tab },
@@ -49,12 +49,12 @@ function Workspace({ header, footer }) {
   return (
     <VideoTrimProvider>
       <RichTextProvider editingState={editingElementState}>
-        <SidebarArea clicked={clicked} isMediaTab={Boolean(tab === 'insert')}>
+        <SidebarArea opened={opened} isMediaTab={Boolean(tab === 'insert')}>
           <ErrorBoundary>
-            <Sidebar handleClick={handleClicked} clicked={clicked} />
+            <Sidebar setOpened={handleClicked} opened={opened} />
           </ErrorBoundary>
         </SidebarArea>
-        <CanvasArea clicked={clicked} isMediaTab={Boolean(tab === 'insert')}>
+        <CanvasArea opened={opened} isMediaTab={Boolean(tab === 'insert')}>
           <ErrorBoundary>
             <Canvas header={header} footer={footer} />
           </ErrorBoundary>

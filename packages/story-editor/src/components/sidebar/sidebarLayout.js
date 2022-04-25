@@ -18,7 +18,7 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { useCallback } from '@googleforcreators/react';
+import { useCallback, useRef } from '@googleforcreators/react';
 import { __ } from '@googleforcreators/i18n';
 import { trackEvent } from '@googleforcreators/tracking';
 import { useEscapeToBlurEffect } from '@googleforcreators/design-system';
@@ -46,7 +46,7 @@ const SidebarContainer = styled.div`
   padding: 0;
   overflow: auto;
   @media (max-width: 480px) {
-    display: ${({ clicked }) => (!clicked ? 'none' : 'contents')};
+    display: ${({ opened }) => (!opened ? 'none' : 'contents')};
   }
 `;
 
@@ -57,7 +57,7 @@ const UnjustifiedTabView = styled(TabView)`
   }
 `;
 
-function SidebarLayout({ handleClick, clicked }) {
+function SidebarLayout({ setOpened, opened }) {
   const { tab, tabRefs, setSidebarContentNode, setTab, sidebar, tabs } =
     useSidebar(
       ({
@@ -74,15 +74,29 @@ function SidebarLayout({ handleClick, clicked }) {
         tabs,
       })
     );
-
+  const previousTab = useRef('insert');
   const onTabChange = useCallback(
     (id) => {
       setTab(id);
       trackEvent('inspector_tab_change', {
         name: id,
       });
+      if (previousTab.current === id) {
+        if (opened === false) {
+          setOpened(true);
+        } else {
+          setOpened(false);
+        }
+      } else if (previousTab.current !== id) {
+        if (opened === false) {
+          setOpened(true);
+          previousTab.current = id;
+        } else {
+          previousTab.current = id;
+        }
+      }
     },
-    [setTab]
+    [opened, setOpened, setTab]
   );
 
   useEscapeToBlurEffect(sidebar);
@@ -96,17 +110,17 @@ function SidebarLayout({ handleClick, clicked }) {
         onTabChange={onTabChange}
         getAriaControlsId={getTabId}
         shortcut="mod+option+3"
-        handleClick={handleClick}
-        clicked={clicked}
+        setOpened={setOpened}
+        opened={opened}
       />
-      <SidebarContainer clicked={clicked} ref={setSidebarContentNode}>
+      <SidebarContainer opened={opened} ref={setSidebarContentNode}>
         <SidebarContent />
       </SidebarContainer>
     </Layout>
   );
 }
 SidebarLayout.propTypes = {
-  handleClick: PropTypes.func,
-  clicked: PropTypes.bool,
+  setOpened: PropTypes.func,
+  opened: PropTypes.bool,
 };
 export default SidebarLayout;

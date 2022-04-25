@@ -35,17 +35,17 @@ const CanvasArea = styled(Area).attrs({
   zIndex: 1,
 })`
   @media (max-width: 480px) {
-    height: ${({ clicked, isMediaTab }) =>
-      clicked ? (isMediaTab ? '0px' : '50%') : '90%'};
-    display: ${({ clicked, isMediaTab }) =>
-      clicked ? (isMediaTab ? 'none' : 'contents') : 'contents'};
+    height: ${({ opened, isMediaTab }) =>
+      opened ? (isMediaTab ? '0px' : '50%') : '90%'};
+    display: ${({ opened, isMediaTab }) =>
+      opened ? (isMediaTab ? 'none' : 'contents') : 'contents'};
     justify-content: space-evenly;
   }
 `;
 const SidebarArea = styled(Area).attrs({ area: 'sidebar', zIndex: 2 })`
   @media (max-width: 480px) {
-    height: ${({ clicked, isMediaTab }) =>
-      clicked ? (isMediaTab ? '100%' : '50%') : '8%'};
+    height: ${({ opened, isMediaTab }) =>
+      opened ? (isMediaTab ? '100%' : '50%') : '8%'};
     overflow-y: auto;
   }
 `;
