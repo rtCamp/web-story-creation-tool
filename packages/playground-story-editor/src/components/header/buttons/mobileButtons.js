@@ -31,8 +31,8 @@ import { css } from 'styled-components';
  * Internal dependencies
  */
 import { escapeHTML } from '../../../utils';
-import calculateStoryLength from './calculateStoryLength';
-
+import calculateStoryLength from './video-export/calculateStoryLength';
+import doVideoExport from './video-export/doVideoExport';
 const selectButtonCSS = css`
   height: 32px;
   span {
@@ -76,21 +76,24 @@ function getPreviewLink() {
 function MobileButtons() {
   const [selectedValue, setSelectedValue] = useState(1);
   const { showSnackbar } = useSnackbar();
-  const { saveStory, pages, defaultPageDuration, title } = useStory(
-    ({
-      actions: { saveStory },
-      state: {
-        story: { defaultPageDuration, title },
+  const { saveStory, pages, defaultPageDuration, title, reducerState } =
+    useStory(
+      ({
+        actions: { saveStory },
+        state: {
+          story: { defaultPageDuration, title },
+          pages,
+        },
+        internal: { reducerState },
+      }) => ({
+        saveStory,
         pages,
-      },
-    }) => ({
-      saveStory,
-      pages,
-      defaultPageDuration,
-      title,
-    })
-  );
-
+        defaultPageDuration,
+        title,
+        reducerState,
+      })
+    );
+  const { current, selection, story } = reducerState;
   const handleActions = useCallback(
     async (_event, value) => {
       setSelectedValue(value);
@@ -139,7 +142,12 @@ function MobileButtons() {
         });
       } else if (value === 4) {
         await saveStory();
-        const content = localStorage.getItem('preview_markup');
+        const content = await doVideoExport({
+          pages,
+          current,
+          selection,
+          story,
+        });
         const data = {
           story: btoa(encodeURIComponent(content)),
           timeout: calculateStoryLength(pages, defaultPageDuration),
@@ -159,7 +167,16 @@ function MobileButtons() {
           });
       }
     },
-    [defaultPageDuration, pages, saveStory, showSnackbar, title]
+    [
+      current,
+      defaultPageDuration,
+      pages,
+      saveStory,
+      selection,
+      showSnackbar,
+      story,
+      title,
+    ]
   );
   return (
     <DropDown
