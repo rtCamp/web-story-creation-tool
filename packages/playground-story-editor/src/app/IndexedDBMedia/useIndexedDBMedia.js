@@ -39,7 +39,6 @@ const useIndexedDBMedia = () => {
   const _refreshMedia = useCallback(async () => {
     const mediaInDB = await getFromDB();
     const newData = [];
-
     await Promise.all(
       mediaInDB.map(async (mediaItem) => {
         if (mediaItem.mediaSource === 'poster-generation') {

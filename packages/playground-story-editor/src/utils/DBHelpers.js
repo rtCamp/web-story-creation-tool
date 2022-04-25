@@ -67,10 +67,10 @@ export const getFromDB = () =>
         .transaction([ASSET_OBJECT_STORE_NAME])
         .objectStore(ASSET_OBJECT_STORE_NAME)
         .get(ASSET_OBJECT_KEY);
-      request.onerror = () => {
+      request.onerror = (event) => {
         reject(event.target.errorCode);
       };
-      request.onsuccess = () => {
+      request.onsuccess = (event) => {
         resolve(event.target.result);
       };
     };
@@ -98,10 +98,10 @@ export const updateInDB = (mediaId, data) =>
 
       const getRequest = objectStore.get(ASSET_OBJECT_KEY);
 
-      getRequest.onerror = () => {
+      getRequest.onerror = (event) => {
         reject(event.target.errorCode);
       };
-      getRequest.onsuccess = () => {
+      getRequest.onsuccess = (event) => {
         const prevMediaList = event.target.result;
 
         const newMediaList = prevMediaList.map((mediaItem) => {
@@ -166,7 +166,7 @@ export const replaceInDB = (replacementMediaList) =>
           replacementMediaList,
           ASSET_OBJECT_KEY
         );
-        requestUpdate.onerror = () => {
+        requestUpdate.onerror = (event) => {
           reject(event.target.errorCode);
         };
         requestUpdate.onsuccess = () => {

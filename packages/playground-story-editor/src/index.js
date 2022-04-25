@@ -38,7 +38,7 @@ render(
       <CreationTool />
     </StoryStatusProvider>
   </AppContainer>,
-  document.getElementById('root')
+  document.getElementById('playground-root')
 );
 
 if ('loading' === document.readyState) {

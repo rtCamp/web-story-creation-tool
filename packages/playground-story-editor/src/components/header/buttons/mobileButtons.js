@@ -137,7 +137,7 @@ function MobileButtons() {
       ariaLabel={__('Story Actions', 'web-stories')}
       placeholder={'Actions'}
       options={ACTION_OPTIONS}
-      popupZIndex={window.matchMedia('(max-width:480px)').matches && 12}
+      popupZIndex={window.matchMedia('(max-width:480px)').matches ? 12 : 2}
       placement={PLACEMENT.TOP_START}
       onMenuItemClick={handleActions}
       selectedValue={selectedValue}
