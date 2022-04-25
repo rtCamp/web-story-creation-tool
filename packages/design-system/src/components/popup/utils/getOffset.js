@@ -18,6 +18,7 @@
  */
 import { PLACEMENT } from '../constants';
 import { getXTransforms, getYTransforms } from './getTransforms';
+// eslint-disable-next-line complexity -- stop linting
 export function getXOffset(
   placement,
   spacing = 0,
@@ -26,7 +27,10 @@ export function getXOffset(
   isRTL
 ) {
   let mobilePlacement;
-  if (window.matchMedia('(max-width:480px)').matches) {
+  if (
+    window.matchMedia('(max-width:480px)').matches &&
+    (placement === 'right' || placement === 'left')
+  ) {
     mobilePlacement = PLACEMENT.BOTTOM;
   } else {
     mobilePlacement = placement;
@@ -61,7 +65,10 @@ export function getXOffset(
 
 export function getYOffset(placement, spacing = 0, anchorRect) {
   let mobilePlacement;
-  if (window.matchMedia('(max-width:480px)').matches) {
+  if (
+    window.matchMedia('(max-width:480px)').matches &&
+    (placement === 'right' || placement === 'left')
+  ) {
     mobilePlacement = PLACEMENT.BOTTOM;
   } else {
     mobilePlacement = placement;
@@ -132,7 +139,10 @@ export function getOffset({
   topOffset = 0,
 }) {
   let mobilePlacement;
-  if (window.matchMedia('(max-width:480px)').matches) {
+  if (
+    window.matchMedia('(max-width:480px)').matches &&
+    (placement === 'right' || placement === 'left')
+  ) {
     mobilePlacement = PLACEMENT.BOTTOM;
   } else {
     mobilePlacement = placement;

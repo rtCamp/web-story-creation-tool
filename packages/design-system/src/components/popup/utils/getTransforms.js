@@ -21,7 +21,10 @@ import { PLACEMENT } from '../constants';
 export function getXTransforms(placement, isRTL) {
   // left & right
   let mobilePlacement;
-  if (window.matchMedia('(max-width:480px)').matches) {
+  if (
+    window.matchMedia('(max-width:480px)').matches &&
+    (placement === 'right' || placement === 'left')
+  ) {
     mobilePlacement = PLACEMENT.BOTTOM;
   } else {
     mobilePlacement = placement;
@@ -42,7 +45,10 @@ export function getXTransforms(placement, isRTL) {
 
 export function getYTransforms(placement) {
   let mobilePlacement;
-  if (window.matchMedia('(max-width:480px)').matches) {
+  if (
+    window.matchMedia('(max-width:480px)').matches &&
+    (placement === 'right' || placement === 'left')
+  ) {
     mobilePlacement = PLACEMENT.BOTTOM;
   } else {
     mobilePlacement = placement;
@@ -67,7 +73,10 @@ export function getYTransforms(placement) {
 // do not work correctly for rotated elements
 export function getTransforms(placement, isRTL) {
   let mobilePlacement;
-  if (window.matchMedia('(max-width:480px)').matches) {
+  if (
+    window.matchMedia('(max-width:480px)').matches &&
+    (placement === 'right' || placement === 'left')
+  ) {
     mobilePlacement = PLACEMENT.BOTTOM;
   } else {
     mobilePlacement = placement;
