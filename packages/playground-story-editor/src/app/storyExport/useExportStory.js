@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * External dependencies
  */
+import { renderToStaticMarkup } from '@googleforcreators/react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { DATA_VERSION } from '@googleforcreators/migration';
 import { useSnackbar } from '@googleforcreators/design-system';
 import { useStory, getStoryPropsToSave } from '@googleforcreators/story-editor';
+import { OutputStory } from '@googleforcreators/output';
 import { PAGE_RATIO, PAGE_WIDTH } from '@googleforcreators/units';
 
 /**
@@ -42,8 +43,7 @@ function useExportStory() {
     actions: { updateIsExporting },
   } = useStoryStatus(({ actions }) => ({ actions }));
 
-  const zipStory = async (storyContent) => {
-    let markup = `<!doctype html>${storyContent}`;
+  const zipStory = async () => {
     const zip = new JSZip();
 
     const mediaTypes = ['image', 'video'];
@@ -79,9 +79,6 @@ function useExportStory() {
                 'h',
                 encodeURIComponent((PAGE_WIDTH * 2) / PAGE_RATIO)
               );
-
-              const markupSrc = src.replaceAll('&', '&amp;');
-              markup = markup.replaceAll(markupSrc, resizedSrc);
               return;
             }
 
@@ -109,15 +106,9 @@ function useExportStory() {
               element.resource.poster = posterFileName;
             }
 
-            const encodedUrl = src.replaceAll('&', '&amp;'); // To match url in the rendered markup.
-            markup = markup.replaceAll(encodedUrl, fileName);
-
             zip.file(fileName, file);
 
             if (posterFileName && posterFile) {
-              const encodedPosterUrl = poster.replaceAll('&', '&amp;'); // To match url in the rendered markup.
-              markup = markup.replaceAll(encodedPosterUrl, posterFileName);
-
               zip.file(posterFileName, posterFile);
             }
           })
@@ -138,13 +129,22 @@ function useExportStory() {
       pages: updatedPages,
     };
 
+    const markup = renderToStaticMarkup(
+      <OutputStory
+        story={storyData.story}
+        pages={storyData.pages}
+        metadata={{ publisher: '' }}
+        flags={{ allowBlobs: true }}
+      />
+    );
+
     zip.file('config.json', JSON.stringify(storyData));
 
     const readMeText = `
- Uploading ad to google ad manager:
- 1. Choose "Code Type" as "AMP", copy the entire content of index.html without formatting and paste it inside the "AMP HTML" textbox.
- 2. Your local uploaded assets of the story ad have been downloaded as part of the zip and have a relative path in index.html, please upload those assets and change its file path by inserting macros. If you have used external assets, they would have direct external links in html. 
-     `;
+  Uploading ad to google ad manager:
+  1. Choose "Code Type" as "AMP", copy the entire content of index.html without formatting and paste it inside the "AMP HTML" textbox.
+  2. Your local uploaded assets of the story ad have been downloaded as part of the zip and have a relative path in index.html, please upload those assets and change its file path by inserting macros. If you have used external assets, they would have direct external links in html. 
+      `;
 
     zip.file('index.html', markup);
     zip.file('README.txt', readMeText);

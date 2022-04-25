@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * External dependencies
  */
-
 import { useSnackbar } from '@googleforcreators/design-system';
 import { useStory } from '@googleforcreators/story-editor';
+import { v4 as uuidv4 } from 'uuid';
 import JSZip from 'jszip';
 /**
  * Internal dependencies
  */
-import { getResourceFromLocalFile } from '../media/utils';
-import { useMedia } from '../media';
 import { useStoryStatus } from '../storyStatus';
+import { addToDB, getFromDB, getResourceFromLocalFile } from '../../utils';
+import { allowedMimeTypes } from '../../consts';
 
 const INPUT_ID = 'hidden-import-file-input';
 
@@ -35,83 +34,102 @@ function useStoryImport() {
   const {
     actions: { updateIsImporting },
   } = useStoryStatus(({ actions }) => ({ actions }));
-  const {
-    internal: { restore, reducerState },
-  } = useStory();
 
-  const { media, updateMedia } = useMedia(
-    ({ state: { media }, actions: { updateMedia } }) => {
-      return { media, updateMedia };
-    }
-  );
+  const { restore } = useStory((state) => ({
+    restore: state.internal.restore,
+  }));
 
-  const handleFile = async (event) => {
-    const inputFiles = event.target.files;
+  const handleImport = async (zipFile) => {
     updateIsImporting(true);
-
-    if (!inputFiles.length || 'application/zip' !== inputFiles[0]?.type) {
-      showSnackbar({
-        message:
-          'Please upload the zip file previously downloaded from this tool',
-        dismissable: true,
-      });
-      updateIsImporting(false);
-      return;
-    }
-    const [file] = inputFiles;
-    const files = await JSZip.loadAsync(file).then((content) => content.files);
-
-    if (!('config.json' in files)) {
-      showSnackbar({ message: 'Zip file is not compatible with this tool' });
-      updateIsImporting(false);
-      return;
-    }
-
-    const configData = await files['config.json'].async('text');
-    const mediaItems = [...media];
-    let importedState = {};
-
     try {
-      importedState = JSON.parse(configData);
-    } catch (e) {
-      showSnackbar({
-        message: 'Invalid configuration in the uploaded zip',
-      });
-      updateIsImporting(false);
-      return;
-    }
-    const stateToRestore = {
-      ...importedState,
-      story: {
-        ...reducerState.story,
-        ...importedState.story,
-        title: importedState.story.title || '',
-      },
-      capabilities: reducerState.capabilities,
-    };
-
-    let elements = [];
-    stateToRestore.pages.forEach((page) => {
-      elements = [...elements, ...page.elements];
-    });
-
-    const mediaTitles = media.map((mediaItem) => mediaItem.title);
-
-    await Promise.all(
-      Object.keys(files).map(async (fileName, index) => {
-        const currentFile = files[fileName];
-
-        const elementIndex = elements.findIndex(
-          (element) => element?.resource?.src === fileName
+      // check if imported file is .zip.
+      if ('application/zip' !== zipFile?.type) {
+        throw new Error(
+          'Please upload the zip file previously downloaded from this tool'
         );
+      }
 
-        const { resource } = elementIndex >= 0 ? elements[elementIndex] : {};
+      // check if zip file has a config.json.
+      const files = await JSZip.loadAsync(zipFile).then(
+        (content) => content.files
+      );
 
-        if (mediaTitles.includes(resource?.title)) {
-          return;
-        }
+      if (!('config.json' in files)) {
+        throw new Error('Zip file is not compatible with this tool');
+      }
 
-        if (['image', 'video'].includes(resource?.type)) {
+      // unload config.json to new story state.
+      let importedState;
+      try {
+        const configData = await files['config.json'].async('text');
+        importedState = JSON.parse(configData);
+      } catch (e) {
+        throw new Error('Corrupted config.json file');
+      }
+
+      const stateToRestore = {
+        ...importedState,
+        story: {
+          ...importedState.story,
+          title: importedState.story.title || '',
+        },
+      };
+
+      let elementsInImportedStory = [];
+      stateToRestore.pages.forEach((page) => {
+        elementsInImportedStory = [
+          ...elementsInImportedStory,
+          ...page.elements,
+        ];
+      });
+
+      const filesInDB = await getFromDB();
+      const mediaTitles = filesInDB.map((mediaItem) => mediaItem.alt);
+
+      // upload each file while updating its URL in new story state.
+      await Promise.all(
+        Object.keys(files).map(async (fileName) => {
+          const currentFile = files[fileName];
+
+          const elementIndex = elementsInImportedStory.findIndex(
+            (element) => element?.resource?.src === fileName
+          );
+
+          const { resource } =
+            elementIndex >= 0 ? elementsInImportedStory[elementIndex] : {};
+
+          //ignore if resource is undefined or if not a valid mimeType or a poster image
+          if (
+            !resource ||
+            ![...allowedMimeTypes.video, ...allowedMimeTypes.image].includes(
+              resource?.mimeType
+            ) ||
+            fileName.includes('-poster.jpeg')
+          ) {
+            return;
+          }
+
+          //ignore if file with same name already in DB
+          if (mediaTitles.includes(resource?.title)) {
+            const mediaAlreadyInDB = filesInDB.find(
+              (mediaInDB) => mediaInDB.alt === resource?.title
+            );
+
+            elementsInImportedStory[elementIndex].resource.src =
+              mediaAlreadyInDB.src;
+
+            if (mediaAlreadyInDB.type === 'video') {
+              const posterItem = filesInDB.find(
+                (m) => m.id === mediaAlreadyInDB.poster
+              );
+              elementsInImportedStory[elementIndex].resource.poster =
+                posterItem.src;
+              elementsInImportedStory[elementIndex].resource.posterId =
+                posterItem.id;
+            }
+            return;
+          }
+
           const { mimeType } = resource;
           const blob = await currentFile?.async('blob');
           const mediaFile = new File([blob], currentFile.name, {
@@ -128,15 +146,19 @@ function useStoryImport() {
           const mediaSrc = mediaResource.src;
 
           const mediaItem = { ...mediaResource, ...resource };
-          mediaItem.id = index + 1;
+          mediaItem.id = resource.id;
           mediaItem.src = mediaSrc;
           mediaItem.local = false;
           mediaItem.file = mediaFile;
+
+          // If resource is a video search for a poster file, if found add it to DB.
+          // Poster is not available in resource.
+
           if ('video' === resource.type) {
             const videoFileName = fileName.split('.')[0];
             const poster = `${videoFileName}-poster.jpeg`;
 
-            // Poster is not available in resource, so it will not be pushed to media.
+            //
             if (files[poster]) {
               const posterBlob = await files[poster]?.async('blob');
               const posterMediaFile = new File([posterBlob], poster, {
@@ -144,33 +166,72 @@ function useStoryImport() {
               });
 
               if (posterMediaFile) {
-                const { resource: posterResource } =
-                  await getResourceFromLocalFile(posterMediaFile);
+                const { resource: posterItem } = await getResourceFromLocalFile(
+                  posterMediaFile
+                );
 
-                mediaItem.poster = posterResource.src;
+                posterItem.id = uuidv4();
+                posterItem.file = posterMediaFile;
+                posterItem.mediaSource = 'poster-generation';
+
+                mediaItem.poster = posterItem.src;
                 mediaItem.local = false;
-                elements[elementIndex].resource.poster = posterResource.src;
+                elementsInImportedStory[elementIndex].resource.poster =
+                  posterItem.src;
+                mediaItem.posterId = posterItem.id;
+
+                await addToDB(posterItem);
               }
             }
           }
-
-          elements[elementIndex].resource.src = mediaSrc;
-
-          mediaItems.push(mediaItem);
-        }
-      })
-    );
-
-    updateMedia((prevMedia) => {
-      const prevMediaTitles = prevMedia.map((mediaItem) => mediaItem.alt);
-      const filteredMedia = mediaItems.filter(
-        (mediaItem) => !prevMediaTitles.includes(mediaItem.alt)
+          elementsInImportedStory[elementIndex].resource.src = mediaSrc;
+          await addToDB(mediaItem);
+        })
       );
-      return [...prevMedia, ...filteredMedia];
-    });
-    restore(stateToRestore);
 
-    updateIsImporting(false);
+      const updatedPages = stateToRestore.pages.map((page) => {
+        if (page?.elements.length > 1) {
+          const updatedElements = page.elements.map((element) => {
+            const updatesElementsIds = elementsInImportedStory.map(
+              (ele) => ele.id
+            );
+
+            if (!updatesElementsIds.includes(element.id)) {
+              return element;
+            } else {
+              return elementsInImportedStory.find(
+                (ele) => ele.id === element.id
+              );
+            }
+          });
+          page.elements = updatedElements;
+        }
+        return page;
+      });
+
+      stateToRestore.pages = updatedPages;
+
+      restore(stateToRestore);
+
+      updateIsImporting(false);
+      showSnackbar({
+        message: 'Story Imported',
+        dismissable: true,
+      });
+    } finally {
+      updateIsImporting(false);
+    }
+  };
+
+  const handleFile = async (event) => {
+    if (event.target.files.length === 1) {
+      await handleImport(event.target.files[0]);
+    } else {
+      showSnackbar({
+        message: 'Please upload a single file',
+        dismissable: true,
+      });
+    }
   };
 
   const renderGhostInput = () => {

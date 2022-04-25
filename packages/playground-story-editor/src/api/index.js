@@ -16,3 +16,4 @@
 
 export { saveStoryById } from './story';
 export { getFonts } from './fonts';
+export * from './media';

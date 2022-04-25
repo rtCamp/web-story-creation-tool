@@ -39,3 +39,8 @@ export const COMMON_MIME_TYPE_MAPPING = {
   'video/mp4': 'mp4',
   'video/webm': 'webm',
 };
+
+export const DB_NAME = 'Creation_tool_assets';
+export const DB_VERSION = '1';
+export const ASSET_OBJECT_STORE_NAME = 'assets';
+export const ASSET_OBJECT_KEY = 'files';

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * External dependencies
  */
 import PropTypes from 'prop-types';
 import { useState } from '@googleforcreators/react';
-import { useStory } from '@googleforcreators/story-editor';
 
 /**
  * Internal dependencies
@@ -27,25 +25,26 @@ import { useStory } from '@googleforcreators/story-editor';
 import Context from './context';
 
 function StoryStatusProvider({ children }) {
+  const [isInitializingIndexDB, updateIsInitializingIndexDB] = useState(true);
   const [isImporting, updateIsImporting] = useState(false);
   const [isExporting, updateIsExporting] = useState(false);
-  const { isSaving } = useStory(
-    ({
-      state: {
-        meta: { isSaving },
-      },
-    }) => ({ isSaving })
-  );
+  const [isRefreshingMedia, updateIsRefreshingMedia] = useState(true);
+  const [isUpdatingStoryAssets, updateIsUpdatingStoryAssets] = useState(true);
 
   const value = {
     state: {
+      isInitializingIndexDB,
       isImporting,
       isExporting,
-      isSaving,
+      isRefreshingMedia,
+      isUpdatingStoryAssets,
     },
     actions: {
+      updateIsInitializingIndexDB,
       updateIsImporting,
       updateIsExporting,
+      updateIsRefreshingMedia,
+      updateIsUpdatingStoryAssets,
     },
   };
   return <Context.Provider value={value}>{children}</Context.Provider>;

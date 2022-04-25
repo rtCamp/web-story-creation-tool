@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * External dependencies
  */
 import { useEffect, useCallback, useMemo } from '@googleforcreators/react';
 import { useConfig, useAPI } from '@googleforcreators/story-editor';
 
-function useMediaPicker() {
+function useMediaPicker({ onClose }) {
   const { allowedMimeTypes } = useConfig();
 
   const {
@@ -41,8 +40,9 @@ function useMediaPicker() {
           await uploadMedia(file);
         })
       );
+      onClose();
     },
-    [uploadMedia]
+    [onClose, uploadMedia]
   );
 
   const insertHiddenFileInput = useCallback(() => {

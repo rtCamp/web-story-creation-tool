@@ -1,0 +1,87 @@
+/*
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * External dependencies
+ */
+import { useStory } from '@googleforcreators/story-editor';
+import { useEffect, useRef, useCallback } from '@googleforcreators/react';
+/**
+ * Internal dependencies
+ */
+import { getFromDB } from '../../utils';
+import { useStoryStatus } from '../storyStatus';
+
+const useUpdateStoryAssets = () => {
+  const updatedOnce = useRef(false);
+  const { updateIsUpdatingStoryAssets } = useStoryStatus(({ actions }) => ({
+    updateIsUpdatingStoryAssets: actions.updateIsUpdatingStoryAssets,
+  }));
+
+  const { updateElementsByResourceId, pages } = useStory((state) => ({
+    updateElementsByResourceId: state.actions.updateElementsByResourceId,
+    pages: state.state.pages,
+  }));
+
+  const _updateStoryAssets = useCallback(async () => {
+    updateIsUpdatingStoryAssets(true);
+    const elementsList = [];
+    pages.forEach((page) => {
+      page.elements.forEach((element) => {
+        elementsList.push(element);
+      });
+    });
+
+    const mediaListInDb = await getFromDB();
+
+    mediaListInDb.forEach((mediaItemInDb) => {
+      elementsList.forEach((element) => {
+        if (
+          ['image', 'video'].includes(element?.type) &&
+          element.resource.id === mediaItemInDb.id
+        ) {
+          const resourceId = element.resource.id;
+          const mediaResource = {
+            id: resourceId,
+            properties: ({ resource, ...rest }) => {
+              const updatedResource = {
+                ...mediaItemInDb,
+                id: resourceId,
+              };
+
+              return {
+                ...rest,
+                resource: updatedResource,
+              };
+            },
+          };
+          updateElementsByResourceId(mediaResource);
+        }
+      });
+    });
+    updateIsUpdatingStoryAssets(false);
+  }, [pages, updateElementsByResourceId, updateIsUpdatingStoryAssets]);
+
+  useEffect(() => {
+    if (pages.length > 0 && !updatedOnce.current) {
+      _updateStoryAssets();
+      updatedOnce.current = true;
+    }
+  }, [_updateStoryAssets, pages]);
+
+  return null;
+};
+
+export default useUpdateStoryAssets;

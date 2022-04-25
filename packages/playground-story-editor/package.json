@@ -22,6 +22,7 @@
     "@googleforcreators/migration": "*",
     "@googleforcreators/units": "*",
     "@googleforcreators/fonts": "*",
+    "@googleforcreators/output": "*",
     "styled-components": "^5.3.3",
     "jszip": "^3.7.1",
     "file-saver": "^2.0.5",
