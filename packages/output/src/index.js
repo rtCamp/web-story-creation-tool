@@ -17,3 +17,4 @@
 export { default as OutputStory } from './story';
 export { default as getStoryMarkup } from './utils/getStoryMarkup';
 export * from './constants';
+export { default as getLongestMediaElement } from './utils/getLongestMediaElement';

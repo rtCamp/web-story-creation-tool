@@ -21,6 +21,7 @@ import {
   PLACEMENT,
   useSnackbar,
 } from '@googleforcreators/design-system';
+import { saveAs } from 'file-saver';
 import { useCallback, useState } from '@googleforcreators/react';
 import { __ } from '@googleforcreators/i18n';
 import { useStory } from '@googleforcreators/story-editor';
@@ -29,8 +30,8 @@ import { css } from 'styled-components';
 /**
  * Internal dependencies
  */
-import useExportStory from '../../../app/storyExport/useExportStory';
 import { escapeHTML } from '../../../utils';
+import calculateStoryLength from './calculateStoryLength';
 
 const selectButtonCSS = css`
   height: 32px;
@@ -74,11 +75,21 @@ function getPreviewLink() {
 }
 function MobileButtons() {
   const [selectedValue, setSelectedValue] = useState(1);
-  const { exportStory } = useExportStory();
   const { showSnackbar } = useSnackbar();
-  const { saveStory } = useStory(({ actions: { saveStory } }) => ({
-    saveStory,
-  }));
+  const { saveStory, pages, defaultPageDuration, title } = useStory(
+    ({
+      actions: { saveStory },
+      state: {
+        story: { defaultPageDuration, title },
+        pages,
+      },
+    }) => ({
+      saveStory,
+      pages,
+      defaultPageDuration,
+      title,
+    })
+  );
 
   const handleActions = useCallback(
     async (_event, value) => {
@@ -127,10 +138,28 @@ function MobileButtons() {
           dismissable: true,
         });
       } else if (value === 4) {
-        exportStory();
+        await saveStory();
+        const content = localStorage.getItem('preview_markup');
+        const data = {
+          story: btoa(encodeURIComponent(content)),
+          timeout: calculateStoryLength(pages, defaultPageDuration),
+        };
+        fetch('http://localhost:3000/', {
+          method: 'post',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+          },
+          body: JSON.stringify(data),
+        })
+          .then((res) => res.blob())
+          .then((blob) => {
+            const file = window.URL.createObjectURL(blob);
+            saveAs(file, `${title ? title : 'untitled'}.mp4`);
+          });
       }
     },
-    [exportStory, saveStory, showSnackbar]
+    [defaultPageDuration, pages, saveStory, showSnackbar, title]
   );
   return (
     <DropDown

@@ -12,6 +12,7 @@
   },
   "main": "./src/index.js",
   "dependencies": {
+    "@googleforcreators/animation": "*",
     "@googleforcreators/element-library": "*",
     "@googleforcreators/elements": "*",
     "@googleforcreators/react": "*",
