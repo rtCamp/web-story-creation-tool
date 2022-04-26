@@ -1,37 +1,39 @@
 /**
  * External dependencies
  */
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { StoryEditor } from "@googleforcreators/story-editor";
 import { elementTypes } from "@googleforcreators/element-library";
 import { registerElementType } from "@googleforcreators/elements";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Internal dependencies
  */
 import Layout from "./layout";
-import { LOCAL_STORAGE_CONTENT_KEY } from "../consts";
 import { saveStoryById, getFonts } from "../api/editor";
-import useIndexedDBMedia from "../app/indexedDBMedia/useIndexedDBMedia";
 import MediaUpload from "./mediaUpload";
-import { getMedia, updateMedia, deleteMedia, uploadMedia } from "../api/editor";
 import { useStoryStatus } from "../app/storyStatus";
-
-function getInitialStory() {
-  const savedStory = window.localStorage.getItem(LOCAL_STORAGE_CONTENT_KEY);
-  return savedStory ? JSON.parse(savedStory) : {};
-}
+import {
+  getMedia,
+  updateMedia,
+  deleteMedia,
+  uploadMedia,
+  getStoryById,
+} from "../api/editor";
 
 const CreationTool = () => {
-  useIndexedDBMedia();
-  const { isInitializingIndexDB, isRefreshingMedia } = useStoryStatus(
-    ({ state }) => ({
-      isInitializingIndexDB: state.isInitializingIndexDB,
-      isRefreshingMedia: state.isRefreshingMedia,
-    })
-  );
+  const url = new URL(window.location.href);
+  const id = url.searchParams.get("id");
+  const { isInitializingIndexDB } = useStoryStatus(({ state }) => ({
+    isInitializingIndexDB: state.isInitializingIndexDB,
+  }));
+
+  const [story, setStory] = useState();
+
   const config = useMemo(() => {
     return {
+      storyId: id ? id : uuidv4(),
       autoSaveInterval: 5,
       capabilities: {
         hasUploadMediaAction: true,
@@ -47,16 +49,28 @@ const CreationTool = () => {
       },
       MediaUpload,
     };
-  }, []);
+  }, [id]);
 
   elementTypes.forEach(registerElementType);
 
-  return !isInitializingIndexDB && !isRefreshingMedia ? (
-    <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
+  useEffect(() => {
+    const hydrateStory = async () => {
+      const s = await getStoryById(id);
+      setStory(s);
+    };
+    if (!isInitializingIndexDB) {
+      hydrateStory();
+    }
+  }, [isInitializingIndexDB]);
+
+  if (!story) {
+    return <p>Please wait</p>;
+  }
+
+  return (
+    <StoryEditor config={config} initialEdits={{ story }}>
       <Layout />
     </StoryEditor>
-  ) : (
-    <p>Please wait</p>
   );
 };
 

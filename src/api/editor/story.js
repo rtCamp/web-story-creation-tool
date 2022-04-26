@@ -7,13 +7,16 @@ import { OutputStory } from "@googleforcreators/output";
 /**
  * Internal dependencies
  */
-import {
-  LOCAL_STORAGE_PREVIEW_MARKUP_KEY,
-  LOCAL_STORAGE_CONTENT_KEY,
-} from "../../consts";
+import { LOCAL_STORAGE_PREVIEW_MARKUP_KEY } from "../../consts";
 import { renderToStaticMarkup } from "react-dom/server";
+import {
+  addStoryToDB,
+  getStoryIdsInDB,
+  getStoryInDB,
+  updateStoryInDB,
+} from "../../utils";
 
-export const saveStoryById = ({
+export const saveStoryById = async ({
   pages,
   globalStoryStyles,
   autoAdvance,
@@ -22,8 +25,10 @@ export const saveStoryById = ({
   backgroundAudio,
   title,
   excerpt,
+  storyId,
 }) => {
   const storySaveData = {
+    storyId,
     title: {
       raw: title,
     },
@@ -46,10 +51,7 @@ export const saveStoryById = ({
     permalinkTemplate: "https://example.org/web-stories/%pagename%/",
   };
 
-  window.localStorage.setItem(
-    LOCAL_STORAGE_CONTENT_KEY,
-    JSON.stringify(storySaveData)
-  );
+  // save markup in local storage.
   window.localStorage.setItem(
     LOCAL_STORAGE_PREVIEW_MARKUP_KEY,
     renderToStaticMarkup(
@@ -70,5 +72,20 @@ export const saveStoryById = ({
     )
   );
 
-  return Promise.resolve({});
+  //add or update story in indexedDB
+
+  const storyIdsInDB = await getStoryIdsInDB();
+
+  if (storyIdsInDB.includes(storyId)) {
+    await updateStoryInDB(storySaveData);
+  } else {
+    await addStoryToDB(storySaveData);
+  }
+
+  return {};
+};
+
+export const getStoryById = async (id) => {
+  const story = await getStoryInDB(id);
+  return story ? story : {};
 };

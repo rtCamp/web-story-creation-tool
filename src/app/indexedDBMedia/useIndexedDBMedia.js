@@ -6,7 +6,7 @@ import { useEffect } from "react";
 /**
  * Internal dependencies
  */
-import { getFromDB, initDB, replaceInDB } from "../../utils";
+import { getMediaFromDB, initDB, replaceMediaInDB } from "../../utils";
 import { getResourceFromLocalFile } from "../../utils";
 import { useStoryStatus } from "../storyStatus";
 
@@ -18,7 +18,7 @@ const useIndexedDBMedia = () => {
     }));
 
   const _refreshMedia = async () => {
-    const mediaInDB = await getFromDB();
+    const mediaInDB = await getMediaFromDB();
     const newData = [];
 
     await Promise.all(
@@ -47,7 +47,7 @@ const useIndexedDBMedia = () => {
         newData.push(updatedMediaItem);
       })
     );
-    await replaceInDB(newData);
+    await replaceMediaInDB(newData);
   };
 
   const _onMountRoutine = async () => {

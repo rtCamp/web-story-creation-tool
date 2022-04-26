@@ -6,12 +6,12 @@ import { v4 as uuidv4 } from "uuid";
 /**
  * Internal dependencies
  */
-import { getFromDB, updateInDB, deleteInDB, addToDB } from "../../utils";
+import { getMediaFromDB, updateMediaInDB, deleteMediaInDB, addMediaToDB } from "../../utils";
 import { getResourceFromLocalFile } from "../../utils";
 
 export const getMedia = async ({ mediaType, searchTerm }) => {
   try {
-    let filteredMedia = await getFromDB();
+    let filteredMedia = await getMediaFromDB();
 
     // remove poster
 
@@ -55,17 +55,17 @@ export const uploadMedia = async (file, additionalData) => {
   if (additionalData?.mediaSource === "poster-generation") {
     // if a Poster is being uploaded update respective video asset
     const videoMediaId = additionalData.mediaId;
-    await updateInDB(videoMediaId, {
+    await updateMediaInDB(videoMediaId, {
       posterId: mediaData.id,
       modifiedAt: new Date().getTime(),
     });
   }
-  await addToDB(mediaData);
+  await addMediaToDB(mediaData);
 };
 
 export const updateMedia = async (mediaId, data) => {
   try {
-    await updateInDB(mediaId, data);
+    await updateMediaInDB(mediaId, data);
   } catch (error) {
     throw error;
   }
@@ -73,13 +73,13 @@ export const updateMedia = async (mediaId, data) => {
 
 export const deleteMedia = async (mediaId) => {
   try {
-    const mediaItemsInDB = await getFromDB();
+    const mediaItemsInDB = await getMediaFromDB();
     const mediaItem = mediaItemsInDB.find((m) => m.id === mediaId);
 
     if (mediaItem.type === "video") {
-      await deleteInDB(mediaItem.posterId);
+      await deleteMediaInDB(mediaItem.posterId);
     }
-    await deleteInDB(mediaId);
+    await deleteMediaInDB(mediaId);
   } catch (error) {
     throw error;
   }

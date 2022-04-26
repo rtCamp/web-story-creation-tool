@@ -9,7 +9,7 @@ import JSZip from "jszip";
  * Internal dependencies
  */
 import { useStoryStatus } from "../storyStatus";
-import { addToDB, getFromDB } from "../../utils";
+import { addMediaToDB, getMediaFromDB } from "../../utils";
 import { getResourceFromLocalFile } from "../../utils";
 import { allowedMimeTypes } from "../../consts";
 
@@ -69,7 +69,7 @@ function useStoryImport() {
         ];
       });
 
-      const filesInDB = await getFromDB();
+      const filesInDB = await getMediaFromDB();
       const mediaTitles = filesInDB.map((mediaItem) => mediaItem.alt);
 
       // upload each file while updating its URL in new story state.
@@ -166,12 +166,12 @@ function useStoryImport() {
                   posterItem.src;
                 mediaItem.posterId = posterItem.id;
 
-                await addToDB(posterItem);
+                await addMediaToDB(posterItem);
               }
             }
           }
           elementsInImportedStory[elementIndex].resource.src = mediaSrc;
-          await addToDB(mediaItem);
+          await addMediaToDB(mediaItem);
         })
       );
 

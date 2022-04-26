@@ -110,13 +110,20 @@ module.exports = {
   },
   output: {
     publicPath: isGhPages ? "/web-story-creation-tool/" : "/",
-    path: path.resolve(__dirname, "./build/playground"),
-    filename: "js/[name].js",
+    path: path.resolve(__dirname, "./build"),
+    filename: "js/[name].bundle.js",
+  },
+  optimization: {
+    splitChunks: {
+      chunks: "all",
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./public/index.html",
-      favicon: `./public/favicon.ico`,
+      inject: true,
+      template: `./public/index.html`,
+      filename: `index.html`,
+      favicon: "./public/favicon.ico",
     }),
     new MiniCssExtractPlugin({
       filename: "css/[name].css",
@@ -128,10 +135,6 @@ module.exports = {
       patterns: [
         {
           from: "./public/preview.html",
-          to: "",
-        },
-        {
-          from: "./public/favicon.ico",
           to: "",
         },
         {
@@ -148,19 +151,14 @@ module.exports = {
   devServer: {
     compress: true,
     port: 8000,
+    historyApiFallback: true,
   },
 };
 
 if (isProduction) {
-  module.exports.module.rules.push({
-    test: /\.js$/,
-    use: ["source-map-loader"],
-    enforce: "pre",
-  });
-
   module.exports.plugins.push(
     new WorkboxWebpackPlugin.InjectManifest({
-      swSrc: "./packages/playground-story-editor/src/src-sw.js",
+      swSrc: "./src-sw.js",
       swDest: "sw.js",
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // main.js is 4.2 mb, and would be ignored.
     })

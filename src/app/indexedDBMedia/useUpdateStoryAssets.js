@@ -7,7 +7,7 @@ import { useStory } from "@googleforcreators/story-editor";
  * Internal dependencies
  */
 import { useEffect, useRef } from "react";
-import { getFromDB } from "../../utils";
+import { getMediaFromDB } from "../../utils";
 import { useStoryStatus } from "../storyStatus";
 
 const useUpdateStoryAssets = () => {
@@ -30,7 +30,7 @@ const useUpdateStoryAssets = () => {
       });
     });
 
-    const mediaListInDb = await getFromDB();
+    const mediaListInDb = await getMediaFromDB();
 
     mediaListInDb.forEach((mediaItemInDb) => {
       elementsList.forEach(async (element) => {
