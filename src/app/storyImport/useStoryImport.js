@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useSnackbar } from "@googleforcreators/design-system";
-import { useStory } from "@googleforcreators/story-editor";
+import { useStory, useLocalMedia } from "@googleforcreators/story-editor";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
 /**
@@ -20,6 +20,10 @@ function useStoryImport() {
   const {
     actions: { updateIsImporting },
   } = useStoryStatus(({ actions }) => ({ actions }));
+
+  const {
+    actions: { resetWithFetch },
+  } = useLocalMedia(({ actions }) => ({ actions }));
 
   const { restore } = useStory((state) => ({
     restore: state.internal.restore,
@@ -96,9 +100,10 @@ function useStoryImport() {
           }
 
           //ignore if file with same name already in DB
-          if (mediaTitles.includes(resource?.title)) {
+
+          if (mediaTitles.includes(resource?.alt)) {
             const mediaAlreadyInDB = filesInDB.find(
-              (mediaInDB) => mediaInDB.alt === resource?.title
+              (mediaInDB) => mediaInDB.alt === resource?.alt
             );
 
             elementsInImportedStory[elementIndex].resource.src =
@@ -106,7 +111,7 @@ function useStoryImport() {
 
             if (mediaAlreadyInDB.type === "video") {
               const posterItem = filesInDB.find(
-                (m) => m.id === mediaAlreadyInDB.poster
+                (m) => m.id === mediaAlreadyInDB.posterId
               );
               elementsInImportedStory[elementIndex].resource.poster =
                 posterItem.src;
@@ -199,6 +204,8 @@ function useStoryImport() {
 
       restore(stateToRestore);
 
+      resetWithFetch();
+
       updateIsImporting(false);
       showSnackbar({
         message: "Story Imported",
@@ -212,8 +219,10 @@ function useStoryImport() {
   };
 
   const handleFile = async (event) => {
+    console.log(event);
     if (event.target.files.length === 1) {
       await handleImport(event.target.files[0]);
+      event.target.value = "";
     } else {
       showSnackbar({
         message: "Please upload a single file",
