@@ -152,7 +152,7 @@ function MobileButtons() {
           story: btoa(encodeURIComponent(content)),
           timeout: calculateStoryLength(pages, defaultPageDuration),
         };
-        fetch('http://localhost:3000/', {
+        fetch('https://record-ffmpeg.herokuapp.com/', {
           method: 'post',
           mode: 'cors',
           headers: {
