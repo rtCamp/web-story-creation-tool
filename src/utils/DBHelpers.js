@@ -258,7 +258,7 @@ export const addStoryToDB = (storyObj) =>
       transaction.onerror = (event) => {
         reject(event.target.errorCode);
       };
-      transaction.onerror = (event) => {
+      transaction.oncomplete = (event) => {
         resolve();
       };
 
@@ -294,7 +294,7 @@ export const deleteStoryInDB = (storyId) =>
       transaction.onerror = (event) => {
         reject(event.target.errorCode);
       };
-      transaction.onerror = (event) => {
+      transaction.oncomplete = (event) => {
         resolve();
       };
 
