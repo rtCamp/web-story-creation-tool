@@ -22,8 +22,7 @@ function getPreviewLink() {
     location.protocol +
     "//" +
     location.host +
-    location.pathname +
-    "preview.html"
+    "/preview.html"
   );
 }
 
