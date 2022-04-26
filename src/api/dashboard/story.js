@@ -1,4 +1,5 @@
-import { getStoriesInDB } from "../../utils";
+import { deleteStoryInDB, getStoriesInDB, updateStoryInDB } from "../../utils";
+import { getStoryById } from "../editor";
 
 export const fetchStories = async () => {
   const stories = await getStoriesInDB();
@@ -10,7 +11,7 @@ export const fetchStories = async () => {
       author: story.author,
       capabilities: {
         hasEditAction: true,
-        hasDeleteAction: false,
+        hasDeleteAction: true,
       },
       id: story.storyId,
       created: story?.created,
@@ -42,7 +43,9 @@ export const fetchStories = async () => {
  * @param {number|string} storyId Story Id.
  * @return {Promise} Request promise.
  */
-export function trashStory(storyId) {}
+export const trashStory = async (storyId) => {
+  await deleteStoryInDB(storyId);
+};
 
 /**
  * Update story.
@@ -50,4 +53,36 @@ export function trashStory(storyId) {}
  * @param {Object} story Story object.
  * @return {Promise} Request promise.
  */
-export function updateStory(story) {}
+export const updateStory = async ({ id, author, title }) => {
+  try {
+    if (!id) {
+      return;
+    }
+    const story = await getStoryById(id);
+    if (author) {
+      story.author = author;
+    }
+    if (title) {
+      story.title = title;
+    }
+    await updateStoryInDB(story);
+    return {
+      author: story.author,
+      capabilities: {
+        hasEditAction: true,
+        hasDeleteAction: true,
+      },
+      id: story.storyId,
+      created: story?.created,
+      createdGMT: story?.createdGMT,
+      editStoryLink: `/editor?id=${story.storyId}`,
+      featuredMediaUrl: story?.featuredMediaUrl,
+      modified: story?.modified,
+      modifiedGMT: story?.modifiedGMT,
+      status: story.status ? story.status : "publish",
+      title: story?.title?.raw,
+    };
+  } catch (error) {
+    throw error;
+  }
+};

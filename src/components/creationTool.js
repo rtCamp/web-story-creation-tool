@@ -34,7 +34,6 @@ const CreationTool = () => {
   const config = useMemo(() => {
     return {
       storyId: id ? id : uuidv4(),
-      autoSaveInterval: 5,
       capabilities: {
         hasUploadMediaAction: true,
       },
@@ -55,7 +54,7 @@ const CreationTool = () => {
 
   useEffect(() => {
     const hydrateStory = async () => {
-      const s = await getStoryById(id);
+      const s = (id)?await getStoryById(id):{};
       setStory(s);
     };
     if (!isInitializingIndexDB) {

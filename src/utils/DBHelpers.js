@@ -273,6 +273,42 @@ export const addStoryToDB = (storyObj) =>
   });
 
 /**
+ * Delete a Story
+ * @param storyObj
+ * @returns {Promise}
+ */
+export const deleteStoryInDB = (storyId) =>
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onerror = (event) => {
+      reject(event.target.errorCode);
+    };
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      const transaction = db.transaction(
+        [STORY_OBJECT_STORE_NAME],
+        "readwrite"
+      );
+
+      transaction.onerror = (event) => {
+        reject(event.target.errorCode);
+      };
+      transaction.onerror = (event) => {
+        resolve();
+      };
+
+      const objectStore = transaction.objectStore("stories");
+
+      const request = objectStore.delete(storyId);
+
+      request.onerror = () => {
+        reject(event.target.errorCode);
+      };
+    };
+  });
+
+/**
  * Update a Story
  * @param storyObj
  * @returns {Promise}
@@ -365,31 +401,31 @@ export const getStoryIdsInDB = () =>
     };
   });
 
-  /**
+/**
  * Get all stories in DB
  * @param storyObj
  * @returns {Promise}
  */
 export const getStoriesInDB = () =>
-new Promise((resolve, reject) => {
-  const request = indexedDB.open(DB_NAME);
-  request.onerror = (event) => {
-    reject(event.target.errorCode);
-  };
-  request.onsuccess = (event) => {
-    const db = event.target.result;
-
-    const objectStore = db
-      .transaction([STORY_OBJECT_STORE_NAME], "readwrite")
-      .objectStore(STORY_OBJECT_STORE_NAME);
-
-    const getRequest = objectStore.getAll();
-
-    getRequest.onerror = (event) => {
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onerror = (event) => {
       reject(event.target.errorCode);
     };
-    getRequest.onsuccess = (event) => {
-      resolve(event.target.result);
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      const objectStore = db
+        .transaction([STORY_OBJECT_STORE_NAME], "readwrite")
+        .objectStore(STORY_OBJECT_STORE_NAME);
+
+      const getRequest = objectStore.getAll();
+
+      getRequest.onerror = (event) => {
+        reject(event.target.errorCode);
+      };
+      getRequest.onsuccess = (event) => {
+        resolve(event.target.result);
+      };
     };
-  };
-});
+  });

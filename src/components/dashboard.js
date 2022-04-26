@@ -7,7 +7,7 @@ import { Dashboard, InterfaceSkeleton } from "@googleforcreators/dashboard";
 /**
  * Internal dependencies
  */
-import { fetchStories } from "../api/dashboard";
+import { fetchStories, updateStory, trashStory } from "../api/dashboard";
 import { GlobalStyle } from "./theme";
 
 const CustomDashboard = () => {
@@ -15,6 +15,8 @@ const CustomDashboard = () => {
     newStoryURL: `/editor`,
     apiCallbacks: {
       fetchStories,
+      updateStory,
+      trashStory,
     },
   };
 
