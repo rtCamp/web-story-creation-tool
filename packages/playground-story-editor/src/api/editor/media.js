@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint-disable eslint-comments/disable-enable-pair -- to enable the below exemption */
-
-/* eslint-disable no-useless-catch -- just need to avoid unnecessary eslinting*/
 /**
  * External dependencies
  */
@@ -25,42 +22,38 @@ import { v4 as uuidv4 } from 'uuid';
  * Internal dependencies
  */
 import {
-  getFromDB,
-  updateInDB,
-  deleteInDB,
-  addToDB,
+  getMediaFromDB,
+  updateMediaInDB,
+  deleteMediaInDB,
+  addMediaToDB,
   getResourceFromLocalFile,
-} from '../utils';
+} from '../../utils';
 
 export const getMedia = async ({ mediaType, searchTerm }) => {
-  try {
-    let filteredMedia = await getFromDB();
+  let filteredMedia = await getMediaFromDB();
 
-    // remove poster
+  // remove poster
 
+  filteredMedia = filteredMedia.filter(
+    (mediaItem) => mediaItem.mediaSource !== 'poster-generation'
+  );
+  if (mediaType) {
     filteredMedia = filteredMedia.filter(
-      (mediaItem) => mediaItem.mediaSource !== 'poster-generation'
+      (mediaItem) => mediaType === mediaItem.type
     );
-    if (mediaType) {
-      filteredMedia = filteredMedia.filter(
-        (mediaItem) => mediaType === mediaItem.type
-      );
-    }
-    if (searchTerm) {
-      filteredMedia = filteredMedia.filter((mediaItem) =>
-        mediaItem.title.includes(searchTerm)
-      );
-    }
-    return {
-      data: filteredMedia,
-      headers: {
-        totalItems: filteredMedia.length,
-        totalPages: 1,
-      },
-    };
-  } catch (error) {
-    throw error;
   }
+  if (searchTerm) {
+    filteredMedia = filteredMedia.filter((mediaItem) =>
+      mediaItem.title.includes(searchTerm)
+    );
+  }
+  return {
+    data: filteredMedia,
+    headers: {
+      totalItems: filteredMedia.length,
+      totalPages: 1,
+    },
+  };
 };
 
 export const uploadMedia = async (file, additionalData) => {
@@ -78,32 +71,24 @@ export const uploadMedia = async (file, additionalData) => {
   if (additionalData?.mediaSource === 'poster-generation') {
     // if a Poster is being uploaded update respective video asset
     const videoMediaId = additionalData.mediaId;
-    await updateInDB(videoMediaId, {
+    await updateMediaInDB(videoMediaId, {
       posterId: mediaData.id,
       modifiedAt: new Date().getTime(),
     });
   }
-  await addToDB(mediaData);
+  await addMediaToDB(mediaData);
 };
 
 export const updateMedia = async (mediaId, data) => {
-  try {
-    await updateInDB(mediaId, data);
-  } catch (error) {
-    throw error;
-  }
+  await updateMediaInDB(mediaId, data);
 };
 
 export const deleteMedia = async (mediaId) => {
-  try {
-    const mediaItemsInDB = await getFromDB();
-    const mediaItem = mediaItemsInDB.find((m) => m.id === mediaId);
+  const mediaItemsInDB = await getMediaFromDB();
+  const mediaItem = mediaItemsInDB.find((m) => m.id === mediaId);
 
-    if (mediaItem.type === 'video') {
-      await deleteInDB(mediaItem.posterId);
-    }
-    await deleteInDB(mediaId);
-  } catch (error) {
-    throw error;
+  if (mediaItem.type === 'video') {
+    await deleteMediaInDB(mediaItem.posterId);
   }
+  await deleteMediaInDB(mediaId);
 };

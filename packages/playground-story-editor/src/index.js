@@ -18,26 +18,52 @@
  */
 import { render } from '@googleforcreators/react';
 import styled from 'styled-components';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 /**
  * Internal dependencies
  */
-import '../public/main.css';
 import registerServiceWorker from './serviceWorkerRegistration';
 import CreationTool from './components/creationTool';
-import { StoryStatusProvider } from './app/storyStatus';
+import { StoryStatusProvider, useStoryStatus } from './app/storyStatus';
+import Dashboard from './components/dashboard';
+import useIndexedDBMedia from './app/IndexedDBMedia/useIndexedDBMedia';
 
 const AppContainer = styled.div`
   height: 100vh;
 `;
 
+const Editor = () => (
+  <AppContainer>
+    <CreationTool />
+  </AppContainer>
+);
+
+const App = () => {
+  useIndexedDBMedia();
+  const { isInitializingIndexDB, isRefreshingMedia } = useStoryStatus(
+    ({ state }) => ({
+      isInitializingIndexDB: state.isInitializingIndexDB,
+      isRefreshingMedia: state.isRefreshingMedia,
+    })
+  );
+  return !isInitializingIndexDB && !isRefreshingMedia ? (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="editor" element={<Editor />} />
+      </Routes>
+    </BrowserRouter>
+  ) : (
+    <p>{'Please wait'}</p>
+  );
+};
+
 const initEditor = () => {};
 render(
-  <AppContainer>
-    <StoryStatusProvider>
-      <CreationTool />
-    </StoryStatusProvider>
-  </AppContainer>,
+  <StoryStatusProvider>
+    <App />
+  </StoryStatusProvider>,
   document.getElementById('playground-root')
 );
 

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-export { saveStoryById } from './story';
-export { getFonts } from './fonts';
+export * from './story';
+export * from './fonts';
 export * from './media';

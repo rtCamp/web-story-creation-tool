@@ -17,14 +17,15 @@
 /**
  * External dependencies
  */
+
 import { useEffect, useCallback } from '@googleforcreators/react';
 /**
  * Internal dependencies
  */
 import {
-  getFromDB,
+  getMediaFromDB,
   initDB,
-  replaceInDB,
+  replaceMediaInDB,
   getResourceFromLocalFile,
 } from '../../utils';
 import { useStoryStatus } from '../storyStatus';
@@ -36,9 +37,10 @@ const useIndexedDBMedia = () => {
       updateIsRefreshingMedia: actions.updateIsRefreshingMedia,
     }));
 
-  const _refreshMedia = useCallback(async () => {
-    const mediaInDB = await getFromDB();
+  const _refreshMedia = async () => {
+    const mediaInDB = await getMediaFromDB();
     const newData = [];
+
     await Promise.all(
       mediaInDB.map(async (mediaItem) => {
         if (mediaItem.mediaSource === 'poster-generation') {
@@ -63,8 +65,8 @@ const useIndexedDBMedia = () => {
         newData.push(updatedMediaItem);
       })
     );
-    await replaceInDB(newData);
-  }, []);
+    await replaceMediaInDB(newData);
+  };
 
   const _onMountRoutine = useCallback(async () => {
     updateIsInitializingIndexDB(true);
@@ -74,7 +76,7 @@ const useIndexedDBMedia = () => {
     updateIsRefreshingMedia(true);
     await _refreshMedia();
     updateIsRefreshingMedia(false);
-  }, [_refreshMedia, updateIsInitializingIndexDB, updateIsRefreshingMedia]);
+  }, [updateIsInitializingIndexDB, updateIsRefreshingMedia]);
 
   useEffect(() => {
     _onMountRoutine();

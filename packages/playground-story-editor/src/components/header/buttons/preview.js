@@ -37,13 +37,7 @@ const ButtonContainer = styled.div`
 `;
 
 function getPreviewLink() {
-  return (
-    location.protocol +
-    '//' +
-    location.host +
-    location.pathname +
-    'preview.html'
-  );
+  return '/preview.html';
 }
 const PREVIEW_TARGET = 'story-preview';
 function Preview() {

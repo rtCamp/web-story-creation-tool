@@ -66,13 +66,7 @@ const ACTION_OPTIONS = [
 ];
 const PREVIEW_TARGET = 'story-preview';
 function getPreviewLink() {
-  return (
-    location.protocol +
-    '//' +
-    location.host +
-    location.pathname +
-    'preview.html'
-  );
+  return '/preview.html';
 }
 function MobileButtons() {
   const [selectedValue, setSelectedValue] = useState(1);

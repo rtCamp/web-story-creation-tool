@@ -16,15 +16,15 @@
 /**
  * External dependencies
  */
-import { useMemo } from '@googleforcreators/react';
+import { useEffect, useMemo, useState } from '@googleforcreators/react';
 import { StoryEditor } from '@googleforcreators/story-editor';
 import { elementTypes } from '@googleforcreators/element-library';
 import { registerElementType } from '@googleforcreators/elements';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Internal dependencies
  */
-import { LOCAL_STORAGE_CONTENT_KEY } from '../consts';
 import {
   saveStoryById,
   getFonts,
@@ -32,28 +32,24 @@ import {
   updateMedia,
   deleteMedia,
   uploadMedia,
-} from '../api';
-import useIndexedDBMedia from '../app/IndexedDBMedia/useIndexedDBMedia';
+  getStoryById,
+} from '../api/editor';
 import { useStoryStatus } from '../app/storyStatus';
-import MediaUpload from './MediaUpload';
 import Layout from './layout';
-
-function getInitialStory() {
-  const savedStory = window.localStorage.getItem(LOCAL_STORAGE_CONTENT_KEY);
-  return savedStory ? JSON.parse(savedStory) : {};
-}
+import MediaUpload from './MediaUpload';
 
 const CreationTool = () => {
-  useIndexedDBMedia();
-  const { isInitializingIndexDB, isRefreshingMedia } = useStoryStatus(
-    ({ state }) => ({
-      isInitializingIndexDB: state.isInitializingIndexDB,
-      isRefreshingMedia: state.isRefreshingMedia,
-    })
-  );
+  const url = new URL(window.location.href);
+  const id = url.searchParams.get('id');
+  const { isInitializingIndexDB } = useStoryStatus(({ state }) => ({
+    isInitializingIndexDB: state.isInitializingIndexDB,
+  }));
+
+  const [story, setStory] = useState();
+
   const config = useMemo(() => {
     return {
-      autoSaveInterval: 5,
+      storyId: id ? id : uuidv4(),
       capabilities: {
         hasUploadMediaAction: true,
       },
@@ -68,17 +64,28 @@ const CreationTool = () => {
       },
       MediaUpload,
     };
-  }, []);
+  }, [id]);
 
   elementTypes.forEach(registerElementType);
 
-  return !isInitializingIndexDB && !isRefreshingMedia ? (
-    <StoryEditor config={config} initialEdits={{ story: getInitialStory() }}>
+  useEffect(() => {
+    const hydrateStory = async () => {
+      const s = id ? await getStoryById(id) : {};
+      setStory(s);
+    };
+    if (!isInitializingIndexDB) {
+      hydrateStory();
+    }
+  }, [isInitializingIndexDB, id]);
+
+  if (!story) {
+    return <p>{'Please wait'}</p>;
+  }
+
+  return (
+    <StoryEditor config={config} initialEdits={{ story }}>
       <Layout />
     </StoryEditor>
-  ) : (
-    // eslint-disable-next-line react/jsx-no-literals -- just because i dont want eslint to catch this error.
-    <p>Please wait</p>
   );
 };
 

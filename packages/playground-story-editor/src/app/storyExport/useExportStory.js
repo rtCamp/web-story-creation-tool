@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * External dependencies
  */
-import { renderToStaticMarkup } from '@googleforcreators/react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { DATA_VERSION } from '@googleforcreators/migration';
@@ -24,6 +24,7 @@ import { useSnackbar } from '@googleforcreators/design-system';
 import { useStory, getStoryPropsToSave } from '@googleforcreators/story-editor';
 import { OutputStory } from '@googleforcreators/output';
 import { PAGE_RATIO, PAGE_WIDTH } from '@googleforcreators/units';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 /**
  * Internal dependencies
@@ -141,10 +142,10 @@ function useExportStory() {
     zip.file('config.json', JSON.stringify(storyData));
 
     const readMeText = `
-  Uploading ad to google ad manager:
-  1. Choose "Code Type" as "AMP", copy the entire content of index.html without formatting and paste it inside the "AMP HTML" textbox.
-  2. Your local uploaded assets of the story ad have been downloaded as part of the zip and have a relative path in index.html, please upload those assets and change its file path by inserting macros. If you have used external assets, they would have direct external links in html. 
-      `;
+   Uploading ad to google ad manager:
+   1. Choose "Code Type" as "AMP", copy the entire content of index.html without formatting and paste it inside the "AMP HTML" textbox.
+   2. Your local uploaded assets of the story ad have been downloaded as part of the zip and have a relative path in index.html, please upload those assets and change its file path by inserting macros. If you have used external assets, they would have direct external links in html. 
+       `;
 
     zip.file('index.html', markup);
     zip.file('README.txt', readMeText);

@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint-disable eslint-comments/disable-enable-pair -- to enable the below exemption */
 
-/* eslint-disable no-shadow -- scope chaining */
 /**
  * Internal dependencies
  */
@@ -24,11 +22,13 @@ import {
   DB_VERSION,
   ASSET_OBJECT_KEY,
   ASSET_OBJECT_STORE_NAME,
+  STORY_OBJECT_STORE_NAME,
 } from '../consts';
+
 /**
- * instantiates Indexed DB and add an empty array for assets.
+ * Instantiates Indexed DB ,adds asset and story stoe and add an empty array for assets.
  *
- * @return { void } Foo.
+ * @return {void} void
  */
 export const initDB = () =>
   new Promise((resolve, reject) => {
@@ -47,6 +47,9 @@ export const initDB = () =>
         }
       );
       storage.add([], ASSET_OBJECT_KEY);
+      event.target.result.createObjectStore(STORY_OBJECT_STORE_NAME, {
+        keyPath: 'storyId',
+      });
     };
   });
 
@@ -55,7 +58,7 @@ export const initDB = () =>
  *
  * @return {Promise<[mediaItem]>} A promise which will resolve into an array of media stored in indexedDB
  */
-export const getFromDB = () =>
+export const getMediaFromDB = () =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
     request.onerror = (event) => {
@@ -63,15 +66,15 @@ export const getFromDB = () =>
     };
     request.onsuccess = (event) => {
       const db = event.target.result;
-      const request = db
+      const getRequest = db
         .transaction([ASSET_OBJECT_STORE_NAME])
         .objectStore(ASSET_OBJECT_STORE_NAME)
         .get(ASSET_OBJECT_KEY);
-      request.onerror = (event) => {
-        reject(event.target.errorCode);
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
       };
-      request.onsuccess = (event) => {
-        resolve(event.target.result);
+      getRequest.onsuccess = (getEvent) => {
+        resolve(getEvent.target.result);
       };
     };
   });
@@ -79,11 +82,11 @@ export const getFromDB = () =>
 /**
  * Update media item.
  *
- * @param {number }mediaId Id of media item which needs to be updated.
- * @param {string} data New data for media ( Currently supports only `altText` and `baseColor` )
+ * @param mediaId Id of media item which needs to be updated.
+ * @param data New data for media ( Currently supports only `altText` and `baseColor` )
  * @return {Promise<[mediaItem]>} A promise which will resolve after updating media Item in indexedDB
  */
-export const updateInDB = (mediaId, data) =>
+export const updateMediaInDB = (mediaId, data) =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
     request.onerror = (event) => {
@@ -98,11 +101,11 @@ export const updateInDB = (mediaId, data) =>
 
       const getRequest = objectStore.get(ASSET_OBJECT_KEY);
 
-      getRequest.onerror = (event) => {
-        reject(event.target.errorCode);
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
       };
-      getRequest.onsuccess = (event) => {
-        const prevMediaList = event.target.result;
+      getRequest.onsuccess = (getEvent) => {
+        const prevMediaList = getEvent.target.result;
 
         const newMediaList = prevMediaList.map((mediaItem) => {
           if (mediaItem.id === mediaId) {
@@ -127,8 +130,8 @@ export const updateInDB = (mediaId, data) =>
           }
         });
         const requestUpdate = objectStore.put(newMediaList, ASSET_OBJECT_KEY);
-        requestUpdate.onerror = (event) => {
-          reject(event.target.errorCode);
+        requestUpdate.onerror = (updateEvent) => {
+          reject(updateEvent.target.errorCode);
         };
         requestUpdate.onsuccess = () => {
           resolve();
@@ -140,10 +143,10 @@ export const updateInDB = (mediaId, data) =>
 /**
  * Replace the whole media list.
  *
- * @param {Array} replacementMediaList New media list.
+ * @param replacementMediaList New media list.
  * @return {Promise<[mediaItem]>} A promise which will resolve after updating media list in indexedDB
  */
-export const replaceInDB = (replacementMediaList) =>
+export const replaceMediaInDB = (replacementMediaList) =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
     request.onerror = (event) => {
@@ -158,16 +161,16 @@ export const replaceInDB = (replacementMediaList) =>
 
       const getRequest = objectStore.get(ASSET_OBJECT_KEY);
 
-      getRequest.onerror = (event) => {
-        reject(event.target.errorCode);
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
       };
       getRequest.onsuccess = () => {
         const requestUpdate = objectStore.put(
           replacementMediaList,
           ASSET_OBJECT_KEY
         );
-        requestUpdate.onerror = (event) => {
-          reject(event.target.errorCode);
+        requestUpdate.onerror = (updateEvent) => {
+          reject(updateEvent.target.errorCode);
         };
         requestUpdate.onsuccess = () => {
           resolve();
@@ -179,10 +182,10 @@ export const replaceInDB = (replacementMediaList) =>
 /**
  * Delete a media item in indexedDB
  *
- * @param {number} mediaId Id of the media element which needs to be deleted.
+ * @param mediaId Id of the media element which needs to be deleted.
  * @return {Promise<[mediaItem]>} A promise which will resolve after deleting media item in indexedDB
  */
-export const deleteInDB = (mediaId) =>
+export const deleteMediaInDB = (mediaId) =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
     request.onerror = (event) => {
@@ -197,18 +200,18 @@ export const deleteInDB = (mediaId) =>
 
       const getRequest = objectStore.get(ASSET_OBJECT_KEY);
 
-      getRequest.onerror = (event) => {
-        reject(event.target.errorCode);
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
       };
-      getRequest.onsuccess = (event) => {
-        const prevMediaList = event.target.result;
+      getRequest.onsuccess = (getEvent) => {
+        const prevMediaList = getEvent.target.result;
 
         const newMediaList = prevMediaList.filter(
           (mediaItem) => mediaId !== mediaItem.id
         );
         const requestUpdate = objectStore.put(newMediaList, ASSET_OBJECT_KEY);
-        requestUpdate.onerror = (event) => {
-          reject(event.target.errorCode);
+        requestUpdate.onerror = (updateEvent) => {
+          reject(updateEvent.target.errorCode);
         };
         requestUpdate.onsuccess = () => {
           resolve();
@@ -220,10 +223,10 @@ export const deleteInDB = (mediaId) =>
 /**
  * Add a media item in indexedDB
  *
- * @param {Object} mediaItem Media Item which needs to be added in indexedDB.
+ * @param mediaItem Media Item which needs to be added in indexedDB.
  * @return {Promise<[mediaItem]>} A promise which will resolve after adding media item in indexedDB
  */
-export const addToDB = (mediaItem) =>
+export const addMediaToDB = (mediaItem) =>
   new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME);
     request.onerror = (event) => {
@@ -238,22 +241,224 @@ export const addToDB = (mediaItem) =>
 
       const getRequest = objectStore.get(ASSET_OBJECT_KEY);
 
-      getRequest.onerror = (event) => {
-        reject(event.target.errorCode);
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
       };
-      getRequest.onsuccess = (event) => {
+      getRequest.onsuccess = () => {
         const prevMediaList = event.target.result;
 
         const requestUpdate = objectStore.put(
           [...prevMediaList, mediaItem],
           ASSET_OBJECT_KEY
         );
-        requestUpdate.onerror = (event) => {
-          reject(event.target.errorCode);
+        requestUpdate.onerror = (updateEvent) => {
+          reject(updateEvent.target.errorCode);
         };
         requestUpdate.onsuccess = () => {
           resolve();
         };
+      };
+    };
+  });
+
+/**
+ * Add a new Story
+ *
+ * @param storyObj
+ * @return {Promise}
+ */
+export const addStoryToDB = (storyObj) =>
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onerror = (event) => {
+      reject(event.target.errorCode);
+    };
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      const transaction = db.transaction(
+        [STORY_OBJECT_STORE_NAME],
+        'readwrite'
+      );
+
+      transaction.onerror = (transactionEvent) => {
+        reject(transactionEvent.target.errorCode);
+      };
+      transaction.oncomplete = () => {
+        resolve();
+      };
+
+      const objectStore = transaction.objectStore('stories');
+
+      const addRequest = objectStore.add(storyObj);
+
+      addRequest.onerror = (addEvent) => {
+        reject(addEvent.target.errorCode);
+      };
+    };
+  });
+
+/**
+ * Delete a Story
+ *
+ * @param storyObj
+ * @param storyId
+ * @return {Promise}
+ */
+export const deleteStoryInDB = (storyId) =>
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onerror = (event) => {
+      reject(event.target.errorCode);
+    };
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      const transaction = db.transaction(
+        [STORY_OBJECT_STORE_NAME],
+        'readwrite'
+      );
+
+      transaction.onerror = (transactionEvent) => {
+        reject(transactionEvent.target.errorCode);
+      };
+      transaction.oncomplete = () => {
+        resolve();
+      };
+
+      const objectStore = transaction.objectStore('stories');
+
+      const delRequest = objectStore.delete(storyId);
+
+      delRequest.onerror = () => {
+        reject(event.target.errorCode);
+      };
+    };
+  });
+
+/**
+ * Update a Story
+ *
+ * @param storyObj
+ * @return {Promise}
+ */
+export const updateStoryInDB = (storyObj) =>
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onerror = (event) => {
+      reject(event.target.errorCode);
+    };
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      const objectStore = db
+        .transaction([STORY_OBJECT_STORE_NAME], 'readwrite')
+        .objectStore(STORY_OBJECT_STORE_NAME);
+
+      const getRequest = objectStore.get(storyObj.storyId);
+
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
+      };
+      getRequest.onsuccess = () => {
+        const requestUpdate = objectStore.put(storyObj);
+        requestUpdate.onerror = (updateEvent) => {
+          reject(updateEvent.target.errorCode);
+        };
+        requestUpdate.onsuccess = () => {
+          resolve();
+        };
+      };
+    };
+  });
+
+/**
+ * Get a Story
+ *
+ * @param storyObj
+ * @param storyId
+ * @return {Promise}
+ */
+export const getStoryInDB = (storyId) =>
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onerror = (event) => {
+      reject(event.target.errorCode);
+    };
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      const objectStore = db
+        .transaction([STORY_OBJECT_STORE_NAME], 'readwrite')
+        .objectStore(STORY_OBJECT_STORE_NAME);
+
+      const getRequest = objectStore.get(storyId);
+
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
+      };
+      getRequest.onsuccess = (getEvent) => {
+        resolve(getEvent.target.result);
+      };
+    };
+  });
+
+/**
+ * Get Ids of all stories in DB
+ *
+ * @param storyObj
+ * @return {Promise}
+ */
+export const getStoryIdsInDB = () =>
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onerror = (event) => {
+      reject(event.target.errorCode);
+    };
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      const objectStore = db
+        .transaction([STORY_OBJECT_STORE_NAME], 'readwrite')
+        .objectStore(STORY_OBJECT_STORE_NAME);
+
+      const getRequest = objectStore.getAllKeys();
+
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
+      };
+      getRequest.onsuccess = (getEvent) => {
+        resolve(getEvent.target.result);
+      };
+    };
+  });
+
+/**
+ * Get all stories in DB
+ *
+ * @param storyObj
+ * @return {Promise}
+ */
+export const getStoriesInDB = () =>
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onerror = (event) => {
+      reject(event.target.errorCode);
+    };
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      const objectStore = db
+        .transaction([STORY_OBJECT_STORE_NAME], 'readwrite')
+        .objectStore(STORY_OBJECT_STORE_NAME);
+
+      const getRequest = objectStore.getAll();
+
+      getRequest.onerror = (getEvent) => {
+        reject(getEvent.target.errorCode);
+      };
+      getRequest.onsuccess = (getEvent) => {
+        resolve(getEvent.target.result);
       };
     };
   });
