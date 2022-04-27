@@ -143,6 +143,10 @@ function MobileButtons() {
         });
       } else if (value === 4) {
         await saveStory();
+        showSnackbar({
+          message: 'Generating video from markup.',
+          dismissable: true,
+        });
         const content = await doVideoExport({
           pages,
           current,
@@ -157,18 +161,18 @@ function MobileButtons() {
           url: 'https://record-ffmpeg.herokuapp.com/',
           method: 'POST',
           data: data,
+          responseType: 'blob',
         })
-          .then((res) => res.blob())
-          .then((blob) => {
-            const file = window.URL.createObjectURL(blob);
+          .then((res) => {
+            const file = window.URL.createObjectURL(new Blob([res.data]));
             saveAs(file, `${title ? title : 'untitled'}.mp4`);
           })
-          .catch(
+          .catch(() => {
             showSnackbar({
-              message: 'Error in downloading video',
+              message: 'Error in downloading',
               dismissable: true,
-            })
-          );
+            });
+          });
       }
     },
     [
