@@ -41,11 +41,20 @@ const DisplayFormatContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-top: -10px;
+  @media (max-width: 480px) {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+  }
 `;
 
 const StorySortDropdownContainer = styled.div`
   margin: auto 8px;
   align-self: flex-end;
+  @media (max-width: 480px) {
+    margin: 0px;
+    margin-bottom: 10px;
+  }
 `;
 
 const ControlsContainer = styled.div`

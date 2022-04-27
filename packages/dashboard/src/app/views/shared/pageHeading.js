@@ -38,6 +38,11 @@ const HeadingContainer = styled(StandardViewContentGutter)`
   margin-bottom: 16px;
   padding-top: 48px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.divider.secondary};
+  @media (max-width: 480px) {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+  }
 `;
 
 const StyledHeadline = styled(Display)`

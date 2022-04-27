@@ -24,7 +24,12 @@ import styled from 'styled-components';
  */
 import useLayoutContext from './useLayoutContext';
 
-const ScrollContent = styled.div``;
+const ScrollContent = styled.div`
+  @media (max-width: 480px) {
+    display: flex;
+    flex-flow: column;
+  }
+`;
 
 const Scrollable = ({ children }) => {
   const {
