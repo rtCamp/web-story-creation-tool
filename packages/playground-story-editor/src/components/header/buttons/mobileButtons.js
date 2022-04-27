@@ -26,6 +26,7 @@ import { useCallback, useState } from '@googleforcreators/react';
 import { __ } from '@googleforcreators/i18n';
 import { useStory } from '@googleforcreators/story-editor';
 import { css } from 'styled-components';
+import axios from 'axios';
 
 /**
  * Internal dependencies
@@ -75,7 +76,6 @@ function getPreviewLink() {
 }
 function MobileButtons() {
   const [selectedValue, setSelectedValue] = useState(1);
-  const { showSnackbar } = useSnackbar();
   const { saveStory, pages, defaultPageDuration, title, reducerState } =
     useStory(
       ({
@@ -94,6 +94,7 @@ function MobileButtons() {
       })
     );
   const { current, selection, story } = reducerState;
+  const { showSnackbar } = useSnackbar();
   const handleActions = useCallback(
     async (_event, value) => {
       setSelectedValue(value);
@@ -152,19 +153,22 @@ function MobileButtons() {
           story: btoa(encodeURIComponent(content)),
           timeout: calculateStoryLength(pages, defaultPageDuration),
         };
-        fetch('https://record-ffmpeg.herokuapp.com/', {
-          method: 'post',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8',
-          },
-          body: JSON.stringify(data),
+        axios({
+          url: 'https://record-ffmpeg.herokuapp.com/',
+          method: 'POST',
+          data: data,
         })
           .then((res) => res.blob())
           .then((blob) => {
             const file = window.URL.createObjectURL(blob);
             saveAs(file, `${title ? title : 'untitled'}.mp4`);
-          });
+          })
+          .catch(
+            showSnackbar({
+              message: 'Error in downloading video',
+              dismissable: true,
+            })
+          );
       }
     },
     [
