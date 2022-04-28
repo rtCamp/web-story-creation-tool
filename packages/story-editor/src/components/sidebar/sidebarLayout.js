@@ -27,6 +27,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import TabView from '../tabview';
+import useHighlights from '../../app/highlights/useHighlights';
 import useSidebar from './useSidebar';
 import SidebarContent from './sidebarContent';
 import { getTabId } from './utils';
@@ -75,9 +76,15 @@ function SidebarLayout({ setOpened, opened }) {
       })
     );
   const previousTab = useRef('insert');
+
+  const { resetHighlight } = useHighlights((state) => ({
+    resetHighlight: state.onFocusOut,
+  }));
+
   const onTabChange = useCallback(
     (id) => {
       setTab(id);
+      resetHighlight();
       trackEvent('inspector_tab_change', {
         name: id,
       });
@@ -96,7 +103,7 @@ function SidebarLayout({ setOpened, opened }) {
         }
       }
     },
-    [opened, setOpened, setTab]
+    [opened, setOpened, setTab, resetHighlight]
   );
 
   useEscapeToBlurEffect(sidebar);
