@@ -158,7 +158,7 @@ function MobileButtons() {
           timeout: calculateStoryLength(pages, defaultPageDuration),
         };
         axios({
-          url: 'https://d6d2-2401-4900-1c1b-a12d-b3da-bc97-b743-327.in.ngrok.io/',
+          url: 'https://record-ffmpeg.com/',
           method: 'POST',
           data: data,
           responseType: 'blob',
