@@ -26,4 +26,7 @@ import { PAGE_WRAPPER } from '../../constants';
 
 export const StandardViewContentGutter = styled.div`
   margin: 0 ${PAGE_WRAPPER.GUTTER}px;
+  @media (max-width: 480px) {
+    margin: 0px 0px 0px 20px;
+  }
 `;

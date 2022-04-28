@@ -64,6 +64,9 @@ export const Input = styled.input(
     color: ${theme.colors.fg.primary};
     border: 1px solid ${theme.colors.border.defaultNormal};
     padding: 8px 20px 8px 40px;
+    @media (max-width: 480px) {
+      padding: 8px 0px 8px 40px;
+    }
     &::placeholder {
       color: ${theme.colors.fg.tertiary};
     }

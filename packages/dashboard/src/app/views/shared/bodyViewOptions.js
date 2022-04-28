@@ -43,8 +43,9 @@ const DisplayFormatContainer = styled.div`
   margin-top: -10px;
   @media (max-width: 480px) {
     display: flex;
-    flex-flow: column;
-    align-items: flex-start;
+    flex-flow: row;
+    align-items: center;
+    justify-content: space-between;
   }
 `;
 
@@ -65,6 +66,9 @@ const ControlsContainer = styled.div`
 
 const StyledDropDown = styled(DropDown)`
   width: 210px;
+  @media (max-width: 480px) {
+    width: 150px;
+  }
 `;
 
 const BodyViewOptionsHeader = styled.div``;

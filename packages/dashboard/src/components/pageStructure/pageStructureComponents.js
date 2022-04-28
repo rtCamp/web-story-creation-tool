@@ -34,7 +34,7 @@ export const AppFrame = styled.div`
     width: ${MIN_DASHBOARD_WIDTH}px;
   }
   @media (max-width: 480px) {
-    width: 480px;
+    width: 100%;
   }
 `;
 

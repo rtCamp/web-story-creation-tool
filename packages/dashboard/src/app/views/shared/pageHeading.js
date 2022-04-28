@@ -66,6 +66,18 @@ const HeaderSearch = styled.div`
   min-width: 208px;
   margin: auto 0;
   padding-bottom: 24px;
+  @media (max-width: 480px) {
+    width: 140px;
+    max-width: 140px;
+    min-width: 140px;
+  }
+`;
+const MobileViewPortWrapper = styled.div`
+  display: contents;
+  @media (max-width: 480px) {
+    display: flex;
+    flex-flow: row;
+  }
 `;
 
 const PageHeading = ({
@@ -87,19 +99,21 @@ const PageHeading = ({
         <NavMenuButton showOnlyOnSmallViewport />
         {heading}
       </StyledHeadline>
-      {children && <HeadlineFilters>{children}</HeadlineFilters>}
-      {showSearch && (
-        <HeaderSearch>
-          <Search
-            placeholder={searchPlaceholder}
-            selectedValue={{ label: searchValue, value: searchValue }}
-            options={searchOptions}
-            handleSearchValueChange={handleSearchChange}
-            onClear={onClear}
-            emptyText={__('No options available', 'web-stories')}
-          />
-        </HeaderSearch>
-      )}
+      <MobileViewPortWrapper>
+        {children && <HeadlineFilters>{children}</HeadlineFilters>}
+        {showSearch && (
+          <HeaderSearch>
+            <Search
+              placeholder={searchPlaceholder}
+              selectedValue={{ label: searchValue, value: searchValue }}
+              options={searchOptions}
+              handleSearchValueChange={handleSearchChange}
+              onClear={onClear}
+              emptyText={__('No options available', 'web-stories')}
+            />
+          </HeaderSearch>
+        )}
+      </MobileViewPortWrapper>
     </HeadingContainer>
   );
 };
