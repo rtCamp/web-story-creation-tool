@@ -235,7 +235,12 @@ function FontPreview({ title, element, insertPreset, getPosition, index }) {
   const [active, setActive] = useState(false);
   const makeActive = () => setActive(true);
   const makeInactive = () => setActive(false);
-
+  const mobileClickHandler= useCallback(()=>{
+    if(window.matchMedia('(max-width:480px)').matches){
+      setActive(true);
+      onClick();
+    }
+  },[onClick])
   return (
     <Preview
       ref={buttonRef}
@@ -245,6 +250,7 @@ function FontPreview({ title, element, insertPreset, getPosition, index }) {
       onBlur={makeInactive}
       tabIndex={index === 0 ? 0 : -1}
       isTextSelected={isTextSelected}
+      onClick={mobileClickHandler}
       aria-label={
         isTextSelected
           ? sprintf(

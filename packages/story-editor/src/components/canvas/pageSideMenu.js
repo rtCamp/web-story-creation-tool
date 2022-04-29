@@ -76,7 +76,6 @@ function PageSideMenu() {
   const quickActions = useQuickActions();
 
   const isZoomed = zoomSetting !== ZOOM_SETTING.FIT;
-
   return (
     <MenusWrapper
       aria-label={__('Page side menu', 'web-stories')}
@@ -116,12 +115,27 @@ function PageSideMenu() {
                     {separator === 'top' && (
                       <ContextMenuComponents.MenuSeparator />
                     )}
-                    <Tooltip placement={tooltipPlacement} title={label}>
-                      <ContextMenuComponents.MenuButton
+                    {!window.matchMedia('(max-width:480px)').matches ?
+                      <Tooltip placement={tooltipPlacement} title={label}>
+                        <ContextMenuComponents.MenuButton
+                          aria-label={label}
+                          onClick={(evt) => {
+                            onClick(evt);
+                            
+                            externalOnClick(evt);
+                          }}
+                          {...quickAction}
+                        >
+                          <ContextMenuComponents.MenuIcon title={label}>
+                            <Icon />
+                          </ContextMenuComponents.MenuIcon>
+                        </ContextMenuComponents.MenuButton>
+                      </Tooltip>
+                      :
+                        <ContextMenuComponents.MenuButton
                         aria-label={label}
                         onClick={(evt) => {
                           onClick(evt);
-
                           externalOnClick(evt);
                         }}
                         {...quickAction}
@@ -130,7 +144,7 @@ function PageSideMenu() {
                           <Icon />
                         </ContextMenuComponents.MenuIcon>
                       </ContextMenuComponents.MenuButton>
-                    </Tooltip>
+                    }
                     {separator === 'bottom' && (
                       <ContextMenuComponents.MenuSeparator />
                     )}

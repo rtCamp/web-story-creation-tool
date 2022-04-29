@@ -127,6 +127,13 @@ function TextSet(
   const { textSetHeight, textSetWidth } = elements[0];
   const dragWidth = dataToEditorX(textSetWidth, pageWidth);
   const dragHeight = dataToEditorY(textSetHeight, pageHeight);
+  const mobileClickHandler= useCallback(()=>{
+    if(window.matchMedia('(max-width:480px)').matches){
+      setIsHovering(true)
+      onClick();
+      setTimeout(()=>{setIsHovering(false)},20);
+    }
+  },[onClick]);
   return (
     <TextSetItem
       translateX={translateX}
@@ -134,6 +141,7 @@ function TextSet(
       ref={ref}
       onKeyUp={handleKeyboardPageClick}
       onPointerEnter={setHovering}
+      onClick={mobileClickHandler}
       onPointerLeave={unsetHovering}
       tabIndex={index === 0 ? 0 : -1}
       {...rest}
