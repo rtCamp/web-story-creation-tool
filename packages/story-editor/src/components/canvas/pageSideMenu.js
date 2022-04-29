@@ -115,27 +115,12 @@ function PageSideMenu() {
                     {separator === 'top' && (
                       <ContextMenuComponents.MenuSeparator />
                     )}
-                    {!window.matchMedia('(max-width:480px)').matches ?
-                      <Tooltip placement={tooltipPlacement} title={label}>
-                        <ContextMenuComponents.MenuButton
-                          aria-label={label}
-                          onClick={(evt) => {
-                            onClick(evt);
-                            
-                            externalOnClick(evt);
-                          }}
-                          {...quickAction}
-                        >
-                          <ContextMenuComponents.MenuIcon title={label}>
-                            <Icon />
-                          </ContextMenuComponents.MenuIcon>
-                        </ContextMenuComponents.MenuButton>
-                      </Tooltip>
-                      :
-                        <ContextMenuComponents.MenuButton
+                    <Tooltip placement={tooltipPlacement} title={label}>
+                      <ContextMenuComponents.MenuButton
                         aria-label={label}
                         onClick={(evt) => {
                           onClick(evt);
+
                           externalOnClick(evt);
                         }}
                         {...quickAction}
@@ -144,7 +129,7 @@ function PageSideMenu() {
                           <Icon />
                         </ContextMenuComponents.MenuIcon>
                       </ContextMenuComponents.MenuButton>
-                    }
+                    </Tooltip>
                     {separator === 'bottom' && (
                       <ContextMenuComponents.MenuSeparator />
                     )}

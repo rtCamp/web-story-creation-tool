@@ -31,11 +31,18 @@ import { useConfig } from '../../app/config';
 
 export default function Tooltip({
   placement = TOOLTIP_PLACEMENT.BOTTOM,
+  children,
   ...props
 }) {
   const { isRTL } = useConfig();
   const derivedPlacement = isRTL ? TOOLTIP_RTL_PLACEMENT[placement] : placement;
 
-  return <BaseTooltip placement={derivedPlacement} {...props} />;
+  return window.matchMedia('(max-width:480px)').matches ? (
+    children
+  ) : (
+    <BaseTooltip placement={derivedPlacement} {...props}>
+      {children}
+    </BaseTooltip>
+  );
 }
 Tooltip.propTypes = TooltipPropTypes;
