@@ -20,50 +20,29 @@ import { PLACEMENT } from '../constants';
 
 export function getXTransforms(placement, isRTL) {
   // left & right
-  let mobilePlacement;
-  if (
-    window.matchMedia('(max-width:480px)').matches &&
-    (placement === 'right' || placement === 'left')
-  ) {
-    mobilePlacement = PLACEMENT.BOTTOM;
-  } else {
-    mobilePlacement = placement;
-  }
-  if (mobilePlacement.startsWith('left')) {
+  if (placement.startsWith('left')) {
     return isRTL ? 0 : -1;
-  } else if (mobilePlacement.startsWith('right')) {
+  } else if (placement.startsWith('right')) {
     return isRTL ? -1 : 0;
   }
   // top & bottom
-  if (mobilePlacement.endsWith('-start')) {
+  if (placement.endsWith('-start')) {
     return isRTL ? -1 : 0;
-  } else if (mobilePlacement.endsWith('-end')) {
+  } else if (placement.endsWith('-end')) {
     return isRTL ? 0 : -1;
   }
   return -0.5;
 }
 
 export function getYTransforms(placement) {
-  let mobilePlacement;
   if (
-    window.matchMedia('(max-width:480px)').matches &&
-    (placement === 'right' || placement === 'left')
-  ) {
-    mobilePlacement = PLACEMENT.BOTTOM;
-  } else {
-    mobilePlacement = placement;
-  }
-  if (
-    mobilePlacement.startsWith('top') ||
-    mobilePlacement === PLACEMENT.RIGHT_END ||
-    mobilePlacement === PLACEMENT.LEFT_END
+    placement.startsWith('top') ||
+    placement === PLACEMENT.RIGHT_END ||
+    placement === PLACEMENT.LEFT_END
   ) {
     return -1;
   }
-  if (
-    mobilePlacement === PLACEMENT.RIGHT ||
-    mobilePlacement === PLACEMENT.LEFT
-  ) {
+  if (placement === PLACEMENT.RIGHT || placement === PLACEMENT.LEFT) {
     return -0.5;
   }
   return null;
@@ -72,17 +51,8 @@ export function getYTransforms(placement) {
 // note that we cannot use percentage values for transforms, which
 // do not work correctly for rotated elements
 export function getTransforms(placement, isRTL) {
-  let mobilePlacement;
-  if (
-    window.matchMedia('(max-width:480px)').matches &&
-    (placement === 'right' || placement === 'left')
-  ) {
-    mobilePlacement = PLACEMENT.BOTTOM;
-  } else {
-    mobilePlacement = placement;
-  }
-  const xTransforms = getXTransforms(mobilePlacement, isRTL);
-  const yTransforms = getYTransforms(mobilePlacement);
+  const xTransforms = getXTransforms(placement, isRTL);
+  const yTransforms = getYTransforms(placement);
   if (!xTransforms && !yTransforms) {
     return '';
   }
