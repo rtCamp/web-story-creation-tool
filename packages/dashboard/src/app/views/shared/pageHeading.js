@@ -51,6 +51,9 @@ const StyledHeadline = styled(Display)`
   margin-right: 28px;
   padding-bottom: 24px;
   white-space: nowrap;
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
 const HeadlineFilters = styled.div`
@@ -79,7 +82,11 @@ const MobileViewPortWrapper = styled.div`
     flex-flow: row;
   }
 `;
-
+const HeadingWrapper = styled.span`
+  @media (max-width: 480px) {
+    flex-grow: 1;
+  }
+`
 const PageHeading = ({
   children,
   heading,
@@ -97,7 +104,7 @@ const PageHeading = ({
         size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}
       >
         <NavMenuButton showOnlyOnSmallViewport />
-        {heading}
+        <HeadingWrapper>{heading}</HeadingWrapper>
       </StyledHeadline>
       <MobileViewPortWrapper>
         {children && <HeadlineFilters>{children}</HeadlineFilters>}

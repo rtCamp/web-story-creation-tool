@@ -244,9 +244,9 @@ export const addMediaToDB = (mediaItem) =>
       getRequest.onerror = (getEvent) => {
         reject(getEvent.target.errorCode);
       };
-      getRequest.onsuccess = () => {
+      getRequest.onsuccess = (event) => {
         const prevMediaList = event.target.result;
-
+        
         const requestUpdate = objectStore.put(
           [...prevMediaList, mediaItem],
           ASSET_OBJECT_KEY

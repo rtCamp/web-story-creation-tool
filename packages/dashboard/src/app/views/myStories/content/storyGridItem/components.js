@@ -34,6 +34,9 @@ export const CustomCardGridItem = styled(CardGridItem)`
   display: grid;
   grid-template-columns: 100%;
   grid-template-rows: ${({ $posterHeight }) => `${$posterHeight}px auto`};
+  @media screen and (max-width: 480px) {
+    padding: 5px;
+  }
 `;
 CustomCardGridItem.propTypes = {
   $posterHeight: PropTypes.number,

@@ -53,6 +53,7 @@ const TransparentButton = styled.button`
       display: none;
       @media screen and (max-width: ${MIN_DASHBOARD_WIDTH}px) {
         display: inline-block;
+        flex-grow:1;
       }
     `}
 `;
