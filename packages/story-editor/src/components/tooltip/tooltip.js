@@ -27,7 +27,7 @@ import {
 /**
  * Internal dependencies
  */
-import { useConfig } from '../../app/config';
+import { useConfig, useLayout } from '../../app';
 
 export default function Tooltip({
   placement = TOOLTIP_PLACEMENT.BOTTOM,
@@ -36,8 +36,8 @@ export default function Tooltip({
 }) {
   const { isRTL } = useConfig();
   const derivedPlacement = isRTL ? TOOLTIP_RTL_PLACEMENT[placement] : placement;
-
-  return window.matchMedia('(max-width:480px)').matches ? (
+  const { isMobile } = useLayout(({ state: { isMobile } }) => ({ isMobile }));
+  return isMobile ? (
     children
   ) : (
     <BaseTooltip placement={derivedPlacement} {...props}>

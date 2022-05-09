@@ -94,10 +94,11 @@ function TextSet(
 
   const { cdnURL } = useConfig();
 
-  const { pageWidth, pageHeight } = useLayout(
-    ({ state: { pageWidth, pageHeight } }) => ({
+  const { pageWidth, pageHeight, isMobile } = useLayout(
+    ({ state: { pageWidth, pageHeight, isMobile } }) => ({
       pageWidth,
       pageHeight,
+      isMobile,
     })
   );
 
@@ -123,17 +124,19 @@ function TextSet(
   const [isHovering, setIsHovering] = useState(false);
   const setHovering = () => setIsHovering(true);
   const unsetHovering = () => setIsHovering(false);
-
   const { textSetHeight, textSetWidth } = elements[0];
   const dragWidth = dataToEditorX(textSetWidth, pageWidth);
   const dragHeight = dataToEditorY(textSetHeight, pageHeight);
-  const mobileClickHandler= useCallback(()=>{
-    if(window.matchMedia('(max-width:480px)').matches){
-      setIsHovering(true)
+  const mobileClickHandler = useCallback(() => {
+    if (isMobile) {
+      setIsHovering(true);
       onClick();
-      setTimeout(()=>{setIsHovering(false)},20);
+      // eslint-disable-next-line @wordpress/react-no-unsafe-timeout -- this wont affect any functioning of desktop view
+      setTimeout(() => {
+        setIsHovering(false);
+      }, 20);
     }
-  },[onClick]);
+  }, [onClick, isMobile]);
   return (
     <TextSetItem
       translateX={translateX}

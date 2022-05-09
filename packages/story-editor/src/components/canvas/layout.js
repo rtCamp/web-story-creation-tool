@@ -312,6 +312,7 @@ function useLayoutParamsCssVars() {
     hasHorizontalOverflow,
     scrollLeft,
     scrollTop,
+    isMobile,
   } = useLayout(
     ({
       state: {
@@ -325,6 +326,7 @@ function useLayoutParamsCssVars() {
         hasHorizontalOverflow,
         scrollLeft,
         scrollTop,
+        isMobile,
       },
     }) => ({
       pageWidth,
@@ -337,23 +339,16 @@ function useLayoutParamsCssVars() {
       hasHorizontalOverflow,
       scrollLeft,
       scrollTop,
+      isMobile,
     })
   );
   const fullHeight = pageWidth / FULLBLEED_RATIO;
   return {
     '--page-nav-width': `${
-      hasPageNavigation
-        ? PAGE_NAV_WIDTH
-        : window.matchMedia('(max-width:480px)').matches
-        ? 64
-        : 0
+      hasPageNavigation ? PAGE_NAV_WIDTH : isMobile ? 64 : 0
     }px`,
     '--page-nav-gap': `${
-      hasPageNavigation
-        ? PAGE_NAV_GAP
-        : window.matchMedia('(max-width:480px)').matches
-        ? 5
-        : 0
+      hasPageNavigation ? PAGE_NAV_GAP : isMobile ? 5 : 0
     }px`,
     '--page-width-px': `${pageWidth}px`,
     '--page-height-px': `${pageHeight}px`,

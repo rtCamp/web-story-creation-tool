@@ -72,9 +72,10 @@ function PageNav({ isNext = true }) {
     }
   }, [setCurrentPage, currentPageIndex, isNext, pages]);
 
-  const { hasPageNavigation } = useLayout(
-    ({ state: { hasPageNavigation } }) => ({
+  const { hasPageNavigation, isMobile } = useLayout(
+    ({ state: { hasPageNavigation, isMobile } }) => ({
       hasPageNavigation,
+      isMobile,
     })
   );
 
@@ -84,7 +85,7 @@ function PageNav({ isNext = true }) {
   });
 
   // Buttons are completely missing if there's no room for them
-  if (!hasPageNavigation && !window.matchMedia('(max-width:480px)').matches) {
+  if (!hasPageNavigation && isMobile) {
     return false;
   }
 

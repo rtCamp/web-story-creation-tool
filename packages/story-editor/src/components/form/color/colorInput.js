@@ -58,7 +58,7 @@ import {
   focusStyle,
   inputContainerStyleOverride,
 } from '../../panels/shared/styles';
-import { useCanvas, useConfig } from '../../../app';
+import { useCanvas, useConfig, useLayout } from '../../../app';
 
 const Preview = styled.div`
   height: 36px;
@@ -187,7 +187,7 @@ const ColorInput = forwardRef(function ColorInput(
    * the logic for the color input and do its own thing with focus.
    */
   const focusTrapInputRef = useRef();
-
+  const { isMobile } = useLayout(({ state: { isMobile } }) => ({ isMobile }));
   const colorFocusTrapButtonRef = useRef();
   const isMixed = value === MULTIPLE_VALUE;
   value = isMixed ? '' : value;
@@ -349,7 +349,7 @@ const ColorInput = forwardRef(function ColorInput(
         placement={dynamicPlacement}
         spacing={spacing}
         refCallback={positionPlacement}
-        zIndex={window.matchMedia('(max-width:480px)').matches ? 12 : 2}
+        zIndex={isMobile ? 12 : 2}
         renderContents={({ propagateDimensionChange }) => (
           <ColorPicker
             color={isMixed ? null : value}

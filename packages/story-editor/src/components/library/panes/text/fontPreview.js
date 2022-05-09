@@ -40,7 +40,7 @@ import { getHTMLFormatters } from '@googleforcreators/rich-text';
 /**
  * Internal dependencies
  */
-import { useFont, useStory } from '../../../../app';
+import { useFont, useStory, useLayout } from '../../../../app';
 import { useCalculateAccessibleTextColors } from '../../../../app/pageCanvas';
 import StoryPropTypes from '../../../../types';
 import useLibrary from '../../useLibrary';
@@ -103,7 +103,7 @@ function FontPreview({ title, element, insertPreset, getPosition, index }) {
   const {
     actions: { maybeEnqueueFontStyle },
   } = useFont();
-
+  const { isMobile } = useLayout(({ state: { isMobile } }) => ({ isMobile }));
   const { dataToEditorX, dataToEditorY } = useUnits((state) => ({
     dataToEditorX: state.actions.dataToEditorX,
     dataToEditorY: state.actions.dataToEditorY,
@@ -235,12 +235,12 @@ function FontPreview({ title, element, insertPreset, getPosition, index }) {
   const [active, setActive] = useState(false);
   const makeActive = () => setActive(true);
   const makeInactive = () => setActive(false);
-  const mobileClickHandler= useCallback(()=>{
-    if(window.matchMedia('(max-width:480px)').matches){
+  const mobileClickHandler = useCallback(() => {
+    if (isMobile) {
       setActive(true);
       onClick();
     }
-  },[onClick])
+  }, [onClick, isMobile]);
   return (
     <Preview
       ref={buttonRef}

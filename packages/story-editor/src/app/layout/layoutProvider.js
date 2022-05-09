@@ -18,7 +18,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-
+import { useCallback, useEffect, useState } from '@googleforcreators/react';
 /**
  * Internal dependencies
  */
@@ -29,11 +29,23 @@ import useCarouselDrawer from './useCarouselDrawer';
 function LayoutProvider({ children }) {
   const zoomValue = useZoomSetting();
   const carouselDrawer = useCarouselDrawer();
+  const [isMobile, setIsMobile] = useState(
+    window.matchMedia('(max-width:480px)').matches
+  );
+
+  const observeResize = useCallback(() => {
+    setIsMobile(window.matchMedia('(max-width:480px)').matches);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('resize', observeResize);
+  }, [observeResize]);
 
   const value = {
     state: {
       ...zoomValue.state,
       ...carouselDrawer.state,
+      isMobile,
     },
     actions: {
       ...zoomValue.actions,

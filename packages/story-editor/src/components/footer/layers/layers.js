@@ -20,7 +20,7 @@
 import styled from 'styled-components';
 import { useState, useRef } from '@googleforcreators/react';
 import { __, sprintf } from '@googleforcreators/i18n';
-import { PLACEMENT } from '@googleforcreators/design-system';
+import { PLACEMENT, Icons } from '@googleforcreators/design-system';
 /**
  * Internal dependencies
  */
@@ -29,6 +29,7 @@ import { LayerPanel } from '../../panels/design';
 import useLayers from '../../panels/design/layer/useLayers';
 import Popup, { NavigationWrapper } from '../../secondaryPopup';
 import { ToggleButton } from '../../toggleButton';
+import { useConfig } from '../../../app';
 
 const Container = styled.div`
   background-color: ${({ theme }) => theme.colors.bg.secondary};
@@ -39,10 +40,17 @@ const Container = styled.div`
 const StyledNavigationWrapper = styled(NavigationWrapper)`
   width: 260px;
 `;
+const LayersIcon = styled(Icons.Layers)`
+  height: 32px;
+  padding-left: 6px;
+  min-width: 24px;
+  display: block;
+`;
 function Layers() {
   const layersLength = useLayers().length;
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();
+  const { isMobile } = useConfig();
 
   return (
     <>
@@ -57,17 +65,31 @@ function Layers() {
           </Container>
         </StyledNavigationWrapper>
       </Popup>
-      <ToggleButton
-        isOpen={isOpen}
-        notificationCount={layersLength}
-        copy={__('Layers', 'web-stories')}
-        onClick={() => setIsOpen((state) => !state)}
-        aria-label={sprintf(
-          /* translators: %d: number of layers */
-          __('Layers (%d)', 'web-stories'),
-          layersLength
-        )}
-      />
+      {!isMobile ? (
+        <ToggleButton
+          isOpen={isOpen}
+          notificationCount={layersLength}
+          copy={__('Layers', 'web-stories')}
+          onClick={() => setIsOpen((state) => !state)}
+          aria-label={sprintf(
+            /* translators: %d: number of layers */
+            __('Layers (%d)', 'web-stories'),
+            layersLength
+          )}
+        />
+      ) : (
+        <ToggleButton
+          isOpen={isOpen}
+          notificationCount={layersLength}
+          MainIcon={LayersIcon}
+          onClick={() => setIsOpen((state) => !state)}
+          aria-label={sprintf(
+            /* translators: %d: number of layers */
+            __('Layers (%d)', 'web-stories'),
+            layersLength
+          )}
+        />
+      )}
     </>
   );
 }

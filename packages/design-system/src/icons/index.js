@@ -133,3 +133,4 @@ export { default as Union } from './union.svg';
 export { default as Video } from './video.svg';
 export { default as Openup } from './caret_up.svg';
 export { default as Closedown } from './caret_down.svg';
+export { default as Layers } from './layers.svg';
