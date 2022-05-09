@@ -59,7 +59,6 @@ function useInsertElement() {
       const element = createElementForCanvas(type, props);
       const { id, resource } = element;
       addElement({ element });
-
       // Auto-play on insert.
       if (type === 'video' && resource?.src && !resource.isPlaceholder) {
         setTimeout(() => {

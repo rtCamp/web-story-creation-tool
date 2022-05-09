@@ -29,7 +29,7 @@ import { LayerPanel } from '../../panels/design';
 import useLayers from '../../panels/design/layer/useLayers';
 import Popup, { NavigationWrapper } from '../../secondaryPopup';
 import { ToggleButton } from '../../toggleButton';
-import { useConfig } from '../../../app';
+import { useLayout } from '../../../app';
 
 const Container = styled.div`
   background-color: ${({ theme }) => theme.colors.bg.secondary};
@@ -50,7 +50,9 @@ function Layers() {
   const layersLength = useLayers().length;
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();
-  const { isMobile } = useConfig();
+  const { isMobile } = useLayout(({ state: { isMobile } }) => ({
+    isMobile,
+  }));
 
   return (
     <>

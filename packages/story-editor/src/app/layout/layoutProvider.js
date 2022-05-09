@@ -32,13 +32,13 @@ function LayoutProvider({ children }) {
   const [isMobile, setIsMobile] = useState(
     window.matchMedia('(max-width:480px)').matches
   );
-
+  const [opened, setOpened] = useState(false);
   const observeResize = useCallback(() => {
     setIsMobile(window.matchMedia('(max-width:480px)').matches);
   }, []);
 
   useEffect(() => {
-    document.addEventListener('resize', observeResize);
+    window.addEventListener('resize', observeResize);
   }, [observeResize]);
 
   const value = {
@@ -46,10 +46,12 @@ function LayoutProvider({ children }) {
       ...zoomValue.state,
       ...carouselDrawer.state,
       isMobile,
+      opened,
     },
     actions: {
       ...zoomValue.actions,
       ...carouselDrawer.actions,
+      setOpened,
     },
   };
 

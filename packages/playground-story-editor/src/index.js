@@ -30,14 +30,18 @@ import Dashboard from './components/dashboard';
 import useIndexedDBMedia from './app/IndexedDBMedia/useIndexedDBMedia';
 
 const AppContainer = styled.div`
-  height: 100vh;
+  height: ${({ isMobile }) => {
+    return isMobile ? window?.innerHeight + 'px' : '100vh';
+  }};
 `;
 
-const Editor = () => (
-  <AppContainer>
-    <CreationTool />
-  </AppContainer>
-);
+const Editor = () => {
+  return (
+    <AppContainer isMobile={window.matchMedia('(max-width: 480px)').matches}>
+      <CreationTool />
+    </AppContainer>
+  );
+};
 
 const App = () => {
   useIndexedDBMedia();

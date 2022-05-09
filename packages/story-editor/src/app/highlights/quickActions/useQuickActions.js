@@ -41,6 +41,7 @@ import useHighlights from '../useHighlights';
 import updateProperties from '../../../components/style/updateProperties';
 import { useHistory } from '../../history';
 import { useConfig } from '../../config';
+import { useLayout } from '../../layout';
 import { useLocalMedia, TRANSCODABLE_MIME_TYPES } from '../../media';
 import { useStory, useStoryTriggersDispatch, STORY_EVENTS } from '../../story';
 import useApplyTextAutoStyle from '../../../utils/useApplyTextAutoStyle';
@@ -77,7 +78,6 @@ export const MediaPicker = ({ render, ...props }) => {
     },
     MediaUpload,
   } = useConfig();
-
   const { selectedElements, updateElementsById } = useStory(
     ({ state: { selectedElements }, actions: { updateElementsById } }) => ({
       selectedElements,
@@ -248,6 +248,9 @@ const useQuickActions = () => {
     isRTL,
   } = useConfig();
   const dispatchStoryEvent = useStoryTriggersDispatch();
+  const { setOpened } = useLayout(({ actions: { setOpened } }) => ({
+    setOpened,
+  }));
   const {
     backgroundElement,
     selectedElementAnimations,
@@ -391,12 +394,13 @@ const useQuickActions = () => {
   const handleFocusPanel = useCallback(
     (highlight) => (elementId) => (ev) => {
       ev.preventDefault();
+      setOpened(true);
       setHighlights({
         elementId: elementId || selectedElement?.id,
         highlight,
       });
     },
-    [setHighlights, selectedElement]
+    [setOpened, setHighlights, selectedElement?.id]
   );
 
   const handleFocusMediaPanel = useMemo(() => {
