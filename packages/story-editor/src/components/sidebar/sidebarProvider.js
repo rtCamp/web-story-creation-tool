@@ -82,6 +82,7 @@ function SidebarProvider({ sidebarTabs, children }) {
   const [tab, setTab] = useState(INSERT);
   const [users, setUsers] = useState([]);
   const [sidebarContentHeight, setSidebarContentHeight] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarContentRef = useRef();
   const tabRef = useRef(tab);
 
@@ -177,6 +178,7 @@ function SidebarProvider({ sidebarTabs, children }) {
       users,
       sidebarContentHeight,
       isUsersLoading,
+      isSidebarOpen,
     },
     refs: {
       sidebar: sidebarRef,
@@ -185,6 +187,7 @@ function SidebarProvider({ sidebarTabs, children }) {
       setTab,
       loadUsers,
       setSidebarContentNode,
+      setIsSidebarOpen,
     },
     data,
   };

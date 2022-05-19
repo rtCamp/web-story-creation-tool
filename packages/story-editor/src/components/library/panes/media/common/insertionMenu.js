@@ -48,6 +48,7 @@ import useStory from '../../../../../app/story/useStory';
 import { ActionButton } from '../../shared';
 import useRovingTabIndex from '../../../../../utils/useRovingTabIndex';
 import useFocusCanvas from '../../../../canvas/useFocusCanvas';
+import { useSidebar } from '../../../../sidebar';
 
 const DropDownContainer = styled.div`
   margin-top: 10px;
@@ -116,6 +117,10 @@ function InsertionMenu({
     combineElements: state.actions.combineElements,
   }));
 
+  const { setIsSidebarOpen } = useSidebar(({ actions }) => ({
+    setIsSidebarOpen: actions.setIsSidebarOpen,
+  }));
+
   const { type, poster } = resource;
   const insertLabel = ['image', 'gif'].includes(type)
     ? __('Insert image', 'web-stories')
@@ -141,12 +146,14 @@ function InsertionMenu({
     switch (value) {
       case MENU_OPTIONS.INSERT:
         onInsert(resource, thumbnailUrl);
+        setIsSidebarOpen(false);
         break;
       case MENU_OPTIONS.ADD_BACKGROUND:
         combineElements({
           firstElement: newElement,
           secondId: currentBackgroundId,
         });
+        setIsSidebarOpen(false);
         break;
       default:
         break;

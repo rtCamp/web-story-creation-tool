@@ -16,3 +16,5 @@
 
 export { INSERT, DOCUMENT, STYLE } from './constants';
 export { default } from './sidebar';
+export { default as SidebarProvider } from './sidebarProvider';
+export { default as useSidebar } from './useSidebar';

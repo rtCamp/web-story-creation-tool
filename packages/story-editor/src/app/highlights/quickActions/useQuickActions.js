@@ -36,6 +36,7 @@ import {
 /**
  * Internal dependencies
  */
+import { useSidebar } from '../../../components/sidebar';
 import states from '../states';
 import useHighlights from '../useHighlights';
 import updateProperties from '../../../components/style/updateProperties';
@@ -274,6 +275,10 @@ const useQuickActions = () => {
     setHighlights,
   }));
 
+  const { setIsSidebarOpen } = useSidebar(({ actions }) => ({
+    setIsSidebarOpen: actions.setIsSidebarOpen,
+  }));
+
   const undoRef = useRef(undo);
   undoRef.current = undo;
 
@@ -446,6 +451,7 @@ const useQuickActions = () => {
             name: ACTIONS.CHANGE_BACKGROUND_COLOR.trackingEventName,
             element: 'none',
           });
+          setIsSidebarOpen(true);
         },
         ...actionMenuProps,
       },
@@ -459,6 +465,8 @@ const useQuickActions = () => {
             name: ACTIONS.INSERT_BACKGROUND_MEDIA.trackingEventName,
             element: 'none',
           });
+
+          setIsSidebarOpen(true);
         },
         separator: 'top',
         ...actionMenuProps,
@@ -479,11 +487,12 @@ const useQuickActions = () => {
     ];
   }, [
     actionMenuProps,
-    backgroundElement,
+    backgroundElement?.id,
     handleFocusMediaPanel,
     handleFocusPageBackground,
     handleFocusTextSetsPanel,
     insertElement,
+    setIsSidebarOpen,
   ]);
 
   const resetProperties = useMemo(
@@ -504,6 +513,8 @@ const useQuickActions = () => {
             name: ACTIONS.ADD_ANIMATION.trackingEventName,
             element: selectedElement?.type,
           });
+
+          setIsSidebarOpen(true);
         },
         ...actionMenuProps,
       },
@@ -517,6 +528,8 @@ const useQuickActions = () => {
             name: ACTIONS.ADD_LINK.trackingEventName,
             element: selectedElement?.type,
           });
+
+          setIsSidebarOpen(true);
         },
         ...actionMenuProps,
       },
@@ -536,6 +549,8 @@ const useQuickActions = () => {
           name: ACTIONS.RESET_ELEMENT.trackingEventName,
           element: selectedElement?.type,
         });
+
+        setIsSidebarOpen(true);
       },
       separator: 'top',
       ...actionMenuProps,
@@ -551,6 +566,7 @@ const useQuickActions = () => {
     showClearAction,
     handleElementReset,
     resetProperties,
+    setIsSidebarOpen,
   ]);
 
   const foregroundImageActions = useMemo(() => {
@@ -603,16 +619,18 @@ const useQuickActions = () => {
             name: ACTIONS.AUTO_STYLE_TEXT.trackingEventName,
             element: selectedElement?.type,
           });
+          setIsSidebarOpen(true);
         },
         ...actionMenuProps,
       },
       ...foregroundCommonActions,
     ],
     [
-      applyTextAutoStyle,
-      foregroundCommonActions,
       actionMenuProps,
+      foregroundCommonActions,
+      applyTextAutoStyle,
       selectedElement?.type,
+      setIsSidebarOpen,
     ]
   );
 
@@ -636,6 +654,8 @@ const useQuickActions = () => {
             name: ACTIONS.ADD_CAPTIONS.trackingEventName,
             element: selectedElement?.type,
           });
+
+          setIsSidebarOpen(true);
         },
         ...actionMenuProps,
       },
@@ -646,6 +666,7 @@ const useQuickActions = () => {
     foregroundImageActions,
     handleFocusCaptionsPanel,
     selectedElement?.type,
+    setIsSidebarOpen,
     showClearAction,
   ]);
 
@@ -662,6 +683,8 @@ const useQuickActions = () => {
             element: selectedElement?.type,
             isBackground: true,
           });
+
+          setIsSidebarOpen(true);
         },
         ...actionMenuProps,
       },
@@ -679,6 +702,7 @@ const useQuickActions = () => {
             element: selectedElement?.type,
             isBackground: true,
           });
+          setIsSidebarOpen(true);
         },
         wrapWithMediaPicker: true,
         ...actionMenuProps,
@@ -694,6 +718,8 @@ const useQuickActions = () => {
           resetProperties,
           elementType: ELEMENT_TYPES.IMAGE,
         });
+
+        setIsSidebarOpen(true);
 
         trackEvent('quick_action', {
           name: ACTIONS.RESET_ELEMENT.trackingEventName,
@@ -713,7 +739,9 @@ const useQuickActions = () => {
     handleFocusAnimationPanel,
     hasUploadMediaAction,
     resetProperties,
-    selectedElement,
+    selectedElement?.id,
+    selectedElement?.type,
+    setIsSidebarOpen,
     showClearAction,
   ]);
 
