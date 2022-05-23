@@ -30,8 +30,11 @@ import {
 
 export const AppFrame = styled.div`
   width: 100%;
-  @media screen and (max-width: ${MIN_DASHBOARD_WIDTH}px) {
+  @media (max-width: ${MIN_DASHBOARD_WIDTH}px) {
     width: ${MIN_DASHBOARD_WIDTH}px;
+  }
+  @media (max-width: 480px) {
+    width: 100%;
   }
 `;
 

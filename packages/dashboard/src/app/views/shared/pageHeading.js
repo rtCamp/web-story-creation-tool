@@ -38,6 +38,11 @@ const HeadingContainer = styled(StandardViewContentGutter)`
   margin-bottom: 16px;
   padding-top: 48px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.divider.secondary};
+  @media (max-width: 480px) {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+  }
 `;
 
 const StyledHeadline = styled(Display)`
@@ -46,6 +51,9 @@ const StyledHeadline = styled(Display)`
   margin-right: 28px;
   padding-bottom: 24px;
   white-space: nowrap;
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
 const HeadlineFilters = styled.div`
@@ -61,8 +69,24 @@ const HeaderSearch = styled.div`
   min-width: 208px;
   margin: auto 0;
   padding-bottom: 24px;
+  @media (max-width: 480px) {
+    width: 140px;
+    max-width: 140px;
+    min-width: 140px;
+  }
 `;
-
+const MobileViewPortWrapper = styled.div`
+  display: contents;
+  @media (max-width: 480px) {
+    display: flex;
+    flex-flow: row;
+  }
+`;
+const HeadingWrapper = styled.span`
+  @media (max-width: 480px) {
+    flex-grow: 1;
+  }
+`
 const PageHeading = ({
   children,
   heading,
@@ -80,21 +104,23 @@ const PageHeading = ({
         size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}
       >
         <NavMenuButton showOnlyOnSmallViewport />
-        {heading}
+        <HeadingWrapper>{heading}</HeadingWrapper>
       </StyledHeadline>
-      {children && <HeadlineFilters>{children}</HeadlineFilters>}
-      {showSearch && (
-        <HeaderSearch>
-          <Search
-            placeholder={searchPlaceholder}
-            selectedValue={{ label: searchValue, value: searchValue }}
-            options={searchOptions}
-            handleSearchValueChange={handleSearchChange}
-            onClear={onClear}
-            emptyText={__('No options available', 'web-stories')}
-          />
-        </HeaderSearch>
-      )}
+      <MobileViewPortWrapper>
+        {children && <HeadlineFilters>{children}</HeadlineFilters>}
+        {showSearch && (
+          <HeaderSearch>
+            <Search
+              placeholder={searchPlaceholder}
+              selectedValue={{ label: searchValue, value: searchValue }}
+              options={searchOptions}
+              handleSearchValueChange={handleSearchChange}
+              onClear={onClear}
+              emptyText={__('No options available', 'web-stories')}
+            />
+          </HeaderSearch>
+        )}
+      </MobileViewPortWrapper>
     </HeadingContainer>
   );
 };

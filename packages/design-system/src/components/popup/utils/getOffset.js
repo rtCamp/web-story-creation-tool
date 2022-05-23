@@ -18,7 +18,6 @@
  */
 import { PLACEMENT } from '../constants';
 import { getXTransforms, getYTransforms } from './getTransforms';
-// eslint-disable-next-line complexity -- stop linting
 export function getXOffset(
   placement,
   spacing = 0,
@@ -26,15 +25,6 @@ export function getXOffset(
   dockRect,
   isRTL
 ) {
-  let mobilePlacement;
-  if (
-    window.matchMedia('(max-width:480px)').matches &&
-    (placement === 'right' || placement === 'left')
-  ) {
-    mobilePlacement = PLACEMENT.BOTTOM;
-  } else {
-    mobilePlacement = placement;
-  }
   // doctRect.left can have a valid value of zero, if dockRect exists, it takes precedence.
   const leftAligned = (dockRect ? dockRect.left : anchorRect.left) - spacing;
   const rightAligned = (dockRect ? dockRect.right : anchorRect.right) + spacing;
@@ -42,7 +32,7 @@ export function getXOffset(
     ? dockRect.left + dockRect.width / 2
     : anchorRect.left + anchorRect.width / 2;
 
-  switch (mobilePlacement) {
+  switch (placement) {
     case PLACEMENT.BOTTOM_START:
     case PLACEMENT.TOP_START:
     case PLACEMENT.LEFT:
@@ -64,16 +54,7 @@ export function getXOffset(
 }
 
 export function getYOffset(placement, spacing = 0, anchorRect) {
-  let mobilePlacement;
-  if (
-    window.matchMedia('(max-width:480px)').matches &&
-    (placement === 'right' || placement === 'left')
-  ) {
-    mobilePlacement = PLACEMENT.BOTTOM;
-  } else {
-    mobilePlacement = placement;
-  }
-  switch (mobilePlacement) {
+  switch (placement) {
     case PLACEMENT.BOTTOM:
     case PLACEMENT.BOTTOM_START:
     case PLACEMENT.BOTTOM_END:
@@ -133,15 +114,6 @@ export function getOffset({
   ignoreMaxOffsetY,
   topOffset = 0,
 }) {
-  let mobilePlacement;
-  if (
-    window.matchMedia('(max-width:480px)').matches &&
-    (placement === 'right' || placement === 'left')
-  ) {
-    mobilePlacement = PLACEMENT.BOTTOM;
-  } else {
-    mobilePlacement = placement;
-  }
   const anchorRect = anchor.current.getBoundingClientRect();
   const bodyRect = document.body.getBoundingClientRect();
   const popupRect = popup.current?.getBoundingClientRect();
@@ -157,26 +129,16 @@ export function getOffset({
   const { x: spacingH = 0, y: spacingV = 0 } = spacing || {};
 
   // Horizontal
-  const offsetX = getXOffset(
-    mobilePlacement,
-    placement,
-    spacingH,
-    anchorRect,
-    dockRect,
-    isRTL
-  );
+  const offsetX = getXOffset(placement, spacingH, anchorRect, dockRect, isRTL);
 
   const maxOffsetX = !isRTL
-    ? bodyRect.width - width - getXTransforms(mobilePlacement) * width
-    : bodyRect.width - getXTransforms(mobilePlacement) * width;
+    ? bodyRect.width - width - getXTransforms(placement) * width
+    : bodyRect.width - getXTransforms(placement) * width;
 
   // Vertical
   const offsetY = getYOffset(placement, spacingV, anchorRect);
   const maxOffsetY =
-    bodyRect.height +
-    bodyRect.y -
-    height -
-    getYTransforms(mobilePlacement) * height;
+    bodyRect.height + bodyRect.y - height - getYTransforms(placement) * height;
 
   // Clamp values
   return {

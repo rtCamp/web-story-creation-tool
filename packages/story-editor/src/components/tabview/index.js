@@ -33,7 +33,7 @@ import {
 /**
  * Internal dependencies
  */
-import { useConfig } from '../../app';
+import { useConfig, useLayout } from '../../app';
 import Tooltip from '../tooltip';
 import usePerformanceTracking from '../../utils/usePerformanceTracking';
 import { TRACKING_EVENTS } from '../../constants';
@@ -151,7 +151,7 @@ const TabText = styled(Headline).attrs({
 `;
 
 const noop = () => {};
-const PushDownArrow = styled(Icons.Openup)`
+const OpenDrawer = styled(Icons.Openup)`
   height: 32px;
   width: 32px;
   justify-content: center;
@@ -161,7 +161,7 @@ const PushDownArrow = styled(Icons.Openup)`
     display: none;
   }
 `;
-const PushUpArrow = styled(Icons.Closedown)`
+const CloseDrawer = styled(Icons.Closedown)`
   height: 32px;
   width: 32px;
   justify-content: center;
@@ -221,15 +221,18 @@ function TabView({
   shortcut = '',
   tab,
   tabRefs,
-  setOpened = noop,
-  opened = false,
   ...rest
 }) {
   const { isRTL } = useConfig();
   const ref = useRef();
   const focused = useRef();
   const internalTabRefs = useRef({}); // fallback if tabRefs aren't passed in
-
+  const { opened, setOpened } = useLayout(
+    ({ state: { opened }, actions: { setOpened } }) => ({
+      opened,
+      setOpened,
+    })
+  );
   const focusChanged = useCallback(
     (id) => {
       if (tabRefs?.[id]?.current) {
@@ -299,9 +302,17 @@ function TabView({
     {}
   );
   const DrawerIcon = opened ? (
-    <PushUpArrow onClick={setOpened} />
+    <CloseDrawer
+      onClick={() => {
+        setOpened(false);
+      }}
+    />
   ) : (
-    <PushDownArrow onClick={setOpened} />
+    <OpenDrawer
+      onClick={() => {
+        setOpened(true);
+      }}
+    />
   );
   return (
     <Tabs aria-label={label} ref={ref} opened={opened} {...rest}>
@@ -349,8 +360,6 @@ TabView.propTypes = {
   ),
   label: PropTypes.string,
   shortcut: PropTypes.string,
-  setOpened: PropTypes.func,
-  opened: PropTypes.bool,
 };
 
 export default TabView;

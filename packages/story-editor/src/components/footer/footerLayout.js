@@ -25,6 +25,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import DirectionAware from '../directionAware';
+import { useLayout } from '../../app';
 import Carousel from './carousel';
 import PrimaryMenu from './primaryMenu';
 import SecondaryMenu from './secondaryMenu';
@@ -55,10 +56,11 @@ const Area = styled.div`
   z-index: ${({ zIndex = 'auto' }) => zIndex};
 `;
 function FooterLayout({ footer, zIndex }) {
+  const { isMobile } = useLayout(({ state: { isMobile } }) => ({ isMobile }));
   return (
     <DirectionAware>
       <Wrapper aria-label={__('Workspace Footer', 'web-stories')}>
-        {!window.matchMedia('(max-width:480px)').matches && (
+        {!isMobile && (
           <Area area="carousel">
             <Carousel />
           </Area>

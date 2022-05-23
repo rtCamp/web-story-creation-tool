@@ -76,7 +76,6 @@ function PageSideMenu() {
   const quickActions = useQuickActions();
 
   const isZoomed = zoomSetting !== ZOOM_SETTING.FIT;
-
   return (
     <MenusWrapper
       aria-label={__('Page side menu', 'web-stories')}

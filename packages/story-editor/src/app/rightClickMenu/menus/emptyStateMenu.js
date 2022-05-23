@@ -27,6 +27,7 @@ import { states, useHighlights } from '../../highlights';
 import { MediaUploadButton } from '../../../components/form';
 import useOnMediaSelect from '../../../components/library/panes/media/local/useOnMediaSelect';
 import LibraryProvider from '../../../components/library/libraryProvider';
+import { useLayout } from '../../layout';
 import { MenuPropType } from './shared';
 
 const MediaButton = () => {
@@ -48,11 +49,14 @@ function EmptyStateMenu() {
   const { setHighlights } = useHighlights(({ setHighlights }) => ({
     setHighlights,
   }));
-
+  const { setOpened } = useLayout(({ actions: { setOpened } }) => ({
+    setOpened,
+  }));
   return (
     <>
       <ContextMenuComponents.MenuButton
         onClick={() => {
+          setOpened(true);
           setHighlights({
             highlight: states.MEDIA,
           });
@@ -65,6 +69,7 @@ function EmptyStateMenu() {
       </LibraryProvider>
       <ContextMenuComponents.MenuButton
         onClick={() => {
+          setOpened(true);
           setHighlights({
             highlight: states.PAGE_TEMPLATES,
           });
@@ -74,6 +79,7 @@ function EmptyStateMenu() {
       </ContextMenuComponents.MenuButton>
       <ContextMenuComponents.MenuButton
         onClick={() => {
+          setOpened(true);
           setHighlights({
             highlight: states.MEDIA3P,
           });

@@ -44,6 +44,10 @@ const DashboardGrid = styled.div`
       ${themeHelpers.focusCSS(theme.colors.border.focus)};
     }
   `};
+  @media screen and (max-width: 480px) {
+    column-gap: 0px;
+    row-gap: 0px;
+  }
 `;
 DashboardGrid.propTypes = {
   columnHeight: PropTypes.number,

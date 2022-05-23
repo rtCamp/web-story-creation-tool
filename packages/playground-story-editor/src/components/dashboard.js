@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,32 @@
  */
 
 /**
+ * External dependencies
+ */
+import { Dashboard, InterfaceSkeleton } from '@googleforcreators/dashboard';
+
+/**
  * Internal dependencies
  */
-import { UploadDropTarget } from '../uploadDropTarget';
+import { fetchStories, updateStory, trashStory } from '../api/dashboard';
+import { GlobalStyle } from './theme';
 
-import SidebarLayout from './sidebarLayout';
+const CustomDashboard = () => {
+  const config = {
+    newStoryURL: `/editor`,
+    apiCallbacks: {
+      fetchStories,
+      updateStory,
+      trashStory,
+    },
+  };
 
-function Sidebar() {
   return (
-    <UploadDropTarget disabled>
-      <SidebarLayout />
-    </UploadDropTarget>
+    <Dashboard config={config}>
+      <GlobalStyle />
+      <InterfaceSkeleton />
+    </Dashboard>
   );
-}
+};
 
-export default Sidebar;
+export default CustomDashboard;

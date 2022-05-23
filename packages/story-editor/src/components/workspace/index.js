@@ -19,7 +19,6 @@
  */
 import PropTypes from 'prop-types';
 import { RichTextProvider } from '@googleforcreators/rich-text';
-import { useState, useCallback } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
@@ -29,18 +28,16 @@ import useSidebar from '../sidebar/useSidebar';
 import Canvas from '../canvas';
 import { VideoTrimProvider } from '../videoTrim';
 import ErrorBoundary from '../errorBoundary';
-import { useCanvas } from '../../app';
+import { useCanvas, useLayout } from '../../app';
 import { CanvasArea, SidebarArea } from './layout';
 
 function Workspace({ header, footer }) {
   const { editingElementState } = useCanvas((state) => ({
     editingElementState: state.state.editingElementState,
   }));
-  const [opened, setOpened] = useState(false);
-
-  const handleClicked = useCallback(() => {
-    setOpened(!opened);
-  }, [opened]);
+  const { opened } = useLayout(({ state: { opened } }) => ({
+    opened,
+  }));
 
   const {
     state: { tab },
@@ -51,7 +48,7 @@ function Workspace({ header, footer }) {
       <RichTextProvider editingState={editingElementState}>
         <SidebarArea opened={opened} isMediaTab={Boolean(tab === 'insert')}>
           <ErrorBoundary>
-            <Sidebar setOpened={handleClicked} opened={opened} />
+            <Sidebar opened={opened} />
           </ErrorBoundary>
         </SidebarArea>
         <CanvasArea opened={opened} isMediaTab={Boolean(tab === 'insert')}>

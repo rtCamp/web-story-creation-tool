@@ -53,17 +53,19 @@ const ZOOM_OPTIONS = [
 ];
 
 function ZoomSelector() {
-  const { zoomSetting, zoomLevel, setZoomSetting, setZoomLevel } = useLayout(
-    ({
-      state: { zoomSetting, zoomLevel },
-      actions: { setZoomSetting, setZoomLevel },
-    }) => ({
-      zoomSetting,
-      zoomLevel,
-      setZoomSetting,
-      setZoomLevel,
-    })
-  );
+  const { zoomSetting, zoomLevel, setZoomSetting, setZoomLevel, isMobile } =
+    useLayout(
+      ({
+        state: { zoomSetting, zoomLevel, isMobile },
+        actions: { setZoomSetting, setZoomLevel },
+      }) => ({
+        zoomSetting,
+        zoomLevel,
+        setZoomSetting,
+        setZoomLevel,
+        isMobile,
+      })
+    );
 
   const placeholder = useMemo(() => {
     const option = ZOOM_OPTIONS.find(({ value }) => {
@@ -100,7 +102,7 @@ function ZoomSelector() {
       ariaLabel={__('Zoom Level', 'web-stories')}
       placeholder={placeholder}
       options={ZOOM_OPTIONS}
-      popupZIndex={window.matchMedia('(max-width:480px)').matches ? 12 : 2}
+      popupZIndex={isMobile ? 12 : 2}
       placement={PLACEMENT.TOP_START}
       onMenuItemClick={handleSetZoom}
       selectedValue={zoomSetting}

@@ -22,12 +22,12 @@ import { useCallback, useRef } from '@googleforcreators/react';
 import { __ } from '@googleforcreators/i18n';
 import { trackEvent } from '@googleforcreators/tracking';
 import { useEscapeToBlurEffect } from '@googleforcreators/design-system';
-import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
 import TabView from '../tabview';
 import useHighlights from '../../app/highlights/useHighlights';
+import { useLayout } from '../../app';
 import useSidebar from './useSidebar';
 import SidebarContent from './sidebarContent';
 import { getTabId } from './utils';
@@ -58,7 +58,13 @@ const UnjustifiedTabView = styled(TabView)`
   }
 `;
 
-function SidebarLayout({ setOpened, opened }) {
+function SidebarLayout() {
+  const { opened, setOpened } = useLayout(
+    ({ state: { opened }, actions: { setOpened } }) => ({
+      opened,
+      setOpened,
+    })
+  );
   const { tab, tabRefs, setSidebarContentNode, setTab, sidebar, tabs } =
     useSidebar(
       ({
@@ -117,8 +123,6 @@ function SidebarLayout({ setOpened, opened }) {
         onTabChange={onTabChange}
         getAriaControlsId={getTabId}
         shortcut="mod+option+3"
-        setOpened={setOpened}
-        opened={opened}
       />
       <SidebarContainer opened={opened} ref={setSidebarContentNode}>
         <SidebarContent />
@@ -126,8 +130,5 @@ function SidebarLayout({ setOpened, opened }) {
     </Layout>
   );
 }
-SidebarLayout.propTypes = {
-  setOpened: PropTypes.func,
-  opened: PropTypes.bool,
-};
+
 export default SidebarLayout;

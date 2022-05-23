@@ -25,6 +25,7 @@ import styled from 'styled-components';
  */
 import { PanelContent } from '../../panel';
 import useSidebar from '../../../sidebar/useSidebar';
+import { useLayout } from '../../../../app';
 import LayerList from './layerList';
 import useLayers from './useLayers';
 
@@ -40,13 +41,9 @@ function LayerPanel() {
   const sidebarContentHeight = useSidebar(
     ({ state }) => state.sidebarContentHeight
   );
-
+  const { isMobile } = useLayout(({ state: { isMobile } }) => ({ isMobile }));
   return (
-    <Container
-      maxHeight={
-        !window.matchMedia('(max-width:480px)').matches && sidebarContentHeight
-      }
-    >
+    <Container maxHeight={!isMobile && sidebarContentHeight}>
       <PanelContent padding={'0'}>
         <LayerList layers={layers} />
       </PanelContent>

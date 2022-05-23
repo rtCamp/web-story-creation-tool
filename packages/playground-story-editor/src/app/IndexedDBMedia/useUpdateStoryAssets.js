@@ -18,10 +18,11 @@
  */
 import { useStory } from '@googleforcreators/story-editor';
 import { useEffect, useRef, useCallback } from '@googleforcreators/react';
+
 /**
  * Internal dependencies
  */
-import { getFromDB } from '../../utils';
+import { getMediaFromDB } from '../../utils';
 import { useStoryStatus } from '../storyStatus';
 
 const useUpdateStoryAssets = () => {
@@ -44,10 +45,10 @@ const useUpdateStoryAssets = () => {
       });
     });
 
-    const mediaListInDb = await getFromDB();
+    const mediaListInDb = await getMediaFromDB();
 
     mediaListInDb.forEach((mediaItemInDb) => {
-      elementsList.forEach((element) => {
+      elementsList.forEach(async (element) => {
         if (
           ['image', 'video'].includes(element?.type) &&
           element.resource.id === mediaItemInDb.id
@@ -72,14 +73,14 @@ const useUpdateStoryAssets = () => {
       });
     });
     updateIsUpdatingStoryAssets(false);
-  }, [pages, updateElementsByResourceId, updateIsUpdatingStoryAssets]);
+  }, [updateIsUpdatingStoryAssets, updateElementsByResourceId, pages]);
 
   useEffect(() => {
     if (pages.length > 0 && !updatedOnce.current) {
       _updateStoryAssets();
       updatedOnce.current = true;
     }
-  }, [_updateStoryAssets, pages]);
+  }, [pages, _updateStoryAssets]);
 
   return null;
 };

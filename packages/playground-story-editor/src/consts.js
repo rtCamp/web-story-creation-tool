@@ -43,4 +43,5 @@ export const COMMON_MIME_TYPE_MAPPING = {
 export const DB_NAME = 'Creation_tool_assets';
 export const DB_VERSION = '1';
 export const ASSET_OBJECT_STORE_NAME = 'assets';
+export const STORY_OBJECT_STORE_NAME = 'stories';
 export const ASSET_OBJECT_KEY = 'files';
