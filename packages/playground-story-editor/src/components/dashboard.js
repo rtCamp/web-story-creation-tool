@@ -27,7 +27,7 @@ import { GlobalStyle } from './theme';
 
 const CustomDashboard = () => {
   const config = {
-    newStoryURL: `/editor`,
+    newStoryURL: `/editor.html`,
     apiCallbacks: {
       fetchStories,
       updateStory,

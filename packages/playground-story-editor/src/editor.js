@@ -17,14 +17,29 @@
  * External dependencies
  */
 import { render } from '@googleforcreators/react';
+import styled from 'styled-components';
 
 /**
  * Internal dependencies
  */
 import registerServiceWorker from './serviceWorkerRegistration';
+import CreationTool from './components/creationTool';
 import { StoryStatusProvider, useStoryStatus } from './app/storyStatus';
-import Dashboard from './components/dashboard';
 import useIndexedDBMedia from './app/IndexedDBMedia/useIndexedDBMedia';
+
+const AppContainer = styled.div`
+  height: ${({ isMobile }) => {
+    return isMobile ? window?.innerHeight + 'px' : '100vh';
+  }};
+`;
+
+const Editor = () => {
+  return (
+    <AppContainer isMobile={window.matchMedia('(max-width: 480px)').matches}>
+      <CreationTool />
+    </AppContainer>
+  );
+};
 
 const App = () => {
   useIndexedDBMedia();
@@ -35,24 +50,23 @@ const App = () => {
     })
   );
   return !isInitializingIndexDB && !isRefreshingMedia ? (
-    <Dashboard />
+    <Editor />
   ) : (
     <p>{'Please wait'}</p>
   );
 };
 
-const initDashboard = () => {
-  render(
-    <StoryStatusProvider>
-      <App />
-    </StoryStatusProvider>,
-    document.getElementById('playground-root')
-  );
-};
+const initEditor = () => {};
+render(
+  <StoryStatusProvider>
+    <App />
+  </StoryStatusProvider>,
+  document.getElementById('playground-root')
+);
 
 if ('loading' === document.readyState) {
   registerServiceWorker();
-  document.addEventListener('DOMContentLoaded', initDashboard);
+  document.addEventListener('DOMContentLoaded', initEditor);
 } else {
-  initDashboard();
+  initEditor();
 }
