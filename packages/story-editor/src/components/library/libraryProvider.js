@@ -45,10 +45,11 @@ import {
   SHAPES,
   TEXT,
   SHOPPING,
+  ADD_ON,
 } from './constants';
 
 const LIBRARY_TAB_IDS = new Set(
-  [ELEMS, MEDIA, MEDIA3P, PAGE_TEMPLATES, SHAPES, TEXT, SHOPPING].map(
+  [ELEMS, MEDIA, MEDIA3P, PAGE_TEMPLATES, SHAPES, TEXT, SHOPPING, ADD_ON].map(
     (tab) => tab.id
   )
 );
@@ -110,6 +111,7 @@ function LibraryProvider({ children }) {
         showElementsTab && ELEMS,
         isShoppingEnabled && SHOPPING,
         showPageTemplates && PAGE_TEMPLATES,
+        ADD_ON,
       ].filter(Boolean),
     [
       showMedia3p,
@@ -146,6 +148,7 @@ function LibraryProvider({ children }) {
   const elementsTabRef = useRef(null);
   const pageTemplatesTabRef = useRef(null);
   const shoppingRef = useRef(null);
+  const addOnRef = useRef(null);
 
   const tabRefs = useMemo(
     () => ({
@@ -156,6 +159,7 @@ function LibraryProvider({ children }) {
       [ELEMS.id]: elementsTabRef,
       [PAGE_TEMPLATES.id]: pageTemplatesTabRef,
       [SHOPPING.id]: shoppingRef,
+      [ADD_ON.id]: addOnRef,
     }),
     []
   );

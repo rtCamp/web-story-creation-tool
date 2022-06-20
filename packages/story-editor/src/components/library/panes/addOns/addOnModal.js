@@ -14,13 +14,29 @@
  * limitations under the License.
  */
 
-export const PANE_IDS = {
-  MEDIA: 'media',
-  MEDIA_3P: 'media3p',
-  TEXT: 'text',
-  SHAPES: 'shapes',
-  ELEMENTS: 'elements',
-  PAGE_TEMPLATES: 'pageTemplates',
-  SHOPPING: 'shopping',
-  ADD_ON: 'addOn',
-};
+/**
+ * External dependencies
+ */
+import { __ } from '@googleforcreators/i18n';
+import { Dialog } from '@googleforcreators/story-editor';
+
+/**
+ * Internal dependencies
+ */
+import AddOnEditor from './addOnEditor';
+
+function AddOnModal({ isOpen, onClose }) {
+  return (
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      // Same as item_published post type label.
+      title={__('Create an Add on.', 'web-stories')}
+      secondaryText={__('Save', 'web-stories')}
+    >
+      <AddOnEditor />
+    </Dialog>
+  );
+}
+
+export default AddOnModal;

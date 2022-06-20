@@ -30,8 +30,16 @@ import { TextPane, TextIcon } from './panes/text';
 import { ElementsPane, ElementsIcon } from './panes/elements';
 import { PageTemplatesPane, PageTemplatesIcon } from './panes/pageTemplates';
 import { ShoppingIcon, ShoppingPane } from './panes/shopping';
+import { AddOnIcon, AddOnPane } from './panes/addOns';
 import { PANE_IDS } from './paneIds';
 
+export const ADD_ON = {
+  icon: AddOnIcon,
+  tooltip: __('AddOn', 'web-stories'),
+  placement: TOOLTIP_PLACEMENT.BOTTOM_START,
+  Pane: AddOnPane,
+  id: PANE_IDS.ADD_ON,
+};
 export const MEDIA = {
   icon: MediaIcon,
   tooltip: __('Media', 'web-stories'),
