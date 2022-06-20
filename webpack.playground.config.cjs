@@ -18,6 +18,7 @@
  * External dependencies
  */
 const path = require('path');
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
@@ -61,6 +62,17 @@ module.exports = {
             inline: 'fallback',
           },
         },
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Creates `style` nodes from JS strings
+          'style-loader',
+          // Translates CSS into CommonJS
+          'css-loader',
+          // Compiles Sass to CSS
+          'sass-loader',
+        ],
       },
       {
         test: /\.m?js$/,
@@ -176,6 +188,12 @@ module.exports = {
     filename: 'js/[name].js',
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+    new webpack.DefinePlugin({
+      IS_GUTENBERG_PLUGIN: false,
+    }),
     new HtmlWebpackPlugin({
       template: './packages/playground-story-editor/public/index.html',
       favicon: `./packages/playground-story-editor/public/favicon.ico`,
@@ -226,6 +244,9 @@ if (isProduction) {
       swSrc: './packages/playground-story-editor/src/src-sw.js',
       swDest: 'sw.js',
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // main.js is 4.2 mb, and would be ignored.
+    }),
+    new webpack.DefinePlugin({
+      IS_GUTENBERG_PLUGIN: false,
     })
   );
 }

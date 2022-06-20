@@ -62,8 +62,8 @@ function AddOnPane(props) {
         }}
       >
         {__('Add New', 'web-stories')}
-        <AddOnModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
       </Button>
+      <AddOnModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </Pane>
   );
 }

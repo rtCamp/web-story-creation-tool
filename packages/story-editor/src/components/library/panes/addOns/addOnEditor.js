@@ -16,7 +16,12 @@
 /**
  * External dependencies
  */
-import { useEffect, useState } from '@googleforcreators/react';
+import {
+  useEffect,
+  useState,
+  createElement,
+  Component,
+} from '@googleforcreators/react';
 /**
  * WordPress dependencies
  */
@@ -34,6 +39,84 @@ import { registerCoreBlocks } from '@wordpress/block-library';
 import { ShortcutProvider } from '@wordpress/keyboard-shortcuts';
 import '@wordpress/format-library';
 
+// eslint-disable-next-line eslint-comments/disable-enable-pair -- need to enable this for bottom line.
+/* eslint-disable no-restricted-imports -- doesnt work without this */
+import '@wordpress/components/build-style/style.css';
+import '@wordpress/block-editor/build-style/style.css';
+import '@wordpress/block-library/build-style/style.css';
+import '@wordpress/block-library/build-style/editor.css';
+import '@wordpress/block-library/build-style/theme.css';
+import '@wordpress/format-library/build-style/style.css';
+window.wp = {};
+window.wp.element = { createElement, Component };
+window._wpDateSettings = {
+  l10n: {
+    locale: 'fr_FR',
+    months: [
+      'janvier',
+      'février',
+      'mars',
+      'avril',
+      'mai',
+      'juin',
+      'juillet',
+      'août',
+      'septembre',
+      'octobre',
+      'novembre',
+      'décembre',
+    ],
+    monthsShort: [
+      'Jan',
+      'Fév',
+      'Mar',
+      'Avr',
+      'Mai',
+      'Juin',
+      'Juil',
+      'Août',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Déc',
+    ],
+    weekdays: [
+      'dimanche',
+      'lundi',
+      'mardi',
+      'mercredi',
+      'jeudi',
+      'vendredi',
+      'samedi',
+    ],
+    weekdaysShort: ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam'],
+    meridiem: { am: ' ', pm: ' ', AM: ' ', PM: ' ' },
+    relative: { future: '%s à partir de maintenant', past: 'Il y a %s' },
+  },
+  formats: {
+    time: 'G \\h i \\m\\i\\n',
+    date: 'j F Y',
+    datetime: 'j F Y G \\h i \\m\\i\\n',
+  },
+  timezone: { offset: 1, string: 'Europe/Paris' },
+};
+
+// User settings used to persist store caches
+window.userSettings = { uid: 'dummy' };
+
+// API globals
+window.wpApiSettings = {
+  schema: {},
+};
+window.wp.api = {
+  getPostTypeRoute() {
+    return '/none';
+  },
+};
+window.wp.apiRequest = () => {
+  // eslint-disable-next-line prefer-promise-reject-errors -- remove some useless linting
+  return Promise.reject('no API support yet');
+};
 function Editor() {
   const [blocks, updateBlocks] = useState([]);
 

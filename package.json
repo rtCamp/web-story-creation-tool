@@ -158,6 +158,8 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-web-worker-loader": "^1.6.1",
     "rtlcss-webpack-plugin": "^4.0.7",
+    "sass": "^1.52.3",
+    "sass-loader": "^13.0.0",
     "source-map-loader": "^3.0.1",
     "styled-components": "^5.3.5",
     "stylelint": "^14.6.1",
@@ -168,7 +170,7 @@
     "stylelint-processor-styled-components": "^1.10.0",
     "stylis-plugin-rtl": "^1.0.0",
     "terser-webpack-plugin": "^5.1.4",
-    "webpack": "^5.71.0",
+    "webpack": "^5.73.0",
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.8.1",
@@ -309,6 +311,7 @@
     ]
   },
   "dependencies": {
+    "@wordpress/base-styles": "^4.5.0",
     "stringify-object": "^4.0.0"
   }
 }

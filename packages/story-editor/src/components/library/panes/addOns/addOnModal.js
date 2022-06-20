@@ -18,7 +18,7 @@
  * External dependencies
  */
 import { __ } from '@googleforcreators/i18n';
-import { Dialog } from '@googleforcreators/story-editor';
+import { Modal, theme } from '@googleforcreators/design-system';
 
 /**
  * Internal dependencies
@@ -27,15 +27,20 @@ import AddOnEditor from './addOnEditor';
 
 function AddOnModal({ isOpen, onClose }) {
   return (
-    <Dialog
+    <Modal
+      ariaHideApp={false}
       isOpen={isOpen}
       onClose={onClose}
-      // Same as item_published post type label.
-      title={__('Create an Add on.', 'web-stories')}
-      secondaryText={__('Save', 'web-stories')}
+      contentLabel={__('Create an Add on.', 'web-stories')}
+      contentStyles={{
+        display: 'block',
+        height: '100vh',
+        width: '100vw',
+        backgroundColor: `${theme.colors.standard.white}`,
+      }}
     >
-      <AddOnEditor />
-    </Dialog>
+      {isOpen && <AddOnEditor />}
+    </Modal>
   );
 }
 
