@@ -37,7 +37,7 @@ const ButtonContainer = styled.div`
 `;
 
 function getPreviewLink() {
-  return '/web-story-creation-tool/preview.html';
+  return SUB_ROUTE + '/preview.html';
 }
 const PREVIEW_TARGET = 'story-preview';
 function Preview() {

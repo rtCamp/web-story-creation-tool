@@ -18,6 +18,7 @@
  * External dependencies
  */
 const path = require('path');
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
@@ -174,7 +175,6 @@ module.exports = {
     ].filter(Boolean),
   },
   output: {
-    //publicPath: isGhPages ? '/web-story-creation-tool/' : '/',
     path: path.resolve(__dirname, './build/playground'),
     filename: 'js/[name].js',
   },
@@ -218,6 +218,9 @@ module.exports = {
           to: './images',
         },
       ],
+    }),
+    new webpack.DefinePlugin({
+      SUB_ROUTE: JSON.stringify(isGhPages ? '/web-story-creation-tool' : '/'),
     }),
   ],
   devServer: {
