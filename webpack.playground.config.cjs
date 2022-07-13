@@ -174,7 +174,7 @@ module.exports = {
     ].filter(Boolean),
   },
   output: {
-    publicPath: isGhPages ? '/web-story-creation-tool/' : '/',
+    //publicPath: isGhPages ? '/web-story-creation-tool/' : '/',
     path: path.resolve(__dirname, './build/playground'),
     filename: 'js/[name].js',
   },
