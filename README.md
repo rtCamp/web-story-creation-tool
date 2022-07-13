@@ -44,6 +44,7 @@ This is a fork of [web-stories-wp](https://github.com/google/web-stories-wp) pro
 
 ## Development
 
+Default branch for development is `try/playground` any PR to add features to the creation-tool needs to be targeted to `try/playground`. The tool hosted on `Github-pages` has been built from the `try/playground` branch.
 For development use `npm run playground:dev`.
 
 For running locally with pwa features
