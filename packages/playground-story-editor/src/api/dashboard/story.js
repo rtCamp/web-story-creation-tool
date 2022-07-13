@@ -35,7 +35,7 @@ export const fetchStories = async () => {
       id: story.storyId,
       created: story?.created,
       createdGMT: story?.createdGMT,
-      editStoryLink: `/editor?id=${story.storyId}`,
+      editStoryLink:  SUB_ROUTE + `/editor.html?id=${story.storyId}`,
       featuredMediaUrl: story?.featuredMediaUrl,
       modified: story?.modified,
       modifiedGMT: story?.modifiedGMT,

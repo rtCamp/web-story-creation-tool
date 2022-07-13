@@ -18,6 +18,7 @@
  * External dependencies
  */
 const path = require('path');
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
@@ -37,7 +38,10 @@ module.exports = {
     exportsFields: ['customExports', 'exports'],
   },
   mode,
-  entry: './packages/playground-story-editor/src/index.js',
+  entry: {
+    index: './packages/playground-story-editor/src/index.js',
+    editor: './packages/playground-story-editor/src/editor.js',
+  },
   devtool: 'source-map',
   target: 'browserslist',
   module: {
@@ -171,14 +175,23 @@ module.exports = {
     ].filter(Boolean),
   },
   output: {
-    publicPath: isGhPages ? '/web-story-creation-tool/' : '/',
     path: path.resolve(__dirname, './build/playground'),
     filename: 'js/[name].js',
   },
   plugins: [
     new HtmlWebpackPlugin({
+      inject: true,
       template: './packages/playground-story-editor/public/index.html',
+      filename: 'index.html',
       favicon: `./packages/playground-story-editor/public/favicon.ico`,
+      chunks: ['index'],
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: './packages/playground-story-editor/public/editor.html',
+      filename: 'editor.html',
+      favicon: `./packages/playground-story-editor/public/favicon.ico`,
+      chunks: ['editor'],
     }),
     new MiniCssExtractPlugin({
       filename: 'css/[name].css',
@@ -206,11 +219,13 @@ module.exports = {
         },
       ],
     }),
+    new webpack.DefinePlugin({
+      SUB_ROUTE: JSON.stringify(isGhPages ? '/web-story-creation-tool' : '/'),
+    }),
   ],
   devServer: {
     compress: true,
     port: 8000,
-    historyApiFallback: true,
   },
 };
 
