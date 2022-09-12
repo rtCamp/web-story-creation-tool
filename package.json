@@ -273,6 +273,7 @@
     "postworkflow:migrate:text-sets": "npx prettier --write packages/text-sets/src/raw",
     "workflow:migrate:templates": "npm run migration --workspace packages/migration packages/templates/src/raw",
     "postworkflow:migrate:templates": "npx prettier --write packages/templates/src/raw",
+    "pwa:build": "NODE_ENV=production webpack --config webpack.playground.config.cjs",
     "predeploy": "NODE_ENV=production APP_ENV=ghpages webpack --config webpack.playground.config.cjs",
     "deploy": "gh-pages -d build/playground --repo git@github.com:rtCamp/web-story-creation-tool.git",
     "workflow:migrate:ftue-story": "npm run migration --workspace packages/migration includes/data/stories",
