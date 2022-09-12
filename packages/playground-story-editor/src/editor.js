@@ -27,6 +27,8 @@ import CreationTool from './components/creationTool';
 import { StoryStatusProvider, useStoryStatus } from './app/storyStatus';
 import useIndexedDBMedia from './app/IndexedDBMedia/useIndexedDBMedia';
 
+registerServiceWorker();
+
 const AppContainer = styled.div`
   height: ${({ isMobile }) => {
     return isMobile ? window?.innerHeight + 'px' : '100vh';
@@ -65,7 +67,6 @@ render(
 );
 
 if ('loading' === document.readyState) {
-  registerServiceWorker();
   document.addEventListener('DOMContentLoaded', initEditor);
 } else {
   initEditor();

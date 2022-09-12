@@ -26,6 +26,8 @@ import { StoryStatusProvider, useStoryStatus } from './app/storyStatus';
 import Dashboard from './components/dashboard';
 import useIndexedDBMedia from './app/IndexedDBMedia/useIndexedDBMedia';
 
+registerServiceWorker();
+
 const App = () => {
   useIndexedDBMedia();
   const { isInitializingIndexDB, isRefreshingMedia } = useStoryStatus(
@@ -51,7 +53,6 @@ const initDashboard = () => {
 };
 
 if ('loading' === document.readyState) {
-  registerServiceWorker();
   document.addEventListener('DOMContentLoaded', initDashboard);
 } else {
   initDashboard();
