@@ -35,7 +35,7 @@ This is a fork of [web-stories-wp](https://github.com/google/web-stories-wp) pro
 - ### Support for [HUGO](https://gohugo.io/) 
 
   If you have a hugo site already setup, you may follow these instructions to embed a story.
-    - Follow instructions [here](https://gist.github.com/codingcarrots20/2be409105bce5cbc73b5f8184a730078) to add a shortcode to your hugo site.
+    - Follow instructions [here](https://gist.github.com/ayushnirwal/2be409105bce5cbc73b5f8184a730078) to add a shortcode to your hugo site.
     - Use [web story creation tool](https://rtcamp.github.io/web-story-creation-tool) to create a story and export/download it.
     - After unzipping the exported/downloaded zip file, drop it into the [static folder](https://gohugo.io/content-management/static-files/) of your Hugo site.
     - Lets say this unzipped folder name is `web-story` , you may then use `{{< web-story dir="web-story" >}}` in your `.md` files to embed the story.
