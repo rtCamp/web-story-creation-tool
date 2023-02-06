@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e203072526410f300cbaf4a62f6cd913",
+    "content-hash": "a7fe45cad8a0522dbf8440a96e9e98fd",
     "packages": [
         {
             "name": "ampproject/amp-toolbox",
@@ -4072,22 +4072,22 @@
         },
         {
             "name": "sniccowp/php-scoper-wordpress-excludes",
-            "version": "5.9.3",
+            "version": "6.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/snicco/php-scoper-wordpress-excludes.git",
-                "reference": "e858817888b5c15380410c45c9b6fcfad2468488"
+                "reference": "e013d818f999db9ff1b8172fdd107e27ea0be17a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/snicco/php-scoper-wordpress-excludes/zipball/e858817888b5c15380410c45c9b6fcfad2468488",
-                "reference": "e858817888b5c15380410c45c9b6fcfad2468488",
+                "url": "https://api.github.com/repos/snicco/php-scoper-wordpress-excludes/zipball/e013d818f999db9ff1b8172fdd107e27ea0be17a",
+                "reference": "e013d818f999db9ff1b8172fdd107e27ea0be17a",
                 "shasum": ""
             },
             "require-dev": {
                 "php": "^7.4",
                 "php-stubs/wordpress-globals": "0.2.0",
-                "php-stubs/wordpress-stubs": "5.9.3",
+                "php-stubs/wordpress-stubs": "6.1.1",
                 "sniccowp/php-scoper-excludes": "dev-master"
             },
             "type": "library",
@@ -4113,9 +4113,9 @@
             ],
             "support": {
                 "issues": "https://github.com/snicco/php-scoper-wordpress-excludes/issues",
-                "source": "https://github.com/snicco/php-scoper-wordpress-excludes/tree/5.9.3"
+                "source": "https://github.com/snicco/php-scoper-wordpress-excludes/tree/6.1.1"
             },
-            "time": "2022-04-07T01:23:03+00:00"
+            "time": "2023-02-05T01:43:05+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
